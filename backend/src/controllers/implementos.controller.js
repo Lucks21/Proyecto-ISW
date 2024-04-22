@@ -1,7 +1,7 @@
 import implementosSchema from '../models/implementos.model.js';
 
 // Obtener todos los implementos deportivos
-export async function obtenerImplementos(req, res) {
+export async function getImplementos(req, res) {
     try {
         const implementos = await ImplementoDeportivo.find();
         res.json(implementos);
@@ -11,7 +11,7 @@ export async function obtenerImplementos(req, res) {
 }
 
 // Añadir un nuevo implemento deportivo
-export async function añadirImplemento(req, res) {
+export async function createImplemento(req, res) {
     const { nombre, descripcion, cantidad } = req.body;
     try {
         const nuevoImplemento = new ImplementoDeportivo({ nombre, descripcion, cantidad, disponible: true });

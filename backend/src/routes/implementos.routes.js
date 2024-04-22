@@ -1,8 +1,8 @@
 // implementos.routes.js
 import express from 'express';
 import {
-    obtenerImplementos,
-    añadirImplemento,
+    getImplementos,
+    createImplemento,
     actualizarCantidadImplemento,
     eliminarImplemento
 } from '../controllers/implementos.controller.js';
@@ -10,11 +10,11 @@ import {
 const router = express.Router();
 
 // Obtener todos los implementos deportivos
-router.get('/', obtenerImplementos);
+router.get('/', getImplementos);
 
 // Añadir un nuevo implemento deportivo
-router.post('/', añadirImplemento);
-
+router.post('/', createImplemento);
+ 
 // Actualizar la cantidad de un implemento deportivo específico
 router.patch('/:id', actualizarCantidadImplemento);
 
