@@ -3,7 +3,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const prestamoSchema = new mongoose.Schema(
+const reservaSchema = new mongoose.Schema(
     {
         userId:{
             type: mongoose.Schema.Types.ObjectId,
@@ -32,5 +32,5 @@ const prestamoSchema = new mongoose.Schema(
         }
     }
 )
-const Prestamo = mongoose.model("Prestamo",prestamoSchema);
-export default Prestamo;
+const Reserva = mongoose.model("Reserva",reservaSchema);
+export default Reserva;
