@@ -27,6 +27,7 @@ async function createInstalacion(req, res) {
     }
 }
 
+
 async function updateInstalacion(req, res) {
     try {
         const { params, body } = req;

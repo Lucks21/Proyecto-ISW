@@ -12,7 +12,7 @@ const reservaSchema = new mongoose.Schema(
         },
         implementoId:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Implemento'
+            ref: 'Implementos'
         },
         instalacionId:{
             type: mongoose.Schema.Types.ObjectId,

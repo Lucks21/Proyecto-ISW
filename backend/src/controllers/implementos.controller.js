@@ -1,64 +1,77 @@
-import implementosSchema from '../models/implementos.model.js';
+import { respondSuccess, respondError } from "../utils/resHandler.js";
+import ImplementoService from "../services/implementos.services.js";
 
-// Obtener todos los implementos deportivos
-export async function getImplementos(req, res) {
+async function getImplementos(req, res) {
     try {
-        const implementos = await ImplementoDeportivo.find();
-        res.json(implementos);
+        const [implementos, error] = await ImplementoService.getImplementos();
+        if (error) return respondError(req, res, 404, error);
+
+        implementos.length === 0
+            ? respondSuccess(req, res, 204)
+            : respondSuccess(req, res, 200, implementos);
     } catch (error) {
-        res.status(500).send(error);
+        respondError(req, res, 500, "Error interno del servidor");
     }
 }
 
-// Añadir un nuevo implemento deportivo
-export async function createImplemento(req, res) {
-    const { nombre, descripcion, cantidad } = req.body;
+async function createImplemento(req, res) {
     try {
-        const nuevoImplemento = new ImplementoDeportivo({ nombre, descripcion, cantidad, disponible: true });
-        await nuevoImplemento.save();
-        res.status(201).json(nuevoImplemento);
+        const { body } = req;
+        const [implemento, error] = await ImplementoService.createImplemento(body);
+
+        if (error) return respondError(req, res, 400, error);
+
+        respondSuccess(req, res, 201, implemento);
     } catch (error) {
-        res.status(500).send(error);
+        respondError(req, res, 500, "Error interno del servidor");
     }
 }
 
-// Actualizar la cantidad de un implemento deportivo
-export async function actualizarCantidadImplemento(req, res) {
-    const { id } = req.params;
-    const { cantidadAdicional } = req.body;
-
-    if (cantidadAdicional <= 0) {
-        return res.status(400).send("La cantidad adicional debe ser mayor que cero.");
-    }
-
+async function updateImplemento(req, res) {
     try {
-        const implemento = await ImplementoDeportivo.findById(id);
-        if (!implemento) {
-            return res.status(404).send("Implemento no encontrado.");
+        const { params, body } = req;
+        const [updatedImplemento, error] = await ImplementoService.updateImplemento(params.id, body);
+
+        if (error) return respondError(req, res, 400, error);
+
+        respondSuccess(req, res, 200, updatedImplemento);
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+}
+
+async function deleteImplemento(req, res) {
+    try {
+        const { params } = req;
+        const [deletedImplemento, error] = await ImplementoService.deleteImplemento(params.id);
+
+        if (error) return respondError(req, res, 404, error);
+
+        respondSuccess(req, res, 200, deletedImplemento);
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+}
+
+async function getImplementoById(req, res) {
+    try {
+        const { params } = req;
+        const [implemento, error] = await ImplementoService.getImplementoById(params.id);
+
+        if (error) {
+            return respondError(req, res, 404, error);
         }
 
-        implemento.cantidad += cantidadAdicional;
-        await implemento.save();
-        res.status(200).json(implemento);
+        respondSuccess(req, res, 200, implemento);
     } catch (error) {
-        res.status(500).send(error);
+        respondError(req, res, 500, "Error interno del servidor");
     }
 }
 
-// Eliminar un implemento deportivo
-export async function eliminarImplemento(req, res) {
-    const { id } = req.params;
-
-    try {
-        const implemento = await ImplementoDeportivo.findByIdAndDelete(id);
-        if (!implemento) {
-            return res.status(404).send("Implemento no encontrado.");
-        }
-
-        res.status(200).json({ message: "Implemento eliminado correctamente." });
-    } catch (error) {
-        res.status(500).send(error);
-    }
-}
-
-// Otras funciones para manejar otros aspectos de los implementos pueden ser añadidas aquí
+export default {
+    createImplemento,
+    updateImplemento,
+    deleteImplemento,
+    getImplementos,
+    getImplementoById
+};
