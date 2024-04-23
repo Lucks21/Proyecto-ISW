@@ -1,7 +1,6 @@
 "use strict";
 // Import the 'mongoose' module to create the database connection
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
 
 const reservaSchema = new mongoose.Schema(
     {
@@ -27,8 +26,8 @@ const reservaSchema = new mongoose.Schema(
         },
         estado:{
             type: String,
-            enum: ['activo','finalizado'],
-            default: 'activo'
+            enum: ['disponible','no disponible'],
+            default: 'disponible'
         }
     }
 )
