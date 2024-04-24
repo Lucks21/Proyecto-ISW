@@ -1,7 +1,7 @@
 "use strict";
 
-import Instalacion from "../models/instalacion.model.js";
 
+import Instalacion from "../models/Instalacion.model.js";
 async function getInstalaciones() {
   try {
     const instalaciones = await Instalacion.find();

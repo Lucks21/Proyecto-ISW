@@ -23,17 +23,22 @@ async function getImplementoById(id) {
   }
 }
 
-async function createImplemento(implementoData) {
+async function createOrUpdateImplemento(implementoData) {
   try {
-    const existingImplemento = await Implemento.findOne({ nombre: implementoData.nombre });
-    if (existingImplemento) {
-      return [null, "El implemento ya existe"];
+    let implemento = await Implemento.findOne({ nombre: implementoData.nombre });
+
+    if (implemento) {
+      // Si el implemento ya existe, aumenta el stock
+      implemento.cantidad += implementoData.cantidad;
+    } else {
+      // Si el implemento es nuevo, crea una nueva entrada
+      implemento = new Implemento(implementoData);
     }
-    const implemento = new Implemento(implementoData);
+
     const savedImplemento = await implemento.save();
     return [savedImplemento, null];
   } catch (error) {
-    return [null, "Error al crear el implemento"];
+    return [null, "Error al crear o actualizar el implemento"];
   }
 }
 
@@ -64,7 +69,7 @@ async function deleteImplemento(id) {
 export default {
   getImplementos,
   getImplementoById,
-  createImplemento,
+  createOrUpdateImplemento,
   updateImplemento,
   deleteImplemento
 };

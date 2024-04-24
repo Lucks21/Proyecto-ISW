@@ -14,10 +14,10 @@ async function getImplementos(req, res) {
     }
 }
 
-async function createImplemento(req, res) {
+async function createOrUpdateImplemento(req, res) {
     try {
         const { body } = req;
-        const [implemento, error] = await ImplementoService.createImplemento(body);
+        const [implemento, error] = await ImplementoService.createOrUpdateImplemento(body);
 
         if (error) return respondError(req, res, 400, error);
 
@@ -69,9 +69,9 @@ async function getImplementoById(req, res) {
 }
 
 export default {
-    createImplemento,
+    createOrUpdateImplemento,
     updateImplemento,
     deleteImplemento,
     getImplementos,
-    getImplementoById
+    getImplementoById,
 };

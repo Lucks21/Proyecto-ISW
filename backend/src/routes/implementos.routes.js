@@ -3,7 +3,7 @@ import implementosController from '../controllers/implementos.controller.js';
 
 const router = Router();
 
-router.post('/crearimplemento', implementosController.createImplemento);
+router.post('/crearoactualizarimplemento', implementosController.createOrUpdateImplemento);
 router.put('/actualizarimplemento/:id', implementosController.updateImplemento);
 router.delete('/eliminarimplemento/:id', implementosController.deleteImplemento);
 router.get('/obtenerimplementos', implementosController.getImplementos);
