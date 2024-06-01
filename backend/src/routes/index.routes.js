@@ -11,7 +11,7 @@ import authRoutes from "./auth.routes.js";
 /** Middleware de autenticación */
 import authenticationMiddleware from "../middlewares/authentication.middleware.js";
 import instalacionRoutes from './instalaciones.routes.js';
-import implementosRoutes from './implementos.routes.js'; // Asegúrate de que la ruta es correcta
+import implementosRoutes from './implementos.routes.js';
 import dañoRoutes from "./daño.routes.js";
 import prestamoRoutes from "./prestamo.routes.js";
 
