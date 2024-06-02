@@ -14,10 +14,10 @@ async function getImplementos(req, res) {
     }
 }
 
-async function createOrUpdateImplemento(req, res) {
+async function createImplemento(req, res) {
     try {
         const { body } = req;
-        const [implemento, error] = await ImplementoService.createOrUpdateImplemento(body);
+        const [implemento, error] = await ImplementoService.createImplemento(body);
 
         if (error) return respondError(req, res, 400, error);
 
@@ -43,7 +43,7 @@ async function updateImplemento(req, res) {
 async function deleteImplemento(req, res) {
     try {
         const { params } = req;
-        const [deletedImplemento, error] = await ImplementoService.deleteImplemento(params.id);
+        const [deletedImplemento, error] = await ImplementoService.deleteImplemento(params.id, body);
 
         if (error) return respondError(req, res, 404, error);
 
@@ -69,7 +69,7 @@ async function getImplementoById(req, res) {
 }
 
 export default {
-    createOrUpdateImplemento,
+    createImplemento,
     updateImplemento,
     deleteImplemento,
     getImplementos,
