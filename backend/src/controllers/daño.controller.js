@@ -1,7 +1,3 @@
-
-import Daño from "../models/daño.model.js";
-import Implemento from "../models/implementos.model.js";
-import Instalacion from "../models/Instalacion.model.js";
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import { dañoSchema } from "../schema/daño.schema.js";
 import DañoService from "../services/daño.service.js";
