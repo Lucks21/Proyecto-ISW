@@ -1,6 +1,6 @@
 import Daño from "../models/daño.model.js";
 import Implemento from "../models/implementos.model.js";
-import Instalacion from "../models/instalacion.model.js";
+import Instalacion from "../models/Instalacion.model.js";
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 
 async function registrarDaño(req, res) {
