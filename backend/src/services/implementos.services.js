@@ -23,37 +23,42 @@ async function getImplementoById(id) {
   }
 }
 
-async function createOrUpdateImplemento(implementoData) {
+async function createImplemento(implementoData) {
   try {
-    let implemento = await Implemento.findOne({ nombre: implementoData.nombre });
-
-    if (implemento) {
-      // Si el implemento ya existe, aumenta el stock
-      implemento.cantidad += implementoData.cantidad;
-    } else {
-      // Si el implemento es nuevo, crea una nueva entrada
-      implemento = new Implemento(implementoData);
-    }
+    // Crea una nueva entrada
+    let implemento = new Implemento(implementoData);
 
     const savedImplemento = await implemento.save();
     return [savedImplemento, null];
   } catch (error) {
-    return [null, "Error al crear o actualizar el implemento"];
+    return [null, "Error al crear el implemento"];
   }
 }
 
 async function updateImplemento(id, implementoData) {
   try {
-    const updatedImplemento = await Implemento.findByIdAndUpdate(id, implementoData, { new: true });
-    if (!updatedImplemento) {
+    let implemento = await Implemento.findById(id);
+
+    if (!implemento) {
       return [null, "El implemento no se encontró"];
     }
+
+    // Verifica si se está intentando cambiar el nombre
+    if (implementoData.nombre && implementoData.nombre !== implemento.nombre) {
+      return [null, 'No se puede cambiar el nombre del implemento durante una actualización'];
+    }
+
+    // Actualiza el implemento
+    implemento.cantidad = implementoData.cantidad || implemento.cantidad;
+    implemento.estado = implementoData.estado || implemento.estado;
+    implemento.descripcion = implementoData.descripcion || implemento.descripcion;
+
+    const updatedImplemento = await implemento.save();
     return [updatedImplemento, null];
   } catch (error) {
     return [null, "Error al actualizar el implemento"];
   }
 }
-
 async function deleteImplemento(id) {
   try {
     const deletedImplemento = await Implemento.findByIdAndDelete(id);
@@ -69,7 +74,7 @@ async function deleteImplemento(id) {
 export default {
   getImplementos,
   getImplementoById,
-  createOrUpdateImplemento,
+  createImplemento,
   updateImplemento,
   deleteImplemento
 };

@@ -43,8 +43,8 @@ async function updateInstalacion(req, res) {
 
 async function deleteInstalacion(req, res) {
     try {
-        const { params } = req;
-        const [deletedInstalacion, error] = await InstalacionService.deleteInstalacion(params.id);
+        const { body } = req;
+        const [deletedInstalacion, error] = await InstalacionService.deleteInstalacion(body.id);
 
         if (error) return respondError(req, res, 404, error);
 
