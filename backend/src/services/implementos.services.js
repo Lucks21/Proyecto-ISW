@@ -43,18 +43,21 @@ async function updateImplemento(id, implementoData) {
       return [null, "El implemento no se encontró"];
     }
 
-    // Verifica si se está intentando cambiar el nombre
-    if (implementoData.nombre && implementoData.nombre !== implemento.nombre) {
-      return [null, 'No se puede cambiar el nombre del implemento durante una actualización'];
+    // Actualiza el nombre si se proporciona uno nuevo
+    if (implementoData.nombre) {
+      implemento.nombre = implementoData.nombre;
     }
 
-    // Actualiza el implemento
-    implemento.cantidad = implementoData.cantidad || implemento.cantidad;
+    // Incrementa la cantidad
+    if (implementoData.cantidad) {
+      implemento.cantidad += implementoData.cantidad;
+    }
+
     implemento.estado = implementoData.estado || implemento.estado;
     implemento.descripcion = implementoData.descripcion || implemento.descripcion;
 
     const updatedImplemento = await implemento.save();
-    return [updatedImplemento, null];
+    return [updatedImplemento, `${implemento.nombre} han sido actualizadas y ahora son ${implemento.cantidad} disponibles`];
   } catch (error) {
     return [null, "Error al actualizar el implemento"];
   }
