@@ -1,11 +1,13 @@
 const Reserva = require('../models/reserva.model');
 const { respondSuccess, respondError } = require("../utils/resHandler.js");
+const PrestamoService = require("../services/prestamo.service.js");
 
 // Obtener préstamos activos
 exports.getPréstamosActivos = async (req, res) => {
   try {
-    const préstamosActivos = await Reserva.find({ estado: 'disponible' });
-    respondSuccess(req, res, 200, préstamosActivos); //res contiene informacion sobre la solicitud, res se utiliza para enviar una respuesta
+    const [prestamosActivos, error] = await PrestamoService.obtenerPrestamosActivos();
+    if (error) return respondError(req, res, 500, error);
+    respondSuccess(req, res, 200, prestamosActivos);
   } catch (error) {
     respondError(req, res, 500, 'Hubo un error al obtener los préstamos activos.');
   }
@@ -15,8 +17,9 @@ exports.getPréstamosActivos = async (req, res) => {
 exports.getHistorialPréstamos = async (req, res) => {
   const { userId } = req.params;
   try {
-    const historialPréstamos = await Reserva.find({ usuarioId: userId, estado: { $ne: 'disponible' } });
-    respondSuccess(req, res, 200, historialPréstamos);
+    const [historialPrestamos, error] = await PrestamoService.obtenerHistorialPrestamos(userId);
+    if (error) return respondError(req, res, 500, error);
+    respondSuccess(req, res, 200, historialPrestamos);
   } catch (error) {
     respondError(req, res, 500, 'Hubo un error al obtener el historial de préstamos.');
   }

@@ -1,38 +1,32 @@
-import Daño from "../models/daño.model.js";
-import Implemento from "../models/implementos.model.js";
-import Instalacion from "../models/instalacion.model.js";
+"use strict";
+
 import { respondSuccess, respondError } from "../utils/resHandler.js";
+import { dañoSchema } from "../schema/daño.schema.js";
+import DañoService from "../services/daño.service.js";
 
 async function registrarDaño(req, res) {
   try {
-    const { implementoId, instalacionId, descripcion, responsable, costoReparacion } = req.body;
+    const { error } = dañoSchema.validate(req.body);
+    if (error) return respondError(req, res, 400, error.details[0].message);
 
-    let objeto;
-    if (implementoId) {
-      objeto = await Implemento.findById(implementoId);
-      if (objeto) {
-        objeto.estado = "no disponible";
-      }
-    } else if (instalacionId) {
-      objeto = await Instalacion.findById(instalacionId);
-      if (objeto) {
-        objeto.estado = "no disponible";
-      }
-    }
+    const [daño, err] = await DañoService.registrarDaño(req.body);
+    if (err) return respondError(req, res, 500, err);
 
-    if (!objeto) {
-      return respondError(req, res, 404, "Implemento o Instalación no encontrado");
-    }
-
-    await objeto.save();
-
-    const daño = new Daño({ implementoId, instalacionId, descripcion, responsable, costoReparacion });
-    await daño.save();
-
-    return respondSuccess(req, res, 201, "Daño registrado con éxito");
+    respondSuccess(req, res, 201, daño);
   } catch (error) {
-    return respondError(req, res, 500, "Error al registrar el daño");
+    respondError(req, res, 500, "Error al registrar el daño");
   }
 }
 
-export default { registrarDaño };
+async function obtenerDaños(req, res) {
+  try {
+    const [daños, err] = await DañoService.obtenerDaños();
+    if (err) return respondError(req, res, 500, err);
+
+    respondSuccess(req, res, 200, daños);
+  } catch (error) {
+    respondError(req, res, 500, "Error al obtener los daños");
+  }
+}
+
+export default { registrarDaño, obtenerDaños };
