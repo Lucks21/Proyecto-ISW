@@ -1,35 +1,35 @@
 "use strict";
 
 import { respondSuccess, respondError } from "../utils/resHandler.js";
-import danoService from "../services/dano.service.js";
+import DañoService from "../services/dano.service.js"; // Verifica que la ruta y el nombre sean correctos
 
-async function getdanos(req, res) {
+async function getDaños(req, res) {
     try {
-        const [danos, error] = await danoService.obtenerdanos();
+        const [daños, error] = await DañoService.obtenerDaños();
         if (error) return respondError(req, res, 404, error);
 
-        danos.length === 0
+        daños.length === 0
             ? respondSuccess(req, res, 204)
-            : respondSuccess(req, res, 200, danos);
+            : respondSuccess(req, res, 200, daños);
     } catch (error) {
         respondError(req, res, 500, "Error interno del servidor");
     }
 }
 
-async function createdano(req, res) {
+async function createDaño(req, res) {
     try {
         const { body } = req;
-        const [dano, error] = await danoService.registrardano(body);
+        const [daño, error] = await DañoService.registrarDaño(body);
 
         if (error) return respondError(req, res, 400, error);
 
-        respondSuccess(req, res, 201, dano);
+        respondSuccess(req, res, 201, daño);
     } catch (error) {
         respondError(req, res, 500, "Error interno del servidor");
     }
 }
 
 export default {
-    createdano,
-    getdanos,
+    createDaño,
+    getDaños,
 };
