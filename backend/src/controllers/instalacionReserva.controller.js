@@ -1,9 +1,11 @@
-const Instalacion = require("../models/Instalacion.model");
-const Reserva = require("../models/reserva.model");
-const Notificacion = require("../models/notificacion.model");
-const User = require("../models/user.model");
+import Instalacion from "../models/Instalacion.model.js";
+import Reserva from "../models/reserva.model.js";
+import Notificacion from "../models/notificacion.model.js";
+import User from "../models/user.model.js";
+import { respondSuccess, respondError } from "../utils/resHandler.js";
 
-exports.registrarReservaInstalacion = async (req, res) => {
+
+export const registrarReservaInstalacion = async (req, res) => {
   try {
     const { instalacionId, fechaInicio, fechaFin, userId } = req.body;
 
@@ -35,7 +37,7 @@ exports.registrarReservaInstalacion = async (req, res) => {
   }
 };
 
-exports.cancelarReservaInstalacion = async (req, res) => {
+export const cancelarReservaInstalacion = async (req, res) => {
   try {
     const { reservaId } = req.body;
 
@@ -55,7 +57,7 @@ exports.cancelarReservaInstalacion = async (req, res) => {
   }
 };
 
-exports.extenderReservaInstalacion = async (req, res) => {
+export const extenderReservaInstalacion = async (req, res) => {
   try {
     const { reservaId, nuevaFechaFin } = req.body;
 
@@ -83,7 +85,7 @@ exports.extenderReservaInstalacion = async (req, res) => {
   }
 };
 
-exports.notificarDisponibilidadInstalacion = async (instalacionId) => {
+export const notificarDisponibilidadInstalacion = async (instalacionId) => {
   try {
     const notificaciones = await Notificacion.find({ recursoId: instalacionId, recursoTipo: "Instalacion" });
     for (const notificacion of notificaciones) {
@@ -108,7 +110,7 @@ exports.notificarDisponibilidadInstalacion = async (instalacionId) => {
   }
 };
 
-exports.finalizarReservaInstalacion = async (req, res) => {
+export const finalizarReservaInstalacion = async (req, res) => {
   try {
     const { reservaId } = req.body;
 

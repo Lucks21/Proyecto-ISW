@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const NotificacionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -6,4 +6,4 @@ const NotificacionSchema = new mongoose.Schema({
   recursoTipo: { type: String, enum: ['Implemento', 'Instalacion'], required: true }
 });
 
-module.exports = mongoose.model('Notificacion', NotificacionSchema);
+export default mongoose.model('Notificacion', NotificacionSchema);
