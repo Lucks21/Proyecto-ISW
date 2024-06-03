@@ -1,5 +1,5 @@
 import { respondSuccess, respondError } from "../utils/resHandler.js";
-import InstalacionService from "../services/instalacion.service.js";
+import InstalacionService from "../services/instalacion.services.js";
 
 async function getInstalaciones(req, res) {
     try {
