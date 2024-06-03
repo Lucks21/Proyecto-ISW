@@ -10,10 +10,10 @@ import authRoutes from "./auth.routes.js";
 
 /** Middleware de autenticación */
 import authenticationMiddleware from "../middlewares/authentication.middleware.js";
-import instalacionRoutes from './instalaciones.routes.js';
-import implementosRoutes from './implementos.routes.js';
-import danoRoutes from "./dano.routes.js";
+import instalacionRoutes from "./instalaciones.routes.js";
+import implementosRoutes from "./implementos.routes.js";
 import prestamoRoutes from "./prestamo.routes.js";
+import instalacionReservaRoutes from "./instalacionReserva.routes.js";
 
 /** Instancia del enrutador */
 const router = Router();
@@ -23,9 +23,9 @@ router.use("/implementos", authenticationMiddleware, implementosRoutes);
 router.use("/users", authenticationMiddleware, userRoutes);
 // Define las rutas para la autenticación /api/auth
 router.use("/auth", authRoutes);
-router.use("/danos", authenticationMiddleware, danoRoutes);
 router.use("/prestamos", authenticationMiddleware, prestamoRoutes);
 router.use("/instalacion", authenticationMiddleware, instalacionRoutes);
+router.use("/instalacionReserva", authenticationMiddleware, instalacionReservaRoutes);
 
 // Exporta el enrutador
 export default router;

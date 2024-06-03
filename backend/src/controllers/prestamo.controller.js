@@ -1,7 +1,7 @@
 "use strict";
 
 import { respondSuccess, respondError } from "../utils/resHandler.js";
-import PrestamoService from "../services/prestamo.service.js";
+import PrestamoService from "../services/prestamo.services.js";
 
 async function getPrestamosActivos(req, res) {
     try {

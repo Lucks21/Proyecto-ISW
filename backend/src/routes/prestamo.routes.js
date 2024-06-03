@@ -1,9 +1,9 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const prestamoController = require('../controllers/prestamo.controller.js');
-const authenticationMiddleware = require("../middlewares/authentication.middleware.js");
 
-router.get('/prestamos/activos', authenticationMiddleware, prestamo.controller.getPréstamosActivos);
-router.get('/usuarios/:userId/prestamos', authenticationMiddleware, prestamo.controller.getHistorialPréstamos);
+import prestamoController from "../controllers/prestamo.controller.js";
+import authenticationMiddleware from "../middlewares/authentication.middleware.js";
 
+router.get("/prestamos/activos", authenticationMiddleware, prestamoController.getPrestamosActivos);
+router.get("/usuarios/:userId/prestamos", authenticationMiddleware, prestamoController.getHistorialPrestamos);
 export default router;
