@@ -1,26 +1,37 @@
-const Reserva = require('../models/reserva.model');
-const { respondSuccess, respondError } = require("../utils/resHandler.js");
-const PrestamoService = require("../services/prestamo.service.js");
+"use strict";
 
-// Obtener préstamos activos
-exports.getPréstamosActivos = async (req, res) => {
-  try {
-    const [prestamosActivos, error] = await PrestamoService.obtenerPrestamosActivos();
-    if (error) return respondError(req, res, 500, error);
-    respondSuccess(req, res, 200, prestamosActivos);
-  } catch (error) {
-    respondError(req, res, 500, 'Hubo un error al obtener los préstamos activos.');
-  }
-};
+import { respondSuccess, respondError } from "../utils/resHandler.js";
+import PrestamoService from "../services/prestamo.service.js";
 
-// Obtener historial de préstamos de un alumno
-exports.getHistorialPréstamos = async (req, res) => {
-  const { userId } = req.params;
-  try {
-    const [historialPrestamos, error] = await PrestamoService.obtenerHistorialPrestamos(userId);
-    if (error) return respondError(req, res, 500, error);
-    respondSuccess(req, res, 200, historialPrestamos);
-  } catch (error) {
-    respondError(req, res, 500, 'Hubo un error al obtener el historial de préstamos.');
-  }
+async function getPrestamosActivos(req, res) {
+    try {
+        const [prestamosActivos, error] = await PrestamoService.obtenerPrestamosActivos();
+        if (error) return respondError(req, res, 404, error);
+
+        prestamosActivos.length === 0
+            ? respondSuccess(req, res, 204)
+            : respondSuccess(req, res, 200, prestamosActivos);
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+}
+
+async function getHistorialPrestamos(req, res) {
+    try {
+        const { userId } = req.params;
+        const [historialPrestamos, error] = await PrestamoService.obtenerHistorialPrestamos(userId);
+
+        if (error) return respondError(req, res, 404, error);
+
+        historialPrestamos.length === 0
+            ? respondSuccess(req, res, 204)
+            : respondSuccess(req, res, 200, historialPrestamos);
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+}
+
+export default {
+    getPrestamosActivos,
+    getHistorialPrestamos,
 };

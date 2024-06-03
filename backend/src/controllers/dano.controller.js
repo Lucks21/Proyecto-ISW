@@ -1,34 +1,35 @@
 "use strict";
 
-const { respondSuccess, respondError } = require("../utils/resHandler.js");
-const DanoService = require("../services/dano.service.js");
-const { danoSchema } = require("../schema/dano.schema.js");
+import { respondSuccess, respondError } from "../utils/resHandler.js";
+import danoService from "../services/dano.service.js";
 
-// Registrar un nuevo daño
-const registrarDano = async (req, res) => {
-  try {
-    const { error } = danoSchema.validate(req.body);
-    if (error) return respondError(req, res, 400, error.details[0].message);
+async function getdanos(req, res) {
+    try {
+        const [danos, error] = await danoService.obtenerdanos();
+        if (error) return respondError(req, res, 404, error);
 
-    const [dano, err] = await DanoService.registrarDano(req.body);
-    if (err) return respondError(req, res, 500, err);
+        danos.length === 0
+            ? respondSuccess(req, res, 204)
+            : respondSuccess(req, res, 200, danos);
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+}
 
-    respondSuccess(req, res, 201, dano);
-  } catch (error) {
-    respondError(req, res, 500, "Error al registrar el daño");
-  }
+async function createdano(req, res) {
+    try {
+        const { body } = req;
+        const [dano, error] = await danoService.registrardano(body);
+
+        if (error) return respondError(req, res, 400, error);
+
+        respondSuccess(req, res, 201, dano);
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+}
+
+export default {
+    createdano,
+    getdanos,
 };
-
-// Obtener todos los daños
-const obtenerDanos = async (req, res) => {
-  try {
-    const [danos, err] = await DanoService.obtenerDanos();
-    if (err) return respondError(req, res, 500, err);
-
-    respondSuccess(req, res, 200, danos);
-  } catch (error) {
-    respondError(req, res, 500, "Error al obtener los daños");
-  }
-};
-
-export default { registrarDano, obtenerDanos };
