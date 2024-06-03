@@ -6,4 +6,4 @@ const authenticationMiddleware = require("../middlewares/authentication.middlewa
 router.get('/prestamos/activos', authenticationMiddleware, prestamo.controller.getPréstamosActivos);
 router.get('/usuarios/:userId/prestamos', authenticationMiddleware, prestamo.controller.getHistorialPréstamos);
 
-module.exports = router;
+export default router;

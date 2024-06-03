@@ -25,8 +25,7 @@ router.use("/users", authenticationMiddleware, userRoutes);
 router.use("/auth", authRoutes);
 router.use("/danos", authenticationMiddleware, danoRoutes);
 router.use("/prestamos", authenticationMiddleware, prestamoRoutes);
+router.use("/instalacion", authenticationMiddleware, instalacionRoutes);
+
 // Exporta el enrutador
 export default router;
-
-//las rutas para la instalación 
-router.use("/instalacion", authenticationMiddleware, instalacionRoutes);

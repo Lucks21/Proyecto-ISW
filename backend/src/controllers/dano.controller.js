@@ -31,4 +31,4 @@ const obtenerDanos = async (req, res) => {
   }
 };
 
-module.exports = { registrarDano, obtenerDanos };
+export default { registrarDano, obtenerDanos };
