@@ -1,23 +1,44 @@
 "use strict";
 
 import { respondSuccess, respondError } from "../utils/resHandler.js";
+<<<<<<< HEAD
 import DanoService from "../services/dano.service.js";
 import { danoSchema } from "../schema/dano.schema.js";
+=======
+import DanoService from "../services/dano.services.js"; // Verifica que la ruta y el nombre sean correctos
+>>>>>>> d7279aa4c2b6a5628cafbd30881652f8f4c7873e
 
-// Registrar un nuevo daño
-const registrarDano = async (req, res) => {
-  try {
-    const { error } = danoSchema.validate(req.body);
-    if (error) return respondError(req, res, 400, error.details[0].message);
+async function getDanos(req, res) {
+    try {
+        const [danos, error] = await danoService.obtenerdanos();
+        if (error) return respondError(req, res, 404, error);
 
-    const [dano, err] = await DanoService.registrarDano(req.body);
-    if (err) return respondError(req, res, 500, err);
+        danos.length === 0
+            ? respondSuccess(req, res, 204)
+            : respondSuccess(req, res, 200, danos);
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+}
 
-    respondSuccess(req, res, 201, dano);
-  } catch (error) {
-    respondError(req, res, 500, "Error al registrar el daño");
-  }
+async function createdano(req, res) {
+    try {
+        const { body } = req;
+        const [dano, error] = await danoService.registrardano(body);
+
+        if (error) return respondError(req, res, 400, error);
+
+        respondSuccess(req, res, 201, dano);
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+}
+
+export default {
+    createdano,
+    getdanos,
 };
+<<<<<<< HEAD
 
 // Obtener todos los daños
 const obtenerDanos = async (req, res) => {
@@ -32,3 +53,5 @@ const obtenerDanos = async (req, res) => {
 };
 
 export default { registrarDano, obtenerDanos };
+=======
+>>>>>>> d7279aa4c2b6a5628cafbd30881652f8f4c7873e

@@ -31,5 +31,5 @@ const danoSchema = new mongoose.Schema({
     }
 });
 
-const Dano = mongoose.model("Daño", danoSchema);
+const Dano = mongoose.model("dano", danoSchema);
 export default Dano;
