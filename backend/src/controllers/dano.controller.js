@@ -1,8 +1,8 @@
 "use strict";
 
-const { respondSuccess, respondError } = require("../utils/resHandler.js");
-const DanoService = require("../services/dano.service.js");
-const { danoSchema } = require("../schema/dano.schema.js");
+import { respondSuccess, respondError } from "../utils/resHandler.js";
+import DanoService from "../services/dano.service.js";
+import { danoSchema } from "../schema/dano.schema.js";
 
 // Registrar un nuevo daño
 const registrarDano = async (req, res) => {
