@@ -1,7 +1,7 @@
 "use strict";
 import mongoose from "mongoose";
 
-const dañoSchema = new mongoose.Schema({
+const danoSchema = new mongoose.Schema({
     implementoId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Implemento',
@@ -31,5 +31,5 @@ const dañoSchema = new mongoose.Schema({
     }
 });
 
-const Daño = mongoose.model("Daño", dañoSchema);
-export default Daño;
+const Dano = mongoose.model("Daño", danoSchema);
+export default Dano;
