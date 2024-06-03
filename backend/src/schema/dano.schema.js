@@ -1,6 +1,8 @@
+"use strict";
+
 import Joi from "joi";
 
-const dañoSchema = Joi.object({
+const danoSchema = Joi.object({
   implementoId: Joi.string().required().messages({
     "string.empty": "El ID del implemento no puede estar vacío.",
     "any.required": "El ID del implemento es obligatorio."
@@ -20,4 +22,4 @@ const dañoSchema = Joi.object({
   })
 });
 
-export { dañoSchema };
+export { danoSchema };

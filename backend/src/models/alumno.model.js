@@ -29,5 +29,5 @@ const alumnoSchema = new Schema({
         }]
     } 
 );
-const Alumno = mongoose.model("alumno",dañoSchema);
+const Alumno = mongoose.model("alumno",danoSchema);
 export default Alumno;
