@@ -39,18 +39,17 @@ async function createInstalacion(instalacionData) {
 
 async function updateInstalacion(id, instalacionData) {
   try {
+      const instalacion = await Instalacion.findById(id);
+
+      if (!instalacion) {
+          return [null, "La instalación no existe"];
+      }
+
       const updatedInstalacion = await Instalacion.findByIdAndUpdate(id, instalacionData, { new: true });
 
-      if (updatedInstalacion) {
-          return [updatedInstalacion, "Actualización completada con éxito"];
-      } else {
-          // Si hubo un problema con la actualización (por ejemplo, la instalación no se encontró),
-          // puedes devolver null y un mensaje de error
-          return [null, "Error al actualizar la instalación"];
-      }
+      return [updatedInstalacion, "Actualización completada con éxito"];
   } catch (error) {
-
-      return [null, "Error interno del servidor"];
+      return [null, "Error interno del servidor: " + error.message];
   }
 }
 
