@@ -31,11 +31,11 @@ async function createInstalacion(req, res) {
 async function updateInstalacion(req, res) {
     try {
         const { params, body } = req;
-        const [updatedInstalacion, error] = await InstalacionService.updateInstalacion(params.id, body);
+        const [updatedInstalacion, statusMessage] = await InstalacionService.updateInstalacion(params.id, body);
 
-        if (error) return respondError(req, res, 400, error);
+        if (!updatedInstalacion) return respondError(req, res, 400, statusMessage || "Error al actualizar la instalación");
 
-        respondSuccess(req, res, 200, updatedInstalacion);
+        respondSuccess(req, res, 200, updatedInstalacion, statusMessage);
     } catch (error) {
         respondError(req, res, 500, "Error interno del servidor");
     }
