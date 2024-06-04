@@ -78,7 +78,7 @@ async function updatedImplementoDamaged(req, res){
 async function deleteImplemento(req, res) {
     try {
         const { params } = req;
-        const [deletedImplemento, error] = await ImplementoService.deleteImplemento(params.id, body);
+        const [deletedImplemento, error] = await ImplementoService.deleteImplemento(params.id);
 
         if (error) return respondError(req, res, 404, error);
 

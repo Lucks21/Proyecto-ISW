@@ -62,16 +62,18 @@ async function updateImplemento(id, implementoData) {
       implemento.nombre = implementoData.nombre;
     }
 
-    // Incrementa la cantidad
-    if (implementoData.cantidad) {
-      implemento.cantidad += implementoData.cantidad;
+    // Establece la cantidad
+    if (implementoData.cantidad !== undefined) {
+      implemento.cantidad = Number(implementoData.cantidad);
     }
 
-    implemento.estado = implementoData.estado || implemento.estado;
+    // Actualiza el estado en función de la cantidad
+    implemento.estado = implemento.cantidad > 0 ? "disponible" : "no disponible";
+
     implemento.descripcion = implementoData.descripcion || implemento.descripcion;
 
     const updatedImplemento = await implemento.save();
-    return { implemento: updatedImplemento, message: `${implemento.nombre} han sido actualizadas y ahora son ${implemento.cantidad} disponibles` };
+    return { implemento: updatedImplemento, message: implemento.cantidad > 0 ? `${implemento.nombre} han sido actualizadas y ahora son ${implemento.cantidad} disponibles` : `No hay ${implemento.nombre} disponibles` };
   } catch (error) {
     return { error: "Error al actualizar el implemento" };
   }
