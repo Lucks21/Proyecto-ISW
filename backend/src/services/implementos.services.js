@@ -40,7 +40,7 @@ async function updateImplemento(id, implementoData) {
     let implemento = await Implemento.findById(id);
 
     if (!implemento) {
-      return [null, "El implemento no se encontró"];
+      return { error: "El implemento no se encontró" };
     }
 
     // Actualiza el nombre si se proporciona uno nuevo
@@ -57,9 +57,9 @@ async function updateImplemento(id, implementoData) {
     implemento.descripcion = implementoData.descripcion || implemento.descripcion;
 
     const updatedImplemento = await implemento.save();
-    return [updatedImplemento, `${implemento.nombre} han sido actualizadas y ahora son ${implemento.cantidad} disponibles`];
+    return { implemento: updatedImplemento, message: `${implemento.nombre} han sido actualizadas y ahora son ${implemento.cantidad} disponibles` };
   } catch (error) {
-    return [null, "Error al actualizar el implemento"];
+    return { error: "Error al actualizar el implemento" };
   }
 }
 async function deleteImplemento(id) {
