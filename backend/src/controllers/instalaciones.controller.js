@@ -33,7 +33,11 @@ async function updateInstalacion(req, res) {
         const { params, body } = req;
         const [updatedInstalacion, statusMessage] = await InstalacionService.updateInstalacion(params.id, body);
 
-        if (!updatedInstalacion) return respondError(req, res, 400, statusMessage || "Error al actualizar la instalación");
+        if (!updatedInstalacion && statusMessage === "Actualización completada con éxito") {
+            return respondSuccess(req, res, 200, updatedInstalacion, statusMessage);
+        } else if (!updatedInstalacion) {
+            return respondError(req, res, 400, statusMessage || "Error al actualizar la instalación");
+        }
 
         respondSuccess(req, res, 200, updatedInstalacion, statusMessage);
     } catch (error) {

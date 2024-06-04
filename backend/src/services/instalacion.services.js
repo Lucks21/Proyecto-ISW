@@ -47,6 +47,10 @@ async function updateInstalacion(id, instalacionData) {
 
       const updatedInstalacion = await Instalacion.findByIdAndUpdate(id, instalacionData, { new: true });
 
+      if (!updatedInstalacion) {
+          return [null, "Error al actualizar la instalación"];
+      }
+
       return [updatedInstalacion, "Actualización completada con éxito"];
   } catch (error) {
       return [null, "Error interno del servidor: " + error.message];
