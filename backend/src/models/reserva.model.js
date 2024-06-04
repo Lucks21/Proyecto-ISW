@@ -26,7 +26,7 @@ const reservaSchema = new mongoose.Schema(
         },
         estado:{
             type: String,
-            enum: ['disponible','no disponible'],
+            enum: ['activo','no activo'],
             default: 'disponible'
         }
     }

@@ -33,7 +33,7 @@ export const registrarReservaInstalacion = async (req, res) => {
 
     respondSuccess(req, res, 201, "Reserva de instalación realizada con éxito");
   } catch (error) {
-    respondError(req, res, 500, "Error al realizar la reserva de instalación");
+    respondError(req, res, 500, "Error al realizar la reserva de instalación", error);
   }
 };
 
