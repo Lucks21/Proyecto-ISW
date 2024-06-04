@@ -5,7 +5,7 @@ const router = Router();
 
 router.post('/crearinstalacion', instalacionController.createInstalacion);
 router.put('/actualizarinstalacion/:id', instalacionController.updateInstalacion);
-router.delete('/eliminarinstalacion', instalacionController.deleteInstalacion);
+router.delete('/eliminarinstalacion/:id', instalacionController.deleteInstalacion);
 router.get('/obtenerinstalaciones', instalacionController.getInstalaciones);
 router.get('/obtenerinstalacion/:id', instalacionController.getInstalacionById);
 

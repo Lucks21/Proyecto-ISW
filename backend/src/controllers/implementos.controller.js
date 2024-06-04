@@ -30,11 +30,11 @@ async function createImplemento(req, res) {
 async function updateImplemento(req, res) {
     try {
         const { params, body } = req;
-        const [updatedImplemento, error] = await ImplementoService.updateImplemento(params.id, body);
+        const response = await ImplementoService.updateImplemento(params.id, body);
 
-        if (error) return respondError(req, res, 400, error);
+        if (response.error) return respondError(req, res, 400, response.error);
 
-        respondSuccess(req, res, 200, updatedImplemento);
+        respondSuccess(req, res, 200, response.implemento, response.message);
     } catch (error) {
         respondError(req, res, 500, "Error interno del servidor");
     }
@@ -43,7 +43,7 @@ async function updateImplemento(req, res) {
 async function deleteImplemento(req, res) {
     try {
         const { params } = req;
-        const [deletedImplemento, error] = await ImplementoService.deleteImplemento(params.id, body);
+        const [deletedImplemento, error] = await ImplementoService.deleteImplemento(params.id);
 
         if (error) return respondError(req, res, 404, error);
 
