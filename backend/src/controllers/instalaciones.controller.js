@@ -41,7 +41,7 @@ async function updateInstalacion(req, res) {
 
         respondSuccess(req, res, 200, updatedInstalacion, statusMessage);
     } catch (error) {
-        respondError(req, res, 500, "Error interno del servidor");
+        respondError(req, res, 500, "Error interno del servidor", error.message);
     }
 }
 

@@ -50,6 +50,7 @@ async function updateInstalacion(id, instalacionData) {
       if (!updatedInstalacion) {
           return [null, "Error al actualizar la instalación"];
       }
+    return [updatedInstalacion, "Actualización completada con éxito"];
 
       return [updatedInstalacion, "Actualización completada con éxito"];
   } catch (error) {
