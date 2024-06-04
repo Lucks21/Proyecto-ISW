@@ -2,6 +2,8 @@
 
 
 import Instalacion from "../models/Instalacion.model.js";
+import User from "../models/user.model.js";
+
 async function getInstalaciones() {
   try {
     const instalaciones = await Instalacion.find();
@@ -9,6 +11,18 @@ async function getInstalaciones() {
   } catch (error) {
     return [null, "Error al obtener las instalaciones"];
   }
+}
+
+async function getInstalacionesPrestadas() {
+    try {
+      const instalaciones = await Instalacion.find();
+      
+      const instalacionesPrestadas = instalaciones.filter( instalacion => instalacion.estado === "no disponible") || [];
+
+      return [instalacionesPrestadas, null];
+    } catch (error) {
+      return [null, "Error al obtener las instalaciones"];
+    } 
 }
 
 async function getInstalacionById(id) {
@@ -49,6 +63,42 @@ async function updateInstalacion(id, instalacionData) {
   }
 }
 
+async function updatedInstalacionDamaged(params, instalacionData) {
+  
+  //id: implementoId con esto renombras el param "id" a "implementoId", para mayor claridad
+  const { id: instalacionId } = params;
+  const { damage } = instalacionData;
+
+  
+  try {
+      
+    if(!damage) return { error: "Necesito detalles del daño causado a la instalacion (userId, descripcion, costo)" };
+
+    let instalacion = await Instalacion.findById(instalacionId);
+    let user = await User.findById(damage.userId);
+
+    if (!instalacion) return { error: "La instalacion no se encontró" };
+    if(!user) return { error: "El usuario no se encontró" };
+    
+
+    if (damage) {
+      instalacion.damage.descripcion = damage.descripcion;
+      instalacion.damage.costo = damage.costo;
+      instalacion.damage.userId = user.id;
+    }
+    
+    instalacion.estado = "no disponible y dañada";
+
+    const updatedInstalacion = await instalacion.save();
+
+    return { instalacion: updatedInstalacion, message: `${instalacion.nombre} se actualizo y tiene un estado de: ${instalacion.estado}` };
+
+  } catch (error) {
+    return { error: "Error al actualizar la instalacion" };
+  }
+
+}
+
 async function deleteInstalacion(id) {
   try {
     const deletedInstalacion = await Instalacion.findByIdAndDelete(id);
@@ -63,8 +113,10 @@ async function deleteInstalacion(id) {
 
 export default {
   getInstalaciones,
+  getInstalacionesPrestadas,
   getInstalacionById,
   createInstalacion,
   updateInstalacion,
+  updatedInstalacionDamaged,
   deleteInstalacion
 };

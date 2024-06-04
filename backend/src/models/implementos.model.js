@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const implementosSchema = new mongoose.Schema({
   nombre: String,
@@ -6,11 +6,20 @@ const implementosSchema = new mongoose.Schema({
   cantidad: Number,
   estado: {
     type: String,
-    enum: ['disponible', 'no disponible'],
-    default: 'disponible'
-  }
+    enum: ["disponible", "no disponible", "no disponible y dañado"],
+    default: "disponible",
+  },
+  damage: {
+    descripcion: { type: String, required: true } ,
+    costo: { type: Number,  required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+  },
 });
 
-const Implementos = mongoose.model('Implementos', implementosSchema);
+const Implementos = mongoose.model("Implementos", implementosSchema);
 
 export default Implementos;

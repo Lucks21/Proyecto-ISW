@@ -14,6 +14,23 @@ async function getImplementos(req, res) {
     }
 }
 
+async function getImplementosPrestados(req, res) {
+
+    try {
+        const [implementos, error] = await ImplementoService.getImplementosPrestados();
+
+        if (error) return respondError(req, res, 404, error);
+        
+        implementos.length === 0
+            ? respondSuccess(req, res, 204)
+            : respondSuccess(req, res, 200, implementos);
+
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+    
+}
+
 async function createImplemento(req, res) {
     try {
         const { body } = req;
@@ -38,6 +55,24 @@ async function updateImplemento(req, res) {
     } catch (error) {
         respondError(req, res, 500, "Error interno del servidor");
     }
+}
+
+async function updatedImplementoDamaged(req, res){
+
+    try{
+
+        const { params, body } = req;
+        
+        const response = await ImplementoService.updatedImplementoDamaged(params, body);
+
+        if (response.error) return respondError(req, res, 400, response.error);
+        
+        respondSuccess(req, res, 200, response.implemento, response.message);
+        
+    }catch(error){
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+
 }
 
 async function deleteImplemento(req, res) {
@@ -74,4 +109,6 @@ export default {
     deleteImplemento,
     getImplementos,
     getImplementoById,
+    updatedImplementoDamaged,
+    getImplementosPrestados
 };
