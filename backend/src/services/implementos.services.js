@@ -1,11 +1,25 @@
 "use strict";
 
 import Implemento from "../models/implementos.model.js";
+import User from "../models/user.model.js";
 
 async function getImplementos() {
   try {
     const implementos = await Implemento.find();
     return [implementos, null];
+  } catch (error) {
+    return [null, "Error al obtener los implementos"];
+  }
+}
+
+async function getImplementosPrestados() {
+  try {
+    const implementos = await Implemento.find();
+
+    const implementosPrestados = implementos.filter( implemento => implemento.estado === "no disponible") || [];
+
+    return [implementosPrestados, null];
+
   } catch (error) {
     return [null, "Error al obtener los implementos"];
   }
@@ -64,6 +78,42 @@ async function updateImplemento(id, implementoData) {
     return { error: "Error al actualizar el implemento" };
   }
 }
+
+async function updatedImplementoDamaged(params, implementoData) {
+    
+    //id: implementoId con esto renombras el param "id" a "implementoId", para mayor claridad
+    const { id: implementoId } = params;
+    const { damage } = implementoData;
+
+    try {
+      
+      if(!damage) return { error: "Necesito detalles del daño causado al implemento (userId, descripcion, costo)" };
+
+      let implemento = await Implemento.findById(implementoId);
+      let user = await User.findById(damage.userId);
+
+      if (!implemento) return { error: "El implemento no se encontró" };
+      if(!user) return { error: "El usuario no se encontró" };
+      
+
+      if (damage) {
+        implemento.damage.descripcion = damage.descripcion;
+        implemento.damage.costo = damage.costo;
+        implemento.damage.userId = user.id;
+      }
+      
+      implemento.estado = "no disponible y dañado";
+
+      const updatedImplemento = await implemento.save();
+
+      return { implemento: updatedImplemento, message: `${implemento.nombre} se actualizo y tiene un estado de: ${implemento.estado}` };
+
+    } catch (error) {
+      return { error: "Error al actualizar el implemento" };
+    }
+    
+}
+
 async function deleteImplemento(id) {
   try {
     const deletedImplemento = await Implemento.findByIdAndDelete(id);
@@ -81,5 +131,7 @@ export default {
   getImplementoById,
   createImplemento,
   updateImplemento,
-  deleteImplemento
+  updatedImplementoDamaged,
+  deleteImplemento,
+  getImplementosPrestados
 };

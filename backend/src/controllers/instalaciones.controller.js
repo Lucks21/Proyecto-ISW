@@ -14,6 +14,21 @@ async function getInstalaciones(req, res) {
     }
 }
 
+async function getInstalacionesPrestadas(req, res) {
+
+    try {
+        const [instalacionesPrestadas, error] = await InstalacionService.getInstalacionesPrestadas();
+        if (error) return respondError(req, res, 404, error);
+
+        instalacionesPrestadas.length === 0
+            ? respondSuccess(req, res, 204) //204 -> no content
+            : respondSuccess(req, res, 200, instalacionesPrestadas);
+
+    } catch (error) {
+        respondError(req, res, 500, "Error interno del servidor");
+    }
+}
+
 async function createInstalacion(req, res) {
     try {
         const { body } = req;
@@ -42,6 +57,22 @@ async function updateInstalacion(req, res) {
         respondSuccess(req, res, 200, updatedInstalacion, statusMessage);
     } catch (error) {
         respondError(req, res, 500, "Error interno del servidor", error.message);
+    }
+}
+
+async function updatedInstalacionDamaged(req, res){
+    try{
+
+        const { params, body } = req;
+
+        const response = await InstalacionService.updatedInstalacionDamaged(params, body);
+
+        if (response.error) return respondError(req, res, 400, response.error);
+        
+        respondSuccess(req, res, 200, response.instalacion, response.message);
+        
+    }catch(error){
+        respondError(req, res, 500, "Error interno del servidor");
     }
 }
 
@@ -78,5 +109,7 @@ export default {
     updateInstalacion,
     deleteInstalacion,
     getInstalaciones,
-    getInstalacionById
+    getInstalacionById,
+    updatedInstalacionDamaged,
+    getInstalacionesPrestadas
 };
