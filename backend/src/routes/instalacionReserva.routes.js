@@ -3,8 +3,9 @@ import * as instalacionReservaController from "../controllers/instalacionReserva
 
 const router = Router();
 
+router.get("/obtenerId", instalacionReservaController.obtenerIdsReservasInstalacion);
 router.post("/reservarInstalacion", instalacionReservaController.registrarReservaInstalacion);
-router.put("/cancelar-reserva/:id", instalacionReservaController.cancelarReservaInstalacion);
+router.delete("/cancelar-reserva/:id", instalacionReservaController.cancelarReservaInstalacion);
 router.put("/extender-reserva/:id", instalacionReservaController.extenderReservaInstalacion);
 router.put("/finalizar-reserva/:id", instalacionReservaController.finalizarReservaInstalacion);
 
