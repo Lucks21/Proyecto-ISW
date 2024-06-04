@@ -1,8 +1,7 @@
-const { Router } = require("express");
-const notificacionController = require("../controllers/notificacion.controller.js");
-
+import { Router } from "express";
+import { solicitarNotificacion } from "../controllers/notificacion.controller.js";
 const router = Router();
 
-router.post("/solicitar-notificacion", notificacionController.solicitarNotificacion);
+router.post("/solicitar-notificacion", solicitarNotificacion);
 
-module.exports = router;
+export default router;

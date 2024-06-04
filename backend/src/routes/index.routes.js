@@ -14,6 +14,8 @@ import instalacionRoutes from "./instalaciones.routes.js";
 import implementosRoutes from "./implementos.routes.js";
 import prestamoRoutes from "./prestamo.routes.js";
 import instalacionReservaRoutes from "./instalacionReserva.routes.js";
+import notificacionRoutes from "./notificacion.routes.js";
+import implementosReservaRoutes from "./implementoReserva.routes.js";
 
 /** Instancia del enrutador */
 const router = Router();
@@ -26,6 +28,7 @@ router.use("/auth", authRoutes);
 router.use("/prestamos", authenticationMiddleware, prestamoRoutes);
 router.use("/instalacion", authenticationMiddleware, instalacionRoutes);
 router.use("/instalacionReserva", authenticationMiddleware, instalacionReservaRoutes);
-
+router.use("/notificacion", authenticationMiddleware, notificacionRoutes);
+router.use("/implementosReserva", authenticationMiddleware, implementosReservaRoutes);
 // Exporta el enrutador
 export default router;

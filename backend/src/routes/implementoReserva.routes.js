@@ -1,11 +1,12 @@
-import { Router } from 'express';
-import implementoReservaController from '../controllers/implementoReserva.controller.js';
+import { Router } from "express";
+import * as implementoReservaController from "../controllers/implementoReserva.controller.js";
 
 const router = Router();
 
-router.post('/reservar-implemento', implementoReservaController.reservarImplemento);
-router.put('/cancelar-reserva/:id', implementoReservaController.cancelarReserva);
-router.put('/extender-reserva/:id', implementoReservaController.extenderReserva);
-router.put('/finalizar-reserva/:id', implementoReservaController.finalizarReserva);
+router.post("/reservar-implemento", implementoReservaController.registrarReservaImplemento);
+router.delete("/cancelar-reserva/:id", implementoReservaController.cancelarReservaImplemento);
+router.put("/extender-reserva/:id", implementoReservaController.extenderReservaImplemento);
+router.put("/finalizar-reserva/:id", implementoReservaController.finalizarReservaImplemento);
+router.post("/notificar", implementoReservaController.notificarDisponibilidadImplemento);
 
 export default router;

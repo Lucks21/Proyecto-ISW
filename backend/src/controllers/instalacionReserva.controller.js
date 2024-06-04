@@ -167,7 +167,7 @@ export const finalizarReservaInstalacion = async (req, res) => {
 export const obtenerIdsReservasInstalacion = async (req, res) => {
   try {
     const reservas = await Reserva.find({});
-    const idsReservas = reservas.map(reserva => reserva._id);
+    const idsReservas = reservas.map((reserva) => reserva._id);
     res.status(200).json(idsReservas);
   } catch (error) {
     respondError(req, res, 500, "Error al obtener los IDs de las reservas", error);
