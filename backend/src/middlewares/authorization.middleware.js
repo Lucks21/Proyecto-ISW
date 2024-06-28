@@ -55,7 +55,7 @@ async function isEncargado(req, res, next) {
       "Se requiere un rol de encargado para realizar esta acción",
     );
   } catch (error) {
-    handleError(error, "authorization.middleware -> isEncargado");
+    handleError(error, "authorization.middleware -> isencargado");
   }
 }
 

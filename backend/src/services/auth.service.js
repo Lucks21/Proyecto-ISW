@@ -4,9 +4,7 @@
 import User from "../models/user.model.js";
 /** Modulo 'jsonwebtoken' para crear tokens */
 import jwt from "jsonwebtoken";
-
 import { ACCESS_JWT_SECRET, REFRESH_JWT_SECRET } from "../config/configEnv.js";
-
 import { handleError } from "../utils/errorHandler.js";
 
 /**
@@ -35,8 +33,11 @@ async function login(user) {
       return [null, null, "El usuario y/o contraseña son incorrectos"];
     }
 
+    // Obtener los nombres de los roles
+    const roles = userFound.roles.map(role => role.name);
+
     const accessToken = jwt.sign(
-      { email: userFound.email, roles: userFound.roles },
+      { email: userFound.email, roles: roles },
       ACCESS_JWT_SECRET,
       {
         expiresIn: "1d",
@@ -54,6 +55,7 @@ async function login(user) {
     return [accessToken, refreshToken, null];
   } catch (error) {
     handleError(error, "auth.service -> signIn");
+    return [null, null, "Error en el servidor"];
   }
 }
 
@@ -72,7 +74,7 @@ async function refresh(cookies) {
       refreshToken,
       REFRESH_JWT_SECRET,
       async (err, user) => {
-        if (err) return [null, "La sesion a caducado, vuelva a iniciar sesion"];
+        if (err) return [null, "La sesión ha caducado, vuelva a iniciar sesión"];
 
         const userFound = await User.findOne({
           email: user.email,
@@ -80,23 +82,27 @@ async function refresh(cookies) {
           .populate("roles")
           .exec();
 
-        if (!userFound) return [null, "No usuario no autorizado"];
+        if (!userFound) return [null, "Usuario no autorizado"];
 
-        const accessToken = jwt.sign(
-          { email: userFound.email, roles: userFound.roles },
+        // Obtener los nombres de los roles
+        const roles = userFound.roles.map(role => role.name);
+
+        const newAccessToken = jwt.sign(
+          { email: userFound.email, roles: roles },
           ACCESS_JWT_SECRET,
           {
             expiresIn: "1d",
           },
         );
 
-        return [accessToken, null];
+        return [newAccessToken, null];
       },
     );
 
     return accessToken;
   } catch (error) {
     handleError(error, "auth.service -> refresh");
+    return [null, "Error en el servidor"];
   }
 }
 
