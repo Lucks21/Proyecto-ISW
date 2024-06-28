@@ -33,6 +33,9 @@ async function login(user) {
       return [null, null, "El usuario y/o contraseña son incorrectos"];
     }
 
+    // Añadir log para verificar los roles obtenidos
+    console.log(`Roles del usuario encontrado: ${userFound.roles}`);
+
     // Obtener los nombres de los roles
     const roles = userFound.roles.map(role => role.name);
 
@@ -83,6 +86,9 @@ async function refresh(cookies) {
           .exec();
 
         if (!userFound) return [null, "Usuario no autorizado"];
+
+        // Añadir log para verificar los roles obtenidos
+        console.log(`Roles del usuario encontrado: ${userFound.roles}`);
 
         // Obtener los nombres de los roles
         const roles = userFound.roles.map(role => role.name);

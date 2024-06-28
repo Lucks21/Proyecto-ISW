@@ -21,7 +21,7 @@ const verifyJWT = (req, res, next) => {
         res,
         401,
         "No autorizado",
-        "No hay token valido",
+        "No hay token válido"
       );
     }
 
@@ -31,6 +31,7 @@ const verifyJWT = (req, res, next) => {
       if (err) return respondError(req, res, 403, "No autorizado", err.message);
       req.email = decoded.email;
       req.roles = decoded.roles;
+      console.log(`Token decodificado: email=${req.email}, roles=${req.roles}`); // Añadir log
       next();
     });
   } catch (error) {

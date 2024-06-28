@@ -8,12 +8,12 @@ const ConfiguracionSchema = new Schema({
     type: [Date],
     required: true,
     default: [],
-    validate: {
-      validator: function (array) {
-        return array.length === new Set(array.map(date => date.toISOString())).size;
-      },
-      message: 'Las fechas deshabilitadas deben ser únicas.'
-    }
+    //validate: {
+      //validator: function (array) {
+       // return array.length === new Set(array.map(date => date.toISOString())).size;
+      //},
+      //message: 'Las fechas deshabilitadas deben ser únicas.'
+    //}
   }
 }, { timestamps: true });
 

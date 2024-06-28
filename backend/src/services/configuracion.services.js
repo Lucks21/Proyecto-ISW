@@ -1,12 +1,15 @@
 import Configuracion from '../models/configuracion.model.js';
+import { parse, isValid, format } from 'date-fns';
 
 const convertirAFecha = (fechaStr) => {
-  const [dia, mes, anio] = fechaStr.split('-');
-  const fecha = new Date(`${anio}-${mes}-${dia}`);
-  if (isNaN(fecha.getTime())) {
+  console.log(`Convirtiendo fecha: ${fechaStr}`);
+  const parsedDate = parse(fechaStr, 'dd-MM-yyyy', new Date());
+  console.log(`Fecha convertida: ${format(parsedDate, 'yyyy-MM-dd')}`);
+
+  if (!isValid(parsedDate)) {
     throw new Error('Fecha inválida. Use el formato DD-MM-YYYY.');
   }
-  return fecha;
+  return parsedDate;
 };
 
 export const agregarDia = async (fecha) => {
@@ -31,7 +34,7 @@ export const eliminarDia = async (fecha) => {
 
   const configuracion = await Configuracion.findOne();
   if (!configuracion) {
-    throw new Error('No se encontraron configuraciones de días deshabilitados.');
+    throw new Error('No se encontraron  días deshabilitados.');
   }
 
   configuracion.diasDeshabilitados = configuracion.diasDeshabilitados.filter(dia => dia.getTime() !== fechaDate.getTime());
@@ -42,7 +45,7 @@ export const eliminarDia = async (fecha) => {
 export const obtenerDias = async () => {
   const configuracion = await Configuracion.findOne();
   if (!configuracion) {
-    throw new Error('No se encontraron configuraciones de días deshabilitados.');
+    throw new Error('No se encontraron  días deshabilitados.');
   }
   return configuracion.diasDeshabilitados;
 };

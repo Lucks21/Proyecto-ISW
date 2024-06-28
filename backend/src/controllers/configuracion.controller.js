@@ -9,12 +9,14 @@ export const agregarDiaDeshabilitado = async (req, res) => {
 
   try {
     const { fecha } = req.body;
+    console.log(`Fecha recibida: ${fecha}`);
     const resultado = await agregarDia(fecha);
     res.status(201).json(resultado);
   } catch (error) {
     res.status(500).json({ message: error.message || 'Error al agregar el día deshabilitado.', error });
   }
 };
+
 
 export const eliminarDiaDeshabilitado = async (req, res) => {
   try {

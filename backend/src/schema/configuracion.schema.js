@@ -1,19 +1,20 @@
-"use strict";
 import Joi from 'joi';
+import { parse, isValid, format } from 'date-fns';
 
-// Definir el esquema para la validación de la configuración de días deshabilitados
 const fechaSchema = Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).custom((value, helpers) => {
-  const [dia, mes, anio] = value.split('-');
-  const date = new Date(`${anio}-${mes}-${dia}`);
-  const now = new Date();
+  console.log(`Validando fecha: ${value}`);
+  
+  const parsedDate = parse(value, 'dd-MM-yyyy', new Date());
+  console.log(`Fecha convertida: ${format(parsedDate, 'yyyy-MM-dd')}`);
 
-  // Verificar si la fecha es válida
-  if (date.getFullYear() !== parseInt(anio) || date.getMonth() + 1 !== parseInt(mes) || date.getDate() !== parseInt(dia)) {
+  if (!isValid(parsedDate)) {
+    console.log('Fecha inválida durante la validación');
     return helpers.error('any.invalid');
   }
 
-  // Verificar si la fecha no es en el pasado
-  if (date < now) {
+  const now = new Date();
+  if (parsedDate < now) {
+    console.log('Fecha en el pasado durante la validación');
     return helpers.error('any.past');
   }
 
