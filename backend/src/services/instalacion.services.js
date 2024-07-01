@@ -1,4 +1,4 @@
-import Instalacion from '../models/instalacion.model.js';
+import Instalacion from '../models/Instalacion.model.js';
 
 // Servicio para crear una instalación
 export const crearInstalacion = async (datosInstalacion) => {
