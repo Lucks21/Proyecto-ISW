@@ -1,122 +1,52 @@
-"use strict";
+import Instalacion from '../models/instalacion.model.js';
 
+// Servicio para crear una instalación
+export const crearInstalacion = async (datosInstalacion) => {
+  const { nombre, descripcion, capacidad, fechaAdquisicion, ubicacion, horarioDisponibilidad } = datosInstalacion;
 
-import Instalacion from "../models/Instalacion.model.js";
-import User from "../models/user.model.js";
+  const nuevaInstalacion = new Instalacion({
+    nombre,
+    descripcion,
+    capacidad,
+    fechaAdquisicion,
+    ubicacion,
+    horarioDisponibilidad,
+    estado: 'disponible' // Estado por defecto
+  });
 
-async function getInstalaciones() {
-  try {
-    const instalaciones = await Instalacion.find();
-    return [instalaciones, null];
-  } catch (error) {
-    return [null, "Error al obtener las instalaciones"];
+  await nuevaInstalacion.save();
+  return { message: 'Instalación creada con éxito.', data: nuevaInstalacion };
+};
+
+// Servicio para obtener todas las instalaciones
+export const obtenerInstalaciones = async () => {
+  const instalaciones = await Instalacion.find();
+  return { message: 'Instalaciones obtenidas con éxito.', data: instalaciones };
+};
+
+// Servicio para obtener una instalación por ID
+export const obtenerInstalacionPorId = async (id) => {
+  const instalacion = await Instalacion.findById(id);
+  if (!instalacion) {
+    throw new Error('Instalación no encontrada.');
   }
-}
+  return { message: 'Instalación obtenida con éxito.', data: instalacion };
+};
 
-async function getInstalacionesPrestadas() {
-    try {
-      const instalaciones = await Instalacion.find();
-      
-      const instalacionesPrestadas = instalaciones.filter( instalacion => instalacion.estado === "no disponible") || [];
-
-      return [instalacionesPrestadas, null];
-    } catch (error) {
-      return [null, "Error al obtener las instalaciones"];
-    } 
-}
-
-async function getInstalacionById(id) {
-  try {
-    const instalacion = await Instalacion.findById(id);
-    if (!instalacion) {
-      return [null, "La instalación no se encontró"];
-    }
-    return [instalacion, null];
-  } catch (error) {
-    return [null, "Error al obtener la instalación"];
+// Servicio para actualizar una instalación
+export const actualizarInstalacion = async (id, datosActualizados) => {
+  const instalacionActualizada = await Instalacion.findByIdAndUpdate(id, datosActualizados, { new: true });
+  if (!instalacionActualizada) {
+    throw new Error('Instalación no encontrada.');
   }
-}
+  return { message: 'Instalación actualizada con éxito.', data: instalacionActualizada };
+};
 
-async function createInstalacion(instalacionData) {
-  try {
-    const existingInstalacion = await Instalacion.findOne({ nombre: instalacionData.nombre });
-    if (existingInstalacion) {
-      return [null, "La instalación ya existe"];
-    }
-    const instalacion = new Instalacion(instalacionData);
-    const savedInstalacion = await instalacion.save();
-    return [savedInstalacion, null];
-  } catch (error) {
-    return [null, "Error al crear la instalación"];
+// Servicio para eliminar una instalación
+export const eliminarInstalacion = async (id) => {
+  const instalacionEliminada = await Instalacion.findByIdAndDelete(id);
+  if (!instalacionEliminada) {
+    throw new Error('Instalación no encontrada.');
   }
-}
-
-async function updateInstalacion(id, instalacionData) {
-  try {
-    const updatedInstalacion = await Instalacion.findByIdAndUpdate(id, instalacionData, { new: true });
-    if (!updatedInstalacion) {
-      return [null, "La instalación no se encontró"];
-    }
-
-  } catch (error) {
-    return [null, "Error al actualizar la instalación"];
-  }
-}
-
-async function updatedInstalacionDamaged(params, instalacionData) {
-  
-  //id: implementoId con esto renombras el param "id" a "implementoId", para mayor claridad
-  const { id: instalacionId } = params;
-  const { damage } = instalacionData;
-
-  
-  try {
-      
-    if(!damage) return { error: "Necesito detalles del daño causado a la instalacion (userId, descripcion, costo)" };
-
-    let instalacion = await Instalacion.findById(instalacionId);
-    let user = await User.findById(damage.userId);
-
-    if (!instalacion) return { error: "La instalacion no se encontró" };
-    if(!user) return { error: "El usuario no se encontró" };
-    
-
-    if (damage) {
-      instalacion.damage.descripcion = damage.descripcion;
-      instalacion.damage.costo = damage.costo;
-      instalacion.damage.userId = user.id;
-    }
-    
-    instalacion.estado = "no disponible y dañada";
-
-    const updatedInstalacion = await instalacion.save();
-
-    return { instalacion: updatedInstalacion, message: `${instalacion.nombre} se actualizo y tiene un estado de: ${instalacion.estado}` };
-
-  } catch (error) {
-    return { error: "Error al actualizar la instalacion" };
-  }
-
-}
-
-async function deleteInstalacion(id) {
-  try {
-    const deletedInstalacion = await Instalacion.findByIdAndDelete(id);
-    if (!deletedInstalacion) {
-      return [null, "La instalación no se encontró"];
-    }
-    return [deletedInstalacion, null];
-  } catch (error) {
-    return [null, "Error al eliminar la instalación"];
-  }
-}
-
-export default {
-  getInstalaciones,
-  getInstalacionesPrestadas,
-  getInstalacionById,
-  createInstalacion,
-  updateInstalacion,
-  updatedInstalacionDamaged,
-  deleteInstalacion
+  return { message: 'Instalación eliminada con éxito.' };
 };
