@@ -14,17 +14,17 @@ import instalacionRoutes from './instalaciones.routes.js';
 import implementosRoutes from './implementos.routes.js';
 import reservasRoutes from './reservas.routes.js';
 import configuracionRoutes from './configuracion.routes.js';
+import notificacionRoutes from './notificacion.routes.js';
 
 /** Instancia del enrutador */
 const router = Router();
-// Define las rutas para los implementos /api/implementos
 router.use("/implementos", authenticationMiddleware, implementosRoutes);
-// Define las rutas para los usuarios /api/usuarios
 router.use("/users", authenticationMiddleware, userRoutes);
-// Define las rutas para la autenticación /api/auth
 router.use("/auth", authRoutes);
 router.use("/instalacion", authenticationMiddleware, instalacionRoutes);
-router.use("/reservas",  authenticationMiddleware, reservasRoutes);
+router.use("/reservas", authenticationMiddleware, reservasRoutes);
 router.use("/configuracion", authenticationMiddleware, configuracionRoutes);
-// Exporta el enrutador
+router.use("/notificaciones", authenticationMiddleware, notificacionRoutes);
+
+
 export default router;

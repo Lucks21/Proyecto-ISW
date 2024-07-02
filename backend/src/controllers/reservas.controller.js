@@ -1,41 +1,112 @@
 import { respondSuccess, respondError } from "../utils/resHandler.js";
-import ReservaService from '../services/reservas.service.js'
+import ReservaService from "../services/reservas.service.js";
 
-async function getAllReservasByUser(req, res) {    
-    
-    const { params } = req;
+async function getAllReservasByUser(req, res) {
+  const { params } = req;
 
-    try {
-        const [reservas, error] = await ReservaService.getAllReservasByUser(params.id);
-        
-        if (error) return respondError(req, res, 404, error);
+  try {
+    const [reservas, error] = await ReservaService.getAllReservasByUser(
+      params.id,
+    );
 
-        reservas.length === 0
-            ? respondSuccess(req, res, 204)
-            : respondSuccess(req, res, 200, reservas);
+    if (error) return respondError(req, res, 404, error);
 
-    } catch (error) {
-        respondError(req, res, 500, "Error interno del servidor reservas");
-    }
-
+    reservas.length === 0
+      ? respondSuccess(req, res, 204)
+      : respondSuccess(req, res, 200, reservas);
+  } catch (error) {
+    respondError(req, res, 500, "Error interno del servidor reservas");
+  }
 }
 
 async function getAllReservasActivos(req, res) {
-    try {
-        const [reservas, error] = await ReservaService.getAllReservasActivos();
-        
-        if (error) return respondError(req, res, 404, error);
+  try {
+    const [reservas, error] = await ReservaService.getAllReservasActivos();
 
-        reservas.length === 0
-            ? respondSuccess(req, res, 204)
-            : respondSuccess(req, res, 200, reservas);
+    if (error) return respondError(req, res, 404, error);
 
-    } catch (error) {
-        respondError(req, res, 500, "Error interno del servidor reservas");
+    reservas.length === 0
+      ? respondSuccess(req, res, 204)
+      : respondSuccess(req, res, 200, reservas);
+  } catch (error) {
+    respondError(req, res, 500, "Error interno del servidor reservas");
+  }
+}
+//CRUD
+
+async function registrarReserva(req, res) {
+  try {
+    const { implementoId, fechaInicio, fechaFin, userId } = req.body;
+    const resultado = await registrarReservaImplemento(
+      implementoId,
+      fechaInicio,
+      fechaFin,
+      userId,
+      req.userId,
+    );
+    if (resultado.error) {
+      return respondError(req, res, 400, resultado.error);
     }
+    respondSuccess(req, res, 201, resultado.message);
+  } catch (error) {
+    respondError(
+      req,
+      res,
+      500,
+      "Error al realizar la reserva de implemento",
+      error,
+    );
+  }
+}
+
+async function cancelarReserva(req, res) {
+  try {
+    const { reservaId } = req.body;
+    const resultado = await cancelarReservaImplemento(reservaId);
+    if (resultado.error) {
+      return respondError(req, res, 400, resultado.error);
+    }
+    respondSuccess(req, res, 200, resultado.message);
+  } catch (error) {
+    respondError(req, res, 500, "Error al cancelar la reserva", error);
+  }
+}
+
+async function extenderReserva(req, res) {
+  try {
+    const { reservaId, nuevaFechaFin } = req.body;
+    const resultado = await extenderReservaImplemento(
+      reservaId,
+      nuevaFechaFin,
+      req.userId,
+    );
+    if (resultado.error) {
+      return respondError(req, res, 400, resultado.error);
+    }
+    respondSuccess(req, res, 200, resultado.message);
+  } catch (error) {
+    respondError(req, res, 500, "Error al extender la reserva", error);
+  }
+}
+
+async function finalizarReserva(req, res) {
+  try {
+    const { reservaId } = req.body;
+    const resultado = await finalizarReservaImplemento(reservaId);
+    if (resultado.error) {
+      return respondError(req, res, 400, resultado.error);
+    }
+    respondSuccess(req, res, 200, resultado.message);
+  } catch (error) {
+    respondError(req, res, 500, "Error al finalizar la reserva", error);
+  }
 }
 
 export default {
-    getAllReservasByUser,
-    getAllReservasActivos
+  getAllReservasByUser,
+  getAllReservasActivos,
+  registrarReserva,
+  cancelarReserva,
+  extenderReserva,
+  finalizarReserva,
 };
