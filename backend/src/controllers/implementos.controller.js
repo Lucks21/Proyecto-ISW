@@ -14,7 +14,7 @@ async function getImplementos(req, res) {
     }
 }
 
-async function getImplementosPrestados(req, res) {
+async function getImplementosPrestados(req, res) { //Todas los implementos reservados
 
     try {
         const [implementos, error] = await ImplementoService.getImplementosPrestados();

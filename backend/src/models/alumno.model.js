@@ -1,3 +1,4 @@
+"use strict";
 import mongoose from "mongoose";
 
 const { Schema } = mongoose;
@@ -21,13 +22,13 @@ const alumnoSchema = new Schema(
       type: String,
       required: true,
     },
-    prestamosActivos: [
+    reservasActivas: [
       {
         type: Schema.Types.ObjectId,
         ref: "Reserva",
       },
     ],
-    historialPrestamos: [
+    historialReservas: [
       {
         type: Schema.Types.ObjectId,
         ref: "Reserva",

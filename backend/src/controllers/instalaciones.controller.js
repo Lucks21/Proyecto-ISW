@@ -14,7 +14,7 @@ async function getInstalaciones(req, res) {
     }
 }
 
-async function getInstalacionesPrestadas(req, res) {
+async function getInstalacionesPrestadas(req, res) { // Todas las instalaciones reservadas
 
     try {
         const [instalacionesPrestadas, error] = await InstalacionService.getInstalacionesPrestadas();

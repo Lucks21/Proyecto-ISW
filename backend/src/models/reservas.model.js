@@ -1,3 +1,4 @@
+"use strict";
 import mongoose from "mongoose";
 const reservaSchema = new mongoose.Schema(
   {
@@ -22,13 +23,15 @@ const reservaSchema = new mongoose.Schema(
       type: Date,
     },
     estado: {
-      //
+      //activo: reservaron
+      //inactivo: se termino de usar la instalacion o implemento
       type: String,
       enum: ["activo", "no activo"],
       default: "activo",
     },
   },
   {
+    timestamps: true,
     versionKey: false, //esto es para desactivar la crecion del campo '_v' en los documentos
   },
 );

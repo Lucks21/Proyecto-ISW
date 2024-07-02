@@ -13,7 +13,7 @@ async function getInstalaciones() {
   }
 }
 
-async function getInstalacionesPrestadas() {
+async function getInstalacionesPrestadas() { //Visualizar Reserva de instalaciones
     try {
       const instalaciones = await Instalacion.find();
       

@@ -12,7 +12,7 @@ async function getImplementos() {
   }
 }
 
-async function getImplementosPrestados() {
+async function getImplementosPrestados() { //Visualizar Reserva de implementos 
   try {
     const implementos = await Implemento.find();
 
