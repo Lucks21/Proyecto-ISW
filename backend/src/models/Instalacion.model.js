@@ -1,3 +1,4 @@
+"use strict";
 import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
@@ -38,6 +39,7 @@ const InstalacionSchema = new Schema({
     required: [true, 'El nombre es obligatorio'],
     trim: true,
     set: (value) => value.toLowerCase(),
+    unique: true, // Asegura unicidad del nombre
   },
   descripcion: {
     type: String,

@@ -1,137 +1,111 @@
-"use strict";
+import Implemento from '../models/implementos.model.js';
+import { format } from 'date-fns';
 
-import Implemento from "../models/implementos.model.js";
-import User from "../models/user.model.js";
+// Función para normalizar el nombre
+const normalizarNombre = (nombre) => {
+  return nombre.toLowerCase().trim().replace(/\s+/g, ' ');
+};
 
-async function getImplementos() {
-  try {
-    const implementos = await Implemento.find();
-    return [implementos, null];
-  } catch (error) {
-    return [null, "Error al obtener los implementos"];
+// Servicio para crear un implemento
+export const crearImplemento = async (datosImplemento) => {
+  const { nombre, descripcion, cantidad, estado, fechaAdquisicion, categoria, horarioDisponibilidad } = datosImplemento;
+
+  // Normalizar el nombre
+  const nombreNormalizado = normalizarNombre(nombre);
+
+  // Verificar unicidad del nombre
+  const implementoExistente = await Implemento.findOne({ nombre: nombreNormalizado });
+  if (implementoExistente) {
+    throw new Error('El nombre del implemento ya está en uso.');
   }
-}
 
-async function getImplementosPrestados() {
-  try {
-    const implementos = await Implemento.find();
+  const nuevoImplemento = new Implemento({
+    nombre: nombreNormalizado,
+    descripcion,
+    cantidad,
+    estado,
+    fechaAdquisicion,
+    categoria,
+    horarioDisponibilidad,
+  });
 
-    const implementosPrestados = implementos.filter( implemento => implemento.estado === "no disponible") || [];
+  await nuevoImplemento.save();
+  return { message: 'Implemento creado con éxito.', data: nuevoImplemento };
+};
 
-    return [implementosPrestados, null];
 
-  } catch (error) {
-    return [null, "Error al obtener los implementos"];
+
+// Servicio para obtener todos los implementos
+export const obtenerImplementos = async () => {
+  const implementos = await Implemento.find();
+  return { message: 'Implementos obtenidos con éxito.', data: implementos };
+};
+// Servicio para obtener el historial de modificaciones de un implemento
+export const obtenerHistorialImplemento = async (id) => {
+  const implemento = await Implemento.findById(id).select('historialModificaciones');
+  if (!implemento) {
+    throw new Error('Implemento no encontrado.');
   }
-}
+  return { message: 'Historial obtenido con éxito.', data: implemento.historialModificaciones };
+};
 
-async function getImplementoById(id) {
-  try {
-    const implemento = await Implemento.findById(id);
-    if (!implemento) {
-      return [null, "El implemento no se encontró"];
-    }
-    return [implemento, null];
-  } catch (error) {
-    return [null, "Error al obtener el implemento"];
+// Servicio para obtener un implemento por ID
+export const obtenerImplementoPorId = async (id) => {
+  const implemento = await Implemento.findById(id);
+  if (!implemento) {
+    throw new Error('Implemento no encontrado.');
   }
-}
+  return { message: 'Implemento obtenido con éxito.', data: implemento };
+};
 
-async function createImplemento(implementoData) {
-  try {
-    // Crea una nueva entrada
-    let implemento = new Implemento(implementoData);
-
-    const savedImplemento = await implemento.save();
-    return [savedImplemento, null];
-  } catch (error) {
-    return [null, "Error al crear el implemento"];
+// Servicio para actualizar un implemento
+export const actualizarImplemento = async (id, datosActualizados) => {
+  // Si el nombre está siendo actualizado, normalizar y verificar unicidad
+  if (datosActualizados.nombre) {
+    datosActualizados.nombre = normalizarNombre(datosActualizados.nombre);
+    const implementoExistente = await Implemento.findOne({ nombre: datosActualizados.nombre });
+    if (implementoExistente && implementoExistente._id.toString() !== id) {
+      throw new Error('El nombre del implemento ya está en uso.');
+    }
   }
-}
 
-async function updateImplemento(id, implementoData) {
-  try {
-    let implemento = await Implemento.findById(id);
-
-    if (!implemento) {
-      return { error: "El implemento no se encontró" };
-    }
-
-    // Actualiza el nombre si se proporciona uno nuevo
-    if (implementoData.nombre) {
-      implemento.nombre = implementoData.nombre;
-    }
-
-    // Establece la cantidad
-    if (implementoData.cantidad !== undefined) {
-      implemento.cantidad = Number(implementoData.cantidad);
-    }
-
-    // Actualiza el estado en función de la cantidad
-    implemento.estado = implemento.cantidad > 0 ? "disponible" : "no disponible";
-
-    implemento.descripcion = implementoData.descripcion || implemento.descripcion;
-
-    const updatedImplemento = await implemento.save();
-    return { implemento: updatedImplemento, message: implemento.cantidad > 0 ? `${implemento.nombre} han sido actualizadas y ahora son ${implemento.cantidad} disponibles` : `No hay ${implemento.nombre} disponibles` };
-  } catch (error) {
-    return { error: "Error al actualizar el implemento" };
+  const implementoActual = await Implemento.findById(id);
+  if (!implementoActual) {
+    throw new Error('Implemento no encontrado.');
   }
-}
 
-async function updatedImplementoDamaged(params, implementoData) {
-    
-    //id: implementoId con esto renombras el param "id" a "implementoId", para mayor claridad
-    const { id: implementoId } = params;
-    const { damage } = implementoData;
-
-    try {
-      
-      if(!damage) return { error: "Necesito detalles del daño causado al implemento (userId, descripcion, costo)" };
-
-      let implemento = await Implemento.findById(implementoId);
-      let user = await User.findById(damage.userId);
-
-      if (!implemento) return { error: "El implemento no se encontró" };
-      if(!user) return { error: "El usuario no se encontró" };
-      
-
-      if (damage) {
-        implemento.damage.descripcion = damage.descripcion;
-        implemento.damage.costo = damage.costo;
-        implemento.damage.userId = user.id;
-      }
-      
-      implemento.estado = "no disponible y dañado";
-
-      const updatedImplemento = await implemento.save();
-
-      return { implemento: updatedImplemento, message: `${implemento.nombre} se actualizo y tiene un estado de: ${implemento.estado}` };
-
-    } catch (error) {
-      return { error: "Error al actualizar el implemento" };
+  // Actualizar campos del implemento
+  const { cantidad, motivo } = datosActualizados;
+  if (cantidad !== undefined && motivo) {
+    const cantidadModificada = cantidad - implementoActual.cantidad;
+    if (cantidad < 0) {
+      throw new Error('La cantidad no puede ser negativa.');
     }
-    
-}
 
-async function deleteImplemento(id) {
-  try {
-    const deletedImplemento = await Implemento.findByIdAndDelete(id);
-    if (!deletedImplemento) {
-      return [null, "El implemento no se encontró"];
-    }
-    return [deletedImplemento, null];
-  } catch (error) {
-    return [null, "Error al eliminar el implemento"];
+    const nuevoStock = cantidad;
+    const fecha = format(new Date(), 'dd-MM-yyyy'); // Fecha actual
+
+    implementoActual.historialModificaciones.push({
+      fecha,
+      cantidadModificada,
+      nuevoStock,
+      motivo,
+    });
+
+    implementoActual.cantidad = cantidad;
   }
-}
 
-export default {
-  getImplementos,
-  getImplementoById,
-  createImplemento,
-  updateImplemento,
-  updatedImplementoDamaged,
-  deleteImplemento,
-  getImplementosPrestados
+  Object.assign(implementoActual, datosActualizados);
+  await implementoActual.save();
+
+  return { message: 'Implemento actualizado con éxito.', data: implementoActual };
+};
+
+// Servicio para eliminar un implemento
+export const eliminarImplemento = async (id) => {
+  const implementoEliminado = await Implemento.findByIdAndDelete(id);
+  if (!implementoEliminado) {
+    throw new Error('Implemento no encontrado.');
+  }
+  return { message: 'Implemento eliminado con éxito.' };
 };

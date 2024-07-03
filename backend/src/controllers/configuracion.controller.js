@@ -1,3 +1,4 @@
+"use strict";
 import { agregarDia, eliminarDia, obtenerDias } from '../services/configuracion.services.js';
 import { agregarDiaDeshabilitadoSchema } from '../schema/configuracion.schema.js';
 
