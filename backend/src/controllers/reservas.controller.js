@@ -33,84 +33,90 @@ async function getAllReservasActivos(req, res) {
     respondError(req, res, 500, "Error interno del servidor reservas");
   }
 }
-//CRUD
+//CRUD de reserva de implementos
+//Implementos
+async function registrarReservaImplemento(req, res) {
+    try {
+        const { implementoId, fechaInicio, fechaFin, userId } = req.body;
+        const resultado = await ReservaService.registrarReservaImplemento(implementoId, fechaInicio, fechaFin, userId, req.userId);
+        if (resultado.error) {
+            return respondError(req, res, 400, resultado.error);
+        }
+        // Aqui falta recibir el correo del usuario
+        const userEmail = 'correo_del_usuario@ejemplo.com'; // Reemplaza con la lógica para obtener el correo del usuario
+        const subject = 'Confirmación de reserva';
+        const text = `Tu reserva ha sido confirmada para el implemento con ID ${implementoId}. Fecha de inicio: ${fechaInicio}, Fecha de fin: ${fechaFin}.`;
 
-async function registrarReserva(req, res) {
-  try {
-    const { implementoId, fechaInicio, fechaFin, userId } = req.body;
-    const resultado = await registrarReservaImplemento(
-      implementoId,
-      fechaInicio,
-      fechaFin,
-      userId,
-      req.userId,
-    );
-    if (resultado.error) {
-      return respondError(req, res, 400, resultado.error);
+        await sendEmail(userEmail, subject, text);
+        respondSuccess(req, res, 201, resultado.message);
+    } catch (error) {
+        respondError(req, res, 500, "Error al realizar la reserva de implemento", error);
     }
-    //Aqui falta recibir el correo del usuario
-    const userEmail = '@alumnos.ubiobio.cl';
-    const subject = 'Confirmación de reserva';
-    const text = `Tu reserva ha sido confirmada para el implemento con ID ${implementoId}. Fecha de inicio: ${fechaInicio}, Fecha de fin: ${fechaFin}.`;
+}
+//Instalaciones
+async function registrarReservaInstalacion(req, res) {
+    try {
+        const { instalacionId, fechaInicio, fechaFin, userId } = req.body;
+        const resultado = await ReservaService.registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin, userId, req.userId);
+        if (resultado.error) {
+            return respondError(req, res, 400, resultado.error);
+        }
+        const userEmail = 'correo_del_usuario@ejemplo.com'; // Reemplaza con la lógica para obtener el correo del usuario
+        const subject = 'Confirmación de reserva';
+        const text = `Tu reserva ha sido confirmada para la instalación con ID ${instalacionId}. Fecha de inicio: ${fechaInicio}, Fecha de fin: ${fechaFin}.`;
 
-    await sendEmail(userEmail, subject, text);
-
-
-    respondSuccess(req, res, 201, resultado.message);
-  } catch (error) {
-    respondError(req,res,500,"Error al realizar la reserva de implemento",error,
-    );
-  }
+        await sendEmail(userEmail, subject, text);
+        respondSuccess(req, res, 201, resultado.message);
+    } catch (error) {
+        respondError(req, res, 500, "Error al realizar la reserva de instalación", error);
+    }
 }
 
 async function cancelarReserva(req, res) {
-  try {
-    const { reservaId } = req.body;
-    const resultado = await cancelarReservaImplemento(reservaId);
-    if (resultado.error) {
-      return respondError(req, res, 400, resultado.error);
+    try {
+        const { reservaId } = req.body;
+        const resultado = await ReservaService.cancelarReserva(reservaId);
+        if (resultado.error) {
+            return respondError(req, res, 400, resultado.error);
+        }
+        respondSuccess(req, res, 200, resultado.message);
+    } catch (error) {
+        respondError(req, res, 500, "Error al cancelar la reserva", error);
     }
-    respondSuccess(req, res, 200, resultado.message);
-  } catch (error) {
-    respondError(req, res, 500, "Error al cancelar la reserva", error);
-  }
 }
 
 async function extenderReserva(req, res) {
-  try {
-    const { reservaId, nuevaFechaFin } = req.body;
-    const resultado = await extenderReservaImplemento(
-      reservaId,
-      nuevaFechaFin,
-      req.userId,
-    );
-    if (resultado.error) {
-      return respondError(req, res, 400, resultado.error);
+    try {
+        const { reservaId, nuevaFechaFin } = req.body;
+        const resultado = await ReservaService.extenderReserva(reservaId, nuevaFechaFin, req.userId);
+        if (resultado.error) {
+            return respondError(req, res, 400, resultado.error);
+        }
+        respondSuccess(req, res, 200, resultado.message);
+    } catch (error) {
+        respondError(req, res, 500, "Error al extender la reserva", error);
     }
-    respondSuccess(req, res, 200, resultado.message);
-  } catch (error) {
-    respondError(req, res, 500, "Error al extender la reserva", error);
-  }
 }
 
 async function finalizarReserva(req, res) {
-  try {
-    const { reservaId } = req.body;
-    const resultado = await finalizarReservaImplemento(reservaId);
-    if (resultado.error) {
-      return respondError(req, res, 400, resultado.error);
+    try {
+        const { reservaId } = req.body;
+        const resultado = await ReservaService.finalizarReserva(reservaId);
+        if (resultado.error) {
+            return respondError(req, res, 400, resultado.error);
+        }
+        respondSuccess(req, res, 200, resultado.message);
+    } catch (error) {
+        respondError(req, res, 500, "Error al finalizar la reserva", error);
     }
-    respondSuccess(req, res, 200, resultado.message);
-  } catch (error) {
-    respondError(req, res, 500, "Error al finalizar la reserva", error);
-  }
 }
 
 export default {
-  getAllReservasByUser,
-  getAllReservasActivos,
-  registrarReserva,
-  cancelarReserva,
-  extenderReserva,
-  finalizarReserva,
+    getAllReservasByUser,
+    getAllReservasActivos,
+    registrarReservaImplemento,
+    registrarReservaInstalacion,
+    cancelarReserva,
+    extenderReserva,
+    finalizarReserva,
 };

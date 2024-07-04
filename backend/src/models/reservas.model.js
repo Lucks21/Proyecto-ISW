@@ -9,11 +9,13 @@ const reservaSchema = new mongoose.Schema(
     },
     implementoId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Implementos",
+      ref: 'Implementos',
+      required: function() { return !this.instalacionId; }  //solo va a ser requerido si instalacionID no está
     },
     instalacionId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Instalacion",
+      ref: 'Instalacion',
+      required: function() { return !this.implementoId; } //lo mismo que con implemento
     },
     fechaInicio: {
       type: Date,
