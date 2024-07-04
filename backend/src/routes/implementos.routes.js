@@ -4,28 +4,23 @@ import {
   obtenerImplementosController,
   obtenerImplementoPorIdController,
   actualizarImplementoController,
+  actualizarImplementoParcialController,
   eliminarImplementoController,
   obtenerHistorialImplementoController
 } from '../controllers/implementos.controller.js';
-import { isEncargado } from '../middlewares/authorization.middleware.js';
 import authenticationMiddleware from '../middlewares/authentication.middleware.js';
+import { isEncargado } from '../middlewares/authorization.middleware.js';
 
 const router = express.Router();
 
-// Ruta para crear un implemento (solo encargado)
+// Rutas para implementos
 router.post('/crear-implementos', authenticationMiddleware, isEncargado, crearImplementoController);
-
-// Ruta para obtener todos los implementos
-router.get('/obtener-implementos', authenticationMiddleware, obtenerImplementosController);
-
-// Ruta para obtener un implemento por ID
-router.get('/implementos/:id', authenticationMiddleware, obtenerImplementoPorIdController);
-
-// Ruta para actualizar un implemento (solo encargado)
+router.get('/obtener-implementos', authenticationMiddleware, isEncargado, obtenerImplementosController);
+router.get('/implementos/:id', authenticationMiddleware, isEncargado, obtenerImplementoPorIdController);
 router.put('/actualizar-implementos/:id', authenticationMiddleware, isEncargado, actualizarImplementoController);
-
-// Ruta para eliminar un implemento (solo encargado)
+router.patch('/actualizar-parcial-implementos/:id', authenticationMiddleware, isEncargado, actualizarImplementoParcialController);
 router.delete('/eliminar-implementos/:id', authenticationMiddleware, isEncargado, eliminarImplementoController);
-//obtener historial de un implemento
-router.get('/obtener-historial-implementos/:id/historial', authenticationMiddleware, isEncargado, obtenerHistorialImplementoController);
+router.get('//obtener-historial-implementos/:id/historial', authenticationMiddleware, isEncargado, obtenerHistorialImplementoController);
+
 export default router;
+

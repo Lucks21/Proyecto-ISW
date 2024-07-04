@@ -1,6 +1,7 @@
 import Configuracion from '../models/configuracion.model.js';
 import { parse, isValid, format } from 'date-fns';
 
+// Función para convertir la fecha en formato DD-MM-YYYY a objeto Date
 const convertirAFecha = (fechaStr) => {
   console.log(`Convirtiendo fecha: ${fechaStr}`);
   const parsedDate = parse(fechaStr, 'dd-MM-yyyy', new Date());
@@ -12,6 +13,7 @@ const convertirAFecha = (fechaStr) => {
   return parsedDate;
 };
 
+// Servicio para agregar un día deshabilitado
 export const agregarDia = async (fecha) => {
   const fechaDate = convertirAFecha(fecha);
 
@@ -29,12 +31,13 @@ export const agregarDia = async (fecha) => {
   return { message: 'Día deshabilitado agregado.', configuracion };
 };
 
+// Servicio para eliminar un día deshabilitado
 export const eliminarDia = async (fecha) => {
   const fechaDate = convertirAFecha(fecha);
 
   const configuracion = await Configuracion.findOne();
   if (!configuracion) {
-    throw new Error('No se encontraron  días deshabilitados.');
+    throw new Error('No se encontraron días deshabilitados.');
   }
 
   configuracion.diasDeshabilitados = configuracion.diasDeshabilitados.filter(dia => dia.getTime() !== fechaDate.getTime());
@@ -42,10 +45,22 @@ export const eliminarDia = async (fecha) => {
   return { message: 'Día deshabilitado eliminado.', configuracion };
 };
 
+// Servicio para obtener los días deshabilitados
 export const obtenerDias = async () => {
   const configuracion = await Configuracion.findOne();
   if (!configuracion) {
-    throw new Error('No se encontraron  días deshabilitados.');
+    throw new Error('No se encontraron días deshabilitados.');
   }
   return configuracion.diasDeshabilitados;
+};
+
+// Controlador para obtener los días deshabilitados
+export const obtenerDiasDeshabilitados = async (req, res) => {
+  try {
+    const resultado = await obtenerDias();
+    const diasFormateados = resultado.map(dia => format(dia, 'yyyy-MM-dd'));
+    res.status(200).json({ message: 'Días deshabilitados obtenidos con éxito.', data: diasFormateados });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener los días deshabilitados.', error });
+  }
 };

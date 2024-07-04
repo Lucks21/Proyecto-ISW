@@ -74,7 +74,7 @@ const HistorialModificacionesSchema = new Schema({
 const ImplementoSchema = new Schema({
   nombre: {
     type: String,
-    required: [true, 'El nombre es obligatorio'],
+    required: [false, 'El nombre es obligatorio'],
     trim: true,
     set: (value) => value.toLowerCase(),
     unique: true // Asegura unicidad del nombre

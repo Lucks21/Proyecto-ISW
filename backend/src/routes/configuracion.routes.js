@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.post('/crear-deshabilitados', verifyJWT, isEncargado, agregarDiaDeshabilitado);
 router.delete('/eliminar-diadeshabilitados/:fecha', verifyJWT, isEncargado, eliminarDiaDeshabilitado);
-router.get('/dias-deshabilitados', verifyJWT, obtenerDiasDeshabilitados);
+router.get('/obtener-dias-deshabilitados', verifyJWT, obtenerDiasDeshabilitados);
 
 export default router;

@@ -3,10 +3,16 @@ import { parse, isValid, format } from 'date-fns';
 
 // Validación para la fecha
 const fechaSchema = Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).custom((value, helpers) => {
+  console.log(`Validando fecha: ${value}`);
+  
   const parsedDate = parse(value, 'dd-MM-yyyy', new Date());
+  console.log(`Fecha convertida: ${format(parsedDate, 'yyyy-MM-dd')}`);
+
   if (!isValid(parsedDate)) {
+    console.log('Fecha inválida durante la validación');
     return helpers.error('any.invalid');
   }
+
   return value;
 }, 'validación de fecha').required().messages({
   'string.pattern.base': 'La fecha debe estar en formato DD-MM-YYYY',
@@ -28,6 +34,9 @@ const horarioSchema = Joi.object({
 // Validación para el historial de modificaciones
 const historialModificacionesSchema = Joi.object({
   fecha: fechaSchema,
+  usuario: Joi.string().required().messages({
+    'any.required': 'El usuario es obligatorio'
+  }),
   cantidadModificada: Joi.number().required().messages({
     'number.base': 'La cantidad modificada debe ser un número',
     'any.required': 'La cantidad modificada es obligatoria'
@@ -67,14 +76,26 @@ const implementoSchema = Joi.object({
   historialModificaciones: Joi.array().items(historialModificacionesSchema).default([])
 });
 
-// Validación específica para la actualización de implementos
-const actualizarImplementoSchema = implementoSchema.keys({
-  motivo: Joi.when('cantidad', {
-    is: Joi.exist(),
-    then: Joi.string().required().messages({
-      'any.required': 'El motivo es necesario si actualiza el stock'
-    })
-  })
-});
+const actualizarImplementoSchema = Joi.object({
+  nombre: Joi.string().pattern(/^[a-zA-Z0-9\s-_]+$/).messages({
+    'string.pattern.base': 'El nombre solo puede contener letras, números, espacios, guiones y guiones bajos',
+  }),
+  descripcion: Joi.string().optional(),
+  cantidad: Joi.number().min(0).messages({
+    'number.base': 'La cantidad debe ser un número',
+    'number.min': 'La cantidad no puede ser negativa',
+  }),
+  estado: Joi.string().valid('disponible', 'no disponible').messages({
+    'any.only': 'El estado debe ser "disponible" o "no disponible"',
+  }),
+  fechaAdquisicion: Joi.date().max('now').messages({
+    'date.max': 'La fecha de adquisición no puede ser una fecha futura'
+  }),
+  categoria: Joi.string().messages({
+    'any.required': 'La categoría es obligatoria'
+  }),
+  horarioDisponibilidad: Joi.array().items(horarioSchema).default([]),
+  historialModificaciones: Joi.array().items(historialModificacionesSchema).default([])
+}).min(1); // Al menos un campo debe ser actualizado
 
 export { implementoSchema, actualizarImplementoSchema };

@@ -4,6 +4,7 @@ import {
   obtenerImplementos,
   obtenerImplementoPorId,
   actualizarImplemento,
+  actualizarImplementoParcial,
   eliminarImplemento,
   obtenerHistorialImplemento
 } from '../services/implementos.services.js';
@@ -50,7 +51,7 @@ export const obtenerImplementoPorIdController = async (req, res) => {
 // Controlador para actualizar un implemento
 export const actualizarImplementoController = async (req, res) => {
   try {
-    const { error } = actualizarImplementoSchema.validate(req.body);
+    const { error } = actualizarImplementoSchema.validate(req.body, { allowUnknown: true, stripUnknown: true });
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
@@ -59,6 +60,17 @@ export const actualizarImplementoController = async (req, res) => {
     res.status(200).json(resultado);
   } catch (error) {
     console.error(`Error al actualizar implemento con ID ${req.params.id}:`, error);
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
+  }
+};
+
+// Controlador para actualizar un implemento parcialmente
+export const actualizarImplementoParcialController = async (req, res) => {
+  try {
+    const resultado = await actualizarImplementoParcial(req.params.id, req.body);
+    res.status(200).json(resultado);
+  } catch (error) {
+    console.error(`Error al actualizar parcialmente el implemento con ID ${req.params.id}:`, error);
     res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
