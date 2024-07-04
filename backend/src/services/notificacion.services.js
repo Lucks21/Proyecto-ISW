@@ -1,8 +1,9 @@
 import Notificacion from "../models/notificacion.model.js";
 import Implemento from "../models/implementos.model.js";
 import Instalacion from "../models/Instalacion.model.js";
+import sendEmail from "../utils/emailService.js";
 
-async function solicitarNotificacion  (recursoId, recursoTipo, userId){
+async function solicitarNotificacion(recursoId, recursoTipo, userId) {
   try {
     recursoTipo = recursoTipo.charAt(0).toUpperCase() + recursoTipo.slice(1);
 
@@ -26,7 +27,34 @@ async function solicitarNotificacion  (recursoId, recursoTipo, userId){
   } catch (error) {
     return { error: "Error al solicitar notificación", details: error.message };
   }
-};
+  async function notificarDisponibilidadImplemento(implementoId) {
+    try {
+      const implemento = await Implemento.findById(implementoId);
+      if (!implemento) {
+        console.error(`No se encontró el implemento con ID: ${implementoId}`);
+        return;
+      }
+
+      const notificaciones = await Notificacion.find({
+        recursoId: implementoId,
+        recursoTipo: "Implemento",
+      });
+
+      for (const notificacion of notificaciones) {
+        const user = await User.findById(notificacion.userId);
+        if (user && user.email) {
+          const subject = "El implemento está disponible";
+          const text = "El implemento que solicitaste está ahora disponible.";
+          await sendEmail(user.email, subject, text);
+        }
+        await notificacion.remove();
+      }
+    } catch (error) {
+      console.error("Error al notificar disponibilidad", error);
+    }
+  }
+}
 export default {
-    solicitarNotificacion
-  };
+  solicitarNotificacion,
+  notificarDisponibilidadImplemento,
+};

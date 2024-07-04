@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 // Importa el archivo 'configEnv.js' para cargar las variables de entorno
 import { PORT, HOST } from "./config/configEnv.js";
 // Importa el módulo 'cors' para agregar los cors

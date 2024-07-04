@@ -1,5 +1,6 @@
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import ReservaService from "../services/reservas.service.js";
+import sendEmail from '../utils/emailService.js';
 
 async function getAllReservasByUser(req, res) {
   const { params } = req;
@@ -47,14 +48,17 @@ async function registrarReserva(req, res) {
     if (resultado.error) {
       return respondError(req, res, 400, resultado.error);
     }
+    //Aqui falta recibir el correo del usuario
+    const userEmail = '@alumnos.ubiobio.cl';
+    const subject = 'Confirmación de reserva';
+    const text = `Tu reserva ha sido confirmada para el implemento con ID ${implementoId}. Fecha de inicio: ${fechaInicio}, Fecha de fin: ${fechaFin}.`;
+
+    await sendEmail(userEmail, subject, text);
+
+
     respondSuccess(req, res, 201, resultado.message);
   } catch (error) {
-    respondError(
-      req,
-      res,
-      500,
-      "Error al realizar la reserva de implemento",
-      error,
+    respondError(req,res,500,"Error al realizar la reserva de implemento",error,
     );
   }
 }

@@ -9,5 +9,5 @@ router.delete('/eliminarinstalacion/:id', instalacionController.deleteInstalacio
 router.get('/obtenerinstalaciones', instalacionController.getInstalaciones);
 router.get('/obtenerinstalaciones/prestadas', instalacionController.getInstalacionesPrestadas);
 router.get('/obtenerinstalacion/:id', instalacionController.getInstalacionById);
-router.put('/actualizarinstalacion/:id/damaged', instalacionController.updatedInstalacionDamaged);
+//router.put('/actualizarinstalacion/:id/damaged', instalacionController.updatedInstalacionDamaged);
 export default router;
