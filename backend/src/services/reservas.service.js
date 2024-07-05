@@ -167,6 +167,19 @@ async function notificarDisponibilidad(recursoId, recursoTipo) {
   }
 }
 
+async function obtenerDatosGraficos() {
+  try {
+    const reservas = await Reserva.find();
+    const data = {
+      activos: reservas.filter(reserva => reserva.estado === "activo").length,
+      cancelados: reservas.filter(reserva => reserva.estado === "cancelado").length,
+      finalizados: reservas.filter(reserva => reserva.estado === "finalizada").length,
+    };
+    return [data, null];
+  } catch (error) {
+    return [null, "Error al obtener datos para gráficos"];
+  }
+}
 export default {
   getAllReservasByUser,
   getAllReservasActivos,
@@ -175,5 +188,6 @@ export default {
   cancelarReserva,
   extenderReserva,
   finalizarReserva,
-  notificarDisponibilidad
+  notificarDisponibilidad,
+  obtenerDatosGraficos,
 };

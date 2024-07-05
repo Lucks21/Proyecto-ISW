@@ -110,7 +110,15 @@ async function finalizarReserva(req, res) {
         respondError(req, res, 500, "Error al finalizar la reserva", error);
     }
 }
-
+async function obtenerDatosGraficos(req, res) {
+    try {
+      const [data, error] = await ReservaService.obtenerDatosGraficos();
+      if (error) return respondError(req, res, 400, error);
+      return respondSuccess(req, res, 200, data);
+    } catch (error) {
+      return respondError(req, res, 500, "Error al obtener datos para gráficos", error);
+    }
+}
 export default {
     getAllReservasByUser,
     getAllReservasActivos,
@@ -119,4 +127,5 @@ export default {
     cancelarReserva,
     extenderReserva,
     finalizarReserva,
+    obtenerDatosGraficos,
 };

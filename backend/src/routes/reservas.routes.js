@@ -11,5 +11,6 @@ router.post('/registrarInstalacion', reservaController.registrarReservaInstalaci
 router.post('/cancelar', reservaController.cancelarReserva);
 router.post('/extender', reservaController.extenderReserva);
 router.post('/finalizar', reservaController.finalizarReserva);
+router.get('/grafico', reservaController.obtenerDatosGraficos);
 
 export default router;
