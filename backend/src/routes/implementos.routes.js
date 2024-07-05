@@ -20,7 +20,7 @@ router.get('/implementos/:id', authenticationMiddleware, isEncargado, obtenerImp
 router.put('/actualizar-implementos/:id', authenticationMiddleware, isEncargado, actualizarImplementoController);
 router.patch('/actualizar-parcial-implementos/:id', authenticationMiddleware, isEncargado, actualizarImplementoParcialController);
 router.delete('/eliminar-implementos/:id', authenticationMiddleware, isEncargado, eliminarImplementoController);
-router.get('//obtener-historial-implementos/:id/historial', authenticationMiddleware, isEncargado, obtenerHistorialImplementoController);
+router.get('/obtener-historial-implementos/:id/historial', authenticationMiddleware, isEncargado, obtenerHistorialImplementoController);
 
 export default router;
 
