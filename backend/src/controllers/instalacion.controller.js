@@ -100,5 +100,4 @@ async function getInstalacionesReservadas(req, res) {
 
 export default {
   getInstalacionesReservadas,
-  getInstalacionesReservadasById,
 };

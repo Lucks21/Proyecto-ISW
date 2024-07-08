@@ -1,6 +1,6 @@
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import ReservaService from "../services/reservas.service.js";
-import sendEmail from '../utils/emailService.js';
+import sendEmail from '../services/email.services.js';
 
 async function getAllReservasByUser(req, res) {
   const { params } = req;

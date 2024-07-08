@@ -118,5 +118,4 @@ async function getInstalacionesReservadas() {
 
  export default {
   getInstalacionesReservadas,
-  getInstalacionesReservadasById,
 };

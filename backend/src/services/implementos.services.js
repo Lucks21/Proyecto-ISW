@@ -184,5 +184,4 @@ async function getImplementosReservados() {
 
 export default {
   getImplementosReservados,
-  getImplementosReservadasById,
 };

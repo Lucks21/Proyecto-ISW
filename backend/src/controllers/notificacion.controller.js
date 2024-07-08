@@ -1,6 +1,6 @@
 import { respondError, respondSuccess } from "../utils/resHandler.js";
 import NotificacionService from '../services/notificacion.services.js';
-import sendEmail from '../utils/emailService.js';
+import sendEmail from '../services/email.services.js';
 
 async function solicitarNotificacion(req, res) {
     try {

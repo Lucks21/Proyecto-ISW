@@ -122,5 +122,4 @@ async function getImplementosReservados(req, res) {
 
 export default {
   getImplementosReservados,
-  getImplementosReservadosById,
 };
