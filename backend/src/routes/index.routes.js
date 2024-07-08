@@ -22,7 +22,7 @@ router.use("/implementos", authenticationMiddleware, implementosRoutes);
 router.use("/users", authenticationMiddleware, userRoutes);
 router.use("/auth", authRoutes);
 router.use("/instalacion", authenticationMiddleware, instalacionRoutes);
-router.use("/reservas",  authenticationMiddleware, reservasRoutes);
+router.use("/reservas", reservasRoutes);
 router.use("/configuracion", authenticationMiddleware, configuracionRoutes);
 router.use("/notificaciones", authenticationMiddleware, notificacionRoutes);
 
