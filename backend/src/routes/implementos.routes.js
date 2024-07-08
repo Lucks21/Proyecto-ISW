@@ -10,6 +10,8 @@ import {
 } from '../controllers/implementos.controller.js';
 import authenticationMiddleware from '../middlewares/authentication.middleware.js';
 import { isEncargado } from '../middlewares/authorization.middleware.js';
+import implementosController from '../controllers/implementos.controller.js';
+
 
 const router = express.Router();
 
@@ -21,6 +23,9 @@ router.put('/actualizar-implementos/:id', authenticationMiddleware, isEncargado,
 router.patch('/actualizar-parcial-implementos/:id', authenticationMiddleware, isEncargado, actualizarImplementoParcialController);
 router.delete('/eliminar-implementos/:id', authenticationMiddleware, isEncargado, eliminarImplementoController);
 router.get('//obtener-historial-implementos/:id/historial', authenticationMiddleware, isEncargado, obtenerHistorialImplementoController);
+
+router.get('/obtenerimplementos/reservados', implementosController.getImplementosReservados);
+
 
 export default router;
 
