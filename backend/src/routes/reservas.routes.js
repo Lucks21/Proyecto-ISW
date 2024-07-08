@@ -17,7 +17,7 @@ const router = Router();
 // Solo el encargado puede ver todas las reservas activas
 router.get('/obtenerReservasActivas', authenticationMiddleware, isEncargado, getAllReservasActivos);
 // Ruta para que el alumno realice una reserva
-router.post('/registrar-reserva-implemento', authenticationMiddleware, registrarReservaImplemento);
+router.post('/registrar-reserva-implemento', authenticationMiddleware, isAlumno, registrarReservaImplemento);
 // Ruta para cancelar una reserva
 router.post('/cancelar-reserva', authenticationMiddleware, isAlumno, cancelarReserva);
 // Ruta para extender una reserva
