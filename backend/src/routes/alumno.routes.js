@@ -17,6 +17,6 @@ router.post('/crear-alumnos', crearAlumnoController);
 router.get('/ver-alumnos', authenticationMiddleware, isEncargado, obtenerAlumnosController);
 router.get('/alumnos/:id', authenticationMiddleware, isEncargado, obtenerAlumnoPorIdController);
 router.put('/alumnos/:id', authenticationMiddleware, isEncargado, actualizarAlumnoController);
-router.delete('/alumnos/:id', authenticationMiddleware, isEncargado, eliminarAlumnoController);
+router.delete('/borrar-alumnos/:id', authenticationMiddleware, isEncargado, eliminarAlumnoController);
 
 export default router;
