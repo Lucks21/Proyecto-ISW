@@ -101,3 +101,22 @@ export const eliminarInstalacion = async (id) => {
   }
   return { message: 'Instalación eliminada con éxito.' };
 };
+
+ //Servicio para visualizar Reserva de instalaciones
+async function getInstalacionesReservadas() {
+  try {
+    const instalaciones = await Instalacion.find();
+    
+    const instalacionesReservadas = instalaciones.filter( instalacion => instalacion.estado === "no disponible") || [];
+
+    return [instalacionesReservadas, null];
+  } catch (error) {
+    return [null, "Error al obtener las instalaciones"];
+  } 
+}
+ //Servicio para visualizar Reserva de instalaciones por ID
+
+ export default {
+  getInstalacionesReservadas,
+  getInstalacionesReservadasById,
+};

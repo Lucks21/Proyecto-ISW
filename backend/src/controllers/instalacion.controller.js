@@ -96,7 +96,9 @@ async function getInstalacionesReservadas(req, res) {
       respondError(req, res, 500, "Error interno del servidor");
   }
 };
+//Controllador para obtener todas las instalaciones reservadas por ID
 
 export default {
   getInstalacionesReservadas,
+  getInstalacionesReservadasById,
 };

@@ -167,3 +167,22 @@ export const obtenerHistorialImplemento = async (id) => {
   }
   return { message: 'Historial obtenido con éxito.', data: implemento.historialModificaciones };
 };
+//Servicio para visualizar Reserva de implementos
+async function getImplementosReservados() { 
+  try {
+    const implementos = await Implemento.find();
+
+    const implementosReservados = implementos.filter( implemento => implemento.estado === "no disponible") || [];
+
+    return [implementosReservados, null];
+
+  } catch (error) {
+    return [null, "Error al obtener los implementos"];
+  }
+}
+//Servicio para visualizar la reserva de implementos por ID
+
+export default {
+  getImplementosReservados,
+  getImplementosReservadasById,
+};

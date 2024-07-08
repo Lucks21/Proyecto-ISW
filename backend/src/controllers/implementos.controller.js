@@ -118,7 +118,9 @@ async function getImplementosReservados(req, res) {
       respondError(req, res, 500, "Error interno del servidor");
   }
 };
+//Controllador para obtener los implementos reservados por ID
 
 export default {
   getImplementosReservados,
+  getImplementosReservadosById,
 };
