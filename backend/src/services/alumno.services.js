@@ -1,3 +1,4 @@
+// backend/src/services/alumno.services.js
 import Alumno from '../models/alumno.model.js';
 import Role from '../models/role.model.js';
 import bcrypt from 'bcryptjs';
@@ -9,7 +10,7 @@ const encriptarContraseña = async (contraseña) => {
 };
 
 // Servicio para crear un alumno
-export const crearAlumno = async (datosAlumno) => {
+const crearAlumno = async (datosAlumno) => {
   const { rut, contraseña, nombre, correoElectronico } = datosAlumno;
 
   // Verificar unicidad del RUT
@@ -45,13 +46,13 @@ export const crearAlumno = async (datosAlumno) => {
 };
 
 // Servicio para obtener todos los alumnos
-export const obtenerAlumnos = async () => {
+const obtenerAlumnos = async () => {
   const alumnos = await Alumno.find().populate('roles');
   return { message: 'Alumnos obtenidos con éxito.', data: alumnos };
 };
 
 // Servicio para obtener un alumno por ID
-export const obtenerAlumnoPorId = async (id) => {
+const obtenerAlumnoPorId = async (id) => {
   const alumno = await Alumno.findById(id).populate('roles');
   if (!alumno) {
     throw new Error('Alumno no encontrado.');
@@ -60,7 +61,7 @@ export const obtenerAlumnoPorId = async (id) => {
 };
 
 // Servicio para actualizar un alumno
-export const actualizarAlumno = async (id, datosActualizados) => {
+const actualizarAlumno = async (id, datosActualizados) => {
   const { correoElectronico, rut, contraseña } = datosActualizados;
 
   // Verificar unicidad del correo por RUT si se está actualizando
@@ -85,10 +86,18 @@ export const actualizarAlumno = async (id, datosActualizados) => {
 };
 
 // Servicio para eliminar un alumno
-export const eliminarAlumno = async (id) => {
+const eliminarAlumno = async (id) => {
   const alumnoEliminado = await Alumno.findByIdAndDelete(id);
   if (!alumnoEliminado) {
     throw new Error('Alumno no encontrado.');
   }
   return { message: 'Alumno eliminado con éxito.' };
+};
+
+export default {
+  crearAlumno,
+  obtenerAlumnos,
+  obtenerAlumnoPorId,
+  actualizarAlumno,
+  eliminarAlumno,
 };

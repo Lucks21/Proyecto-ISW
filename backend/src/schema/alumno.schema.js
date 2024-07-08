@@ -1,3 +1,4 @@
+// backend/src/schema/alumno.schema.js
 import Joi from 'joi';
 
 // Función para validar el RUT chileno

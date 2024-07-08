@@ -1,3 +1,4 @@
+// backend/src/middlewares/authentication.middleware.js
 "use strict";
 
 import jwt from "jsonwebtoken";
@@ -16,13 +17,7 @@ const verifyJWT = (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.Authorization;
 
     if (!authHeader?.startsWith("Bearer ")) {
-      return respondError(
-        req,
-        res,
-        401,
-        "No autorizado",
-        "No hay token válido"
-      );
+      return respondError(req, res, 401, "No autorizado", "No hay token válido");
     }
 
     const token = authHeader.split(" ")[1];
