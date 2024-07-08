@@ -1,46 +1,59 @@
 "use strict";
 
-/** Modelo de datos 'User' */
+/** Modelos de datos */
 import User from "../models/user.model.js";
+import Alumno from "../models/alumno.model.js";
 /** Modulo 'jsonwebtoken' para crear tokens */
 import jwt from "jsonwebtoken";
 import { ACCESS_JWT_SECRET, REFRESH_JWT_SECRET } from "../config/configEnv.js";
 import { handleError } from "../utils/errorHandler.js";
 
 /**
- * Inicia sesión con un usuario.
+ * Inicia sesión con un usuario o alumno.
  * @async
  * @function login
- * @param {Object} user - Objeto de usuario
+ * @param {Object} user - Objeto de usuario o alumno
  */
 async function login(user) {
   try {
     const { email, password } = user;
 
+    // Buscar en ambos modelos: User y Alumno
     const userFound = await User.findOne({ email: email })
       .populate("roles")
       .exec();
-    if (!userFound) {
+    const alumnoFound = await Alumno.findOne({ correoElectronico: email });
+
+    if (!userFound && !alumnoFound) {
+      console.log("Usuario no encontrado");
       return [null, null, "El usuario y/o contraseña son incorrectos"];
     }
 
-    const matchPassword = await User.comparePassword(
-      password,
-      userFound.password,
-    );
+    let matchPassword = false;
+    let roles = [];
+
+    if (userFound) {
+      console.log(`Usuario encontrado: ${JSON.stringify(userFound)}`);
+      console.log(`Roles del usuario encontrado: ${userFound.roles.map(role => role.name)}`);
+      console.log(`Contraseña del usuario encontrado: ${userFound.password}`);
+
+      matchPassword = await User.comparePassword(password, userFound.password);
+      roles = userFound.roles.map(role => role.name);
+    } else if (alumnoFound) {
+      console.log(`Alumno encontrado: ${JSON.stringify(alumnoFound)}`);
+      console.log(`Contraseña del alumno encontrado: ${alumnoFound.contraseña}`);
+
+      matchPassword = await alumnoFound.comparePassword(password);
+      roles = ["alumno"];
+    }
 
     if (!matchPassword) {
+      console.log("Contraseña incorrecta");
       return [null, null, "El usuario y/o contraseña son incorrectos"];
     }
 
-    // Añadir log para verificar los roles obtenidos
-    console.log(`Roles del usuario encontrado: ${userFound.roles}`);
-
-    // Obtener los nombres de los roles
-    const roles = userFound.roles.map(role => role.name);
-
     const accessToken = jwt.sign(
-      { email: userFound.email, roles: roles },
+      { email, roles },
       ACCESS_JWT_SECRET,
       {
         expiresIn: "1d",
@@ -48,7 +61,7 @@ async function login(user) {
     );
 
     const refreshToken = jwt.sign(
-      { email: userFound.email },
+      { email },
       REFRESH_JWT_SECRET,
       {
         expiresIn: "7d", // 7 días
@@ -57,7 +70,7 @@ async function login(user) {
 
     return [accessToken, refreshToken, null];
   } catch (error) {
-    handleError(error, "auth.service -> signIn");
+    handleError(error, "auth.service -> login");
     return [null, null, "Error en el servidor"];
   }
 }
@@ -84,17 +97,18 @@ async function refresh(cookies) {
         })
           .populate("roles")
           .exec();
+        const alumnoFound = await Alumno.findOne({
+          correoElectronico: user.email,
+        });
 
-        if (!userFound) return [null, "Usuario no autorizado"];
+        if (!userFound && !alumnoFound) return [null, "Usuario no autorizado"];
 
-        // Añadir log para verificar los roles obtenidos
-        console.log(`Roles del usuario encontrado: ${userFound.roles}`);
+        console.log(`Roles del usuario encontrado: ${userFound ? userFound.roles.map(role => role.name) : "alumno"}`);
 
-        // Obtener los nombres de los roles
-        const roles = userFound.roles.map(role => role.name);
+        const roles = userFound ? userFound.roles.map(role => role.name) : ["alumno"];
 
         const newAccessToken = jwt.sign(
-          { email: userFound.email, roles: roles },
+          { email: user.email, roles: roles },
           ACCESS_JWT_SECRET,
           {
             expiresIn: "1d",

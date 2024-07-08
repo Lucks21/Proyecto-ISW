@@ -1,6 +1,7 @@
 import Reserva from '../models/reservas.model.js';
 import Configuracion from '../models/configuracion.model.js';
-import { parse, isValid, format, addHours, isFuture, differenceInMinutes, isSameDay, addMinutes } from 'date-fns';
+import Alumno from '../models/alumno.model.js';
+import { parse, isValid, format, addHours, isFuture, differenceInMinutes, isSameDay } from 'date-fns';
 
 const normalizarFechaHora = (fecha, hora) => {
   const [day, month, year] = fecha.split('-');
@@ -8,8 +9,19 @@ const normalizarFechaHora = (fecha, hora) => {
   return new Date(year, month - 1, day, hour, minute, 0, 0);
 };
 
+// Verificar si el userId pertenece a un Alumno
+const verificarUsuario = async (userId) => {
+  const alumno = await Alumno.findById(userId);
+  return alumno;
+};
+
 // Servicio para registrar una reserva de implemento
 async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, userId) {
+  const usuario = await verificarUsuario(userId);
+  if (!usuario) {
+    return { error: 'Usuario no encontrado.' };
+  }
+
   const { fecha, hora } = fechaInicio;
   const fechaInicioNormalizada = normalizarFechaHora(fecha, hora);
 
@@ -72,6 +84,11 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
 
 // Servicio para registrar una reserva de instalación
 async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin, userId) {
+  const usuario = await verificarUsuario(userId);
+  if (!usuario) {
+    return { error: 'Usuario no encontrado.' };
+  }
+
   const { fecha, hora } = fechaInicio;
   const fechaInicioNormalizada = normalizarFechaHora(fecha, hora);
 
@@ -215,6 +232,22 @@ async function obtenerDatosGraficos() {
   return [data, null];
 }
 
+// Servicio para finalizar reservas expiradas
+async function finalizarReservasExpiradas() {
+  try {
+    const ahora = new Date();
+    const reservasExpiradas = await Reserva.find({ fechaFin: { $lt: ahora }, estado: 'activo' });
+
+    for (const reserva of reservasExpiradas) {
+      await finalizarReserva(reserva._id);
+    }
+
+    console.log(`Se finalizaron ${reservasExpiradas.length} reservas expiradas.`);
+  } catch (error) {
+    console.error('Error al finalizar reservas expiradas:', error);
+  }
+}
+
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
@@ -223,5 +256,6 @@ export default {
   finalizarReserva,
   getAllReservasActivos,
   getAllReservasByUser,
-  obtenerDatosGraficos
+  obtenerDatosGraficos,
+  finalizarReservasExpiradas
 };

@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+
 const { Schema } = mongoose;
 
 // Función para validar el RUT chileno
@@ -51,9 +53,29 @@ const alumnoSchema = new Schema(
     ],
   },
   {
-    versionKey: false, //esto es para desactivar la crecion del campo '_v' en los documentos
+    versionKey: false, // Esto es para desactivar la creación del campo '_v' en los documentos
   },
 );
+
+// Middleware para hashear la contraseña antes de guardar
+alumnoSchema.pre('save', async function (next) {
+  if (!this.isModified('contraseña')) {
+    return next();
+  }
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.contraseña = await bcrypt.hash(this.contraseña, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Método para comparar contraseñas
+alumnoSchema.methods.comparePassword = async function (contraseña) {
+  return await bcrypt.compare(contraseña, this.contraseña);
+};
 
 const Alumno = mongoose.model("Alumno", alumnoSchema);
 

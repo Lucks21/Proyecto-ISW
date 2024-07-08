@@ -12,7 +12,7 @@ const validarRut = (rut, helpers) => {
 
 // Validación para el formato del correo electrónico
 const correoElectronicoSchema = Joi.string().email({ tlds: { allow: ['edu', 'cl'] } }).pattern(/@alumnos\.ubiobio\.cl$/).required().messages({
-  'string.email': 'El correo electrónico debe ser válido y debe pertenecer a la universidad (dominio @alumnos.ubiobio.cl).',
+  'string.email': 'El correo electrónico debe ser válido y debe pertenecer a la universidad (dominio@alumnos.ubiobio.cl).',
   'any.required': 'El correo electrónico es obligatorio.'
 });
 
