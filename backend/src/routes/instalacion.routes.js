@@ -2,7 +2,7 @@ import express from 'express';
 import { crearInstalacionController, obtenerInstalacionesController, obtenerInstalacionPorIdController, actualizarInstalacionController, eliminarInstalacionController } from '../controllers/instalacion.controller.js';
 import authenticationMiddleware from '../middlewares/authentication.middleware.js';
 import { isEncargado } from '../middlewares/authorization.middleware.js';
-import instalacionController from '../controllers/instalaciones.controller.js';
+import instalacionController from '../controllers/instalacion.controller.js';
 
 const router = express.Router();
 
