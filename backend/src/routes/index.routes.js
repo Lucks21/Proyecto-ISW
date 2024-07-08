@@ -15,7 +15,7 @@ import implementosRoutes from './implementos.routes.js';
 import configuracionRoutes from './configuracion.routes.js';
 import notificacionRoutes from './notificacion.routes.js';
 import reservasRoutes from './reservas.routes.js';
-
+import Alumno from "../routes/alumno.routes.js";
 
 const router = Router();
 router.use("/implementos", authenticationMiddleware, implementosRoutes);
@@ -25,6 +25,6 @@ router.use("/instalacion", authenticationMiddleware, instalacionRoutes);
 router.use("/reservas",authenticationMiddleware, reservasRoutes);
 router.use("/configuracion", authenticationMiddleware, configuracionRoutes);
 router.use("/notificaciones", authenticationMiddleware, notificacionRoutes);
-
+router.use("/alumno", Alumno);
 
 export default router;

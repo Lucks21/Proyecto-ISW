@@ -1,15 +1,25 @@
 import Joi from 'joi';
 
+// Función para validar el RUT chileno
+const validarRut = (rut, helpers) => {
+  const rutRegex = /^[0-9]+-[0-9Kk]$/;
+  if (!rutRegex.test(rut)) {
+    return helpers.error('any.invalid', { message: 'El RUT no es válido' });
+  }
+  // Aquí puedes añadir lógica adicional para validar el dígito verificador si es necesario
+  return true;
+};
+
 // Validación para el formato del correo electrónico
 const correoElectronicoSchema = Joi.string().email({ tlds: { allow: ['edu', 'cl'] } }).pattern(/@alumnos\.ubiobio\.cl$/).required().messages({
   'string.email': 'El correo electrónico debe ser válido y debe pertenecer a la universidad (dominio @alumnos.ubiobio.cl).',
   'any.required': 'El correo electrónico es obligatorio.'
 });
 
-// Validación para el RUT (puedes ajustar el patrón según las reglas de validación de RUT que tengas)
-const rutSchema = Joi.string().pattern(/^[0-9]+-[0-9kK]{1}$/).required().messages({
-  'string.pattern.base': 'El RUT debe tener un formato válido (ej: 12345678-9).',
-  'any.required': 'El RUT es obligatorio.'
+// Validación para el RUT
+const rutSchema = Joi.string().custom(validarRut, 'Validación de RUT').required().messages({
+  'any.required': 'El RUT es obligatorio',
+  'any.invalid': 'El RUT no es válido'
 });
 
 // Validación para la contraseña

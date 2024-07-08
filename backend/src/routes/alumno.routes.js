@@ -12,10 +12,9 @@ import { isEncargado } from '../middlewares/authorization.middleware.js';
 const router = express.Router();
 
 // Ruta para que los alumnos se registren
-router.post('/alumnos', crearAlumnoController);
-
+router.post('/crear-alumnos', crearAlumnoController);
 // Rutas protegidas para que el encargado pueda gestionar los alumnos
-router.get('/alumnos', authenticationMiddleware, isEncargado, obtenerAlumnosController);
+router.get('/ver-alumnos', authenticationMiddleware, isEncargado, obtenerAlumnosController);
 router.get('/alumnos/:id', authenticationMiddleware, isEncargado, obtenerAlumnoPorIdController);
 router.put('/alumnos/:id', authenticationMiddleware, isEncargado, actualizarAlumnoController);
 router.delete('/alumnos/:id', authenticationMiddleware, isEncargado, eliminarAlumnoController);

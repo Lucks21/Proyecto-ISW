@@ -1,32 +1,41 @@
-"use strict";
-import mongoose from "mongoose";
-
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
+// Función para validar el RUT chileno
+const validarRut = (rut) => {
+  const rutRegex = /^[0-9]+-[0-9kK]$/;
+  return rutRegex.test(rut);
+};
+
+// Definir el esquema de Alumno
 const alumnoSchema = new Schema(
   {
     rut: {
       type: String,
       unique: true,
       required: true,
-      match: [/^\d{1,2}\.\d{3}\.\d{3}-[kK\d]{1}$/, 'El RUT no es válido']
+      validate: {
+        validator: validarRut,
+        message: 'El RUT no es válido'
+      }
     },
     contraseña: {
       type: String,
       required: true,
-      minlength: [6, 'La contraseña debe tener al menos 6 caracteres']
     },
     nombre: {
       type: String,
       required: true,
-      trim: true
     },
     correoElectronico: {
       type: String,
       required: true,
-      unique: true,
-      trim: true,
-      match: [/^[a-zA-Z0-9._%+-]+@alumnos\.ubiobio\.cl$/, 'El correo electrónico debe ser del dominio @alumnos.ubiobio.cl']
+      validate: {
+        validator: function (value) {
+          return value.endsWith('@alumnos.ubiobio.cl');
+        },
+        message: 'El correo electrónico debe pertenecer a la universidad (dominio @alumnos.ubiobio.cl).'
+      }
     },
     reservasActivas: [
       {
@@ -42,7 +51,7 @@ const alumnoSchema = new Schema(
     ],
   },
   {
-    versionKey: false, // Desactivar la creación del campo '__v' en los documentos
+    versionKey: false, //esto es para desactivar la crecion del campo '_v' en los documentos
   },
 );
 
