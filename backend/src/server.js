@@ -15,7 +15,6 @@ import { setupDB } from "./config/configDB.js";
 // Importa el handler de errores
 import { handleFatalError, handleError } from "./utils/errorHandler.js";
 import { createRoles, createUsers } from "./config/initialSetup.js";
-
 /**
  * Inicia el servidor web
  */
