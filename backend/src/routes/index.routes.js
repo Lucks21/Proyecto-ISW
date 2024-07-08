@@ -10,7 +10,7 @@ import authRoutes from "./auth.routes.js";
 
 /** Middleware de autenticación */
 import authenticationMiddleware from "../middlewares/authentication.middleware.js";
-import instalacionRoutes from './instalaciones.routes.js';
+import instalacionRoutes from './instalacion.routes.js';
 import implementosRoutes from './implementos.routes.js';
 import prestamosRoutes from './prestamos.routes.js';
 import configuracionRoutes from './configuracion.routes.js';
