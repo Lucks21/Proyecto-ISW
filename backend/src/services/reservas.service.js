@@ -43,7 +43,7 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
           await notificacion.save();
           return { error: "El implemento no está disponible para reservar" };
       }
-      const reserva = new Reservas({
+      const reserva = new Reserva({
           userId,
           implementoId,
           fechaInicio,
@@ -157,7 +157,7 @@ async function notificarDisponibilidad(recursoId, recursoTipo) {
       for (const notificacion of notificaciones) {
           const user = await User.findById(notificacion.userId);
           if (user && user.email) {
-              // Enviar correo de notificación (el código del correo se debería implementar aquí)
+              // Enviar correo de notificación //hay que hacer la logica para colocar el correo del alumno
               console.log(`Enviar correo a: ${user.email} - El ${recursoTipo.toLowerCase()} que solicitaste está ahora disponible.`);
           }
           await notificacion.remove();
