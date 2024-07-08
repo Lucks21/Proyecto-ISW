@@ -12,8 +12,8 @@ router.get('/obtenerReservasActivas', authenticationMiddleware, isEncargado, res
 // Solo el alumno puede ver sus reservas
 router.get('/obtenerReservas/user/:id', authenticationMiddleware, isAlumno, reservaController.getAllReservasByUser);
 
-// Solo el alumno y el encargado pueden registrar una reserva de implemento
-router.post('/registrar-reserva-implemento', authenticationMiddleware, isAlumno, verificarDiaHabilitado, reservaController.registrarReservaImplemento);
+// Solo el alumno y el encargado pueden registrar una reserva de implemento , isAlumno
+router.post('/registrar-reserva-implemento', authenticationMiddleware, verificarDiaHabilitado, reservaController.registrarReservaImplemento);
 
 // Solo el alumno y el encargado pueden registrar una reserva de instalación
 router.post('/registrar-reserva-instalacion', authenticationMiddleware, isAlumno, verificarDiaHabilitado, reservaController.registrarReservaInstalacion);

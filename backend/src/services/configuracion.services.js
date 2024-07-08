@@ -8,50 +8,62 @@ const convertirAFecha = (fechaStr) => {
   console.log(`Fecha convertida: ${format(parsedDate, 'yyyy-MM-dd')}`);
 
   if (!isValid(parsedDate)) {
-    throw new Error('Fecha inválida. Use el formato DD-MM-YYYY.');
+    throw new Error(`Fecha inválida: ${fechaStr}. Use el formato DD-MM-YYYY.`);
   }
   return parsedDate;
 };
 
 // Servicio para agregar un día deshabilitado
 export const agregarDia = async (fecha) => {
-  const fechaDate = convertirAFecha(fecha);
+  try {
+    const fechaDate = convertirAFecha(fecha);
+    
+    let configuracion = await Configuracion.findOne();
+    if (!configuracion) {
+      configuracion = new Configuracion();
+    }
 
-  let configuracion = await Configuracion.findOne();
-  if (!configuracion) {
-    configuracion = new Configuracion();
+    if (configuracion.diasDeshabilitados.some(dia => dia.getTime() === fechaDate.getTime())) {
+      throw new Error(`La fecha ${fecha} ya está deshabilitada.`);
+    }
+
+    configuracion.diasDeshabilitados.push(fechaDate);
+    await configuracion.save();
+    return { message: 'Día deshabilitado agregado.', configuracion };
+  } catch (error) {
+    throw new Error(`Error al agregar el día deshabilitado: ${error.message}`);
   }
-
-  if (configuracion.diasDeshabilitados.some(dia => dia.getTime() === fechaDate.getTime())) {
-    throw new Error('La fecha ya está deshabilitada.');
-  }
-
-  configuracion.diasDeshabilitados.push(fechaDate);
-  await configuracion.save();
-  return { message: 'Día deshabilitado agregado.', configuracion };
 };
 
 // Servicio para eliminar un día deshabilitado
 export const eliminarDia = async (fecha) => {
-  const fechaDate = convertirAFecha(fecha);
+  try {
+    const fechaDate = convertirAFecha(fecha);
 
-  const configuracion = await Configuracion.findOne();
-  if (!configuracion) {
-    throw new Error('No se encontraron días deshabilitados.');
+    const configuracion = await Configuracion.findOne();
+    if (!configuracion) {
+      throw new Error('No se encontraron días deshabilitados.');
+    }
+
+    configuracion.diasDeshabilitados = configuracion.diasDeshabilitados.filter(dia => dia.getTime() !== fechaDate.getTime());
+    await configuracion.save();
+    return { message: 'Día deshabilitado eliminado.', configuracion };
+  } catch (error) {
+    throw new Error(`Error al eliminar el día deshabilitado: ${error.message}`);
   }
-
-  configuracion.diasDeshabilitados = configuracion.diasDeshabilitados.filter(dia => dia.getTime() !== fechaDate.getTime());
-  await configuracion.save();
-  return { message: 'Día deshabilitado eliminado.', configuracion };
 };
 
 // Servicio para obtener los días deshabilitados
 export const obtenerDias = async () => {
-  const configuracion = await Configuracion.findOne();
-  if (!configuracion) {
-    throw new Error('No se encontraron días deshabilitados.');
+  try {
+    const configuracion = await Configuracion.findOne();
+    if (!configuracion) {
+      throw new Error('No se encontraron días deshabilitados.');
+    }
+    return configuracion.diasDeshabilitados;
+  } catch (error) {
+    throw new Error(`Error al obtener los días deshabilitados: ${error.message}`);
   }
-  return configuracion.diasDeshabilitados;
 };
 
 // Controlador para obtener los días deshabilitados
@@ -61,6 +73,6 @@ export const obtenerDiasDeshabilitados = async (req, res) => {
     const diasFormateados = resultado.map(dia => format(dia, 'yyyy-MM-dd'));
     res.status(200).json({ message: 'Días deshabilitados obtenidos con éxito.', data: diasFormateados });
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener los días deshabilitados.', error });
+    res.status(500).json({ message: 'Error al obtener los días deshabilitados.', error: error.message });
   }
 };

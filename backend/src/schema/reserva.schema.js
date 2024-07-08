@@ -1,19 +1,16 @@
 import Joi from 'joi';
-import { parse, isValid, format, addHours } from 'date-fns';
 
-// Validación para el formato de fecha y hora DD-MM-YYYY HH:mm
-const fechaHoraSchema = Joi.string().pattern(/^\d{2}-\d{2}-\d{4}\s\d{2}:\d{2}$/).custom((value, helpers) => {
-  const [fecha, hora] = value.split(' ');
-  const parsedDate = parse(`${fecha} ${hora}`, 'dd-MM-yyyy HH:mm', new Date());
-  if (!isValid(parsedDate)) {
-    return helpers.error('any.invalid');
-  }
-  return value;
-}, 'validación de fecha y hora').required().messages({
-  'string.pattern.base': 'La fecha y hora deben estar en formato DD-MM-YYYY HH:mm',
-  'any.required': 'La fecha y hora son obligatorias',
-  'any.invalid': 'La fecha y hora no son válidas'
-});
+// Validación para el formato de fecha y hora
+const fechaHoraSchema = Joi.object({
+  fecha: Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).required().messages({
+    'string.pattern.base': 'La fecha debe estar en formato DD-MM-YYYY',
+    'any.required': 'La fecha es obligatoria'
+  }),
+  hora: Joi.string().pattern(/^\d{2}:\d{2}$/).required().messages({
+    'string.pattern.base': 'La hora debe estar en formato HH:MM',
+    'any.required': 'La hora es obligatoria'
+  })
+}).required();
 
 // Esquema de validación para la reserva de un implemento
 const validarReservaImplemento = Joi.object({
@@ -56,7 +53,6 @@ const validarExtenderReserva = Joi.object({
   })
 });
 
-// Esquema de validación para finalizar una reserva
 const validarFinalizarReserva = Joi.object({
   reservaId: Joi.string().required().messages({
     'any.required': 'El campo "reservaId" es requerido',

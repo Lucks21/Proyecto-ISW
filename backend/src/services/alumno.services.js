@@ -1,4 +1,5 @@
 import Alumno from '../models/alumno.model.js';
+import Role from '../models/role.model.js';
 import bcrypt from 'bcryptjs';
 
 // Función para encriptar la contraseña
@@ -25,11 +26,18 @@ export const crearAlumno = async (datosAlumno) => {
 
   const contraseñaEncriptada = await encriptarContraseña(contraseña);
 
+  // Buscar el rol de alumno
+  const rolAlumno = await Role.findOne({ name: "alumno" });
+  if (!rolAlumno) {
+    throw new Error('Rol de alumno no encontrado.');
+  }
+
   const nuevoAlumno = new Alumno({
     rut,
     contraseña: contraseñaEncriptada,
     nombre,
     correoElectronico,
+    roles: [rolAlumno._id], // Asignar el rol de "alumno" por defecto
   });
 
   await nuevoAlumno.save();
@@ -38,13 +46,13 @@ export const crearAlumno = async (datosAlumno) => {
 
 // Servicio para obtener todos los alumnos
 export const obtenerAlumnos = async () => {
-  const alumnos = await Alumno.find();
+  const alumnos = await Alumno.find().populate('roles');
   return { message: 'Alumnos obtenidos con éxito.', data: alumnos };
 };
 
 // Servicio para obtener un alumno por ID
 export const obtenerAlumnoPorId = async (id) => {
-  const alumno = await Alumno.findById(id);
+  const alumno = await Alumno.findById(id).populate('roles');
   if (!alumno) {
     throw new Error('Alumno no encontrado.');
   }
@@ -65,9 +73,11 @@ export const actualizarAlumno = async (id, datosActualizados) => {
 
   if (contraseña) {
     datosActualizados.contraseña = await encriptarContraseña(contraseña);
+  } else {
+    delete datosActualizados.contraseña;
   }
 
-  const alumnoActualizado = await Alumno.findByIdAndUpdate(id, datosActualizados, { new: true });
+  const alumnoActualizado = await Alumno.findByIdAndUpdate(id, datosActualizados, { new: true }).populate('roles');
   if (!alumnoActualizado) {
     throw new Error('Alumno no encontrado.');
   }
