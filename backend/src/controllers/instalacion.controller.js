@@ -1,6 +1,8 @@
-
+import { respondSuccess, respondError } from "../utils/resHandler.js";
 import { crearInstalacion, obtenerInstalaciones, obtenerInstalacionPorId, actualizarInstalacion, eliminarInstalacion } from '../services/instalacion.services.js';
 import { crearInstalacionSchema, actualizarInstalacionSchema, idSchema } from '../schema/instalacion.schema.js';
+import InstalacionService from "../services/instalacion.services.js";
+
 
 // Controlador para crear una instalación
 export const crearInstalacionController = async (req, res) => {
@@ -78,4 +80,23 @@ export const eliminarInstalacionController = async (req, res) => {
   } catch (error) {
     res.status(404).json({ message: error.message || 'Error al eliminar la instalación.' });
   }
+};
+//Controlador para obtener todas las instalaciones Reservadas
+async function getInstalacionesReservadas(req, res) { 
+
+  try {
+      const [instalacionesReservadas, error] = await InstalacionService.getInstalacionesReservadas();
+      if (error) return respondError(req, res, 404, error);
+
+      instalacionesReservadas.length === 0
+          ? respondSuccess(req, res, 204)
+          : respondSuccess(req, res, 200, instalacionesReservadas);
+
+  } catch (error) {
+      respondError(req, res, 500, "Error interno del servidor");
+  }
+};
+
+export default {
+  getInstalacionesReservadas,
 };

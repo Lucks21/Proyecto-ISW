@@ -1,3 +1,4 @@
+import { respondSuccess, respondError } from "../utils/resHandler.js";
 import mongoose from 'mongoose';
 import {
   crearImplemento,
@@ -9,6 +10,7 @@ import {
   obtenerHistorialImplemento
 } from '../services/implementos.services.js';
 import { implementoSchema, actualizarImplementoSchema } from '../schema/implementos.schema.js';
+import ImplementoService from "../services/implementos.services.js";
 
 // Controlador para crear un implemento
 export const crearImplementoController = async (req, res) => {
@@ -99,4 +101,24 @@ export const obtenerHistorialImplementoController = async (req, res) => {
     console.error(`Error al obtener el historial de implemento con ID ${req.params.id}:`, error);
     res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
+};
+
+//Controlador para obtener los implementos Reservados
+async function getImplementosReservados(req, res) {
+  try {
+      const [implementos, error] = await ImplementoService.getImplementosReservados();
+
+      if (error) return respondError(req, res, 404, error);
+      
+      implementos.length === 0
+          ? respondSuccess(req, res, 204)
+          : respondSuccess(req, res, 200, implementos);
+
+  } catch (error) {
+      respondError(req, res, 500, "Error interno del servidor");
+  }
+};
+
+export default {
+  getImplementosReservados,
 };
