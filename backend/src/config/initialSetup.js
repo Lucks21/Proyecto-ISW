@@ -11,7 +11,7 @@ import ROLES from "../constants/roles.constants.js";
  */
 async function createRoles() {
   try {
-    const roles = ["user", "admin", "encargado"];
+    const roles = ["user", "admin", "encargado", "alumno"];
     
     for (const roleName of roles) {
       const roleExists = await Role.findOne({ name: roleName });
