@@ -34,6 +34,8 @@ const alumnoSchema = new Schema(
         ref: "Reserva",
       },
     ],
+    
+  
   },
   {
     versionKey: false, //esto es para desactivar la crecion del campo '_v' en los documentos
