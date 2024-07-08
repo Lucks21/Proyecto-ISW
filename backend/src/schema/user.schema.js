@@ -22,10 +22,10 @@ const userBodySchema = Joi.object({
     "string.pattern.base": "El rut tiene el formato XXXXXXXX-X, ejemplo: 12345678-9.",
   }),
   password: Joi.string().required().min(5).messages({
-    "string.empty": "La contraseña no puede estar vacía.",
-    "any.required": "La contraseña es obligatoria.",
-    "string.base": "La contraseña debe ser de tipo string.",
-    "string.min": "La contraseña debe tener al menos 5 caracteres.",
+    "string.empty": "La password no puede estar vacía.",
+    "any.required": "La password es obligatoria.",
+    "string.base": "La password debe ser de tipo string.",
+    "string.min": "La password debe tener al menos 5 caracteres.",
   }),
   email: Joi.string().email().required().messages({
     "string.empty": "El email no puede estar vacío.",
@@ -43,9 +43,9 @@ const userBodySchema = Joi.object({
       "any.only": "El rol proporcionado no es válido.",
     }),
   newPassword: Joi.string().min(5).messages({
-    "string.empty": "La contraseña no puede estar vacía.",
-    "string.base": "La contraseña debe ser de tipo string.",
-    "string.min": "La contraseña debe tener al menos 5 caracteres.",
+    "string.empty": "La password no puede estar vacía.",
+    "string.base": "La password debe ser de tipo string.",
+    "string.min": "La password debe tener al menos 5 caracteres.",
   }),
 }).messages({
   "object.unknown": "No se permiten propiedades adicionales.",

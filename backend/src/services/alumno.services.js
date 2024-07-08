@@ -3,15 +3,15 @@ import Alumno from '../models/alumno.model.js';
 import Role from '../models/role.model.js';
 import bcrypt from 'bcryptjs';
 
-// Función para encriptar la contraseña
-const encriptarContraseña = async (contraseña) => {
+// Función para encriptar la password
+const encriptarPassword = async (password) => {
   const salt = await bcrypt.genSalt(10);
-  return await bcrypt.hash(contraseña, salt);
+  return await bcrypt.hash(password, salt);
 };
 
 // Servicio para crear un alumno
 const crearAlumno = async (datosAlumno) => {
-  const { rut, contraseña, nombre, correoElectronico } = datosAlumno;
+  const { rut, password, nombre, email } = datosAlumno;
 
   // Verificar unicidad del RUT
   const rutExistente = await Alumno.findOne({ rut });
@@ -20,12 +20,12 @@ const crearAlumno = async (datosAlumno) => {
   }
 
   // Verificar unicidad del correo electrónico
-  const correoExistente = await Alumno.findOne({ correoElectronico });
+  const correoExistente = await Alumno.findOne({ email });
   if (correoExistente) {
     throw new Error('El correo electrónico ya está en uso.');
   }
 
-  const contraseñaEncriptada = await encriptarContraseña(contraseña);
+  const passwordEncriptada = await encriptarPassword(password);
 
   // Buscar el rol de alumno
   const rolAlumno = await Role.findOne({ name: "alumno" });
@@ -35,9 +35,9 @@ const crearAlumno = async (datosAlumno) => {
 
   const nuevoAlumno = new Alumno({
     rut,
-    contraseña: contraseñaEncriptada,
+    password: passwordEncriptada,
     nombre,
-    correoElectronico,
+    email,
     roles: [rolAlumno._id], // Asignar el rol de "alumno" por defecto
   });
 
@@ -62,20 +62,20 @@ const obtenerAlumnoPorId = async (id) => {
 
 // Servicio para actualizar un alumno
 const actualizarAlumno = async (id, datosActualizados) => {
-  const { correoElectronico, rut, contraseña } = datosActualizados;
+  const { email, rut, password } = datosActualizados;
 
   // Verificar unicidad del correo por RUT si se está actualizando
-  if (correoElectronico) {
-    const alumnoExistente = await Alumno.findOne({ correoElectronico });
+  if (email) {
+    const alumnoExistente = await Alumno.findOne({ email });
     if (alumnoExistente && alumnoExistente._id.toString() !== id) {
       throw new Error('El correo electrónico ya está en uso con otro RUT.');
     }
   }
 
-  if (contraseña) {
-    datosActualizados.contraseña = await encriptarContraseña(contraseña);
+  if (password) {
+    datosActualizados.password = await encriptarPassword(password);
   } else {
-    delete datosActualizados.contraseña;
+    delete datosActualizados.password;
   }
 
   const alumnoActualizado = await Alumno.findByIdAndUpdate(id, datosActualizados, { new: true }).populate('roles');

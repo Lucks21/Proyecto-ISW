@@ -7,9 +7,9 @@ export const crearAlumnoController = async (req, res) => {
   if (error) {
     return res.status(400).json({ message: 'Datos inválidos', error: error.details });
   }
-  const { nombre, apellido, email, contraseña, rut, reservasActivas, historialReservas } = req.body;
+  const { nombre, apellido, email, password, rut, reservasActivas, historialReservas } = req.body;
   try {
-    const nuevoAlumno = await alumnoService.crearAlumno({ nombre, apellido, email, contraseña, rut, reservasActivas, historialReservas });
+    const nuevoAlumno = await alumnoService.crearAlumno({ nombre, apellido, email, password, rut, reservasActivas, historialReservas });
     res.status(201).json(nuevoAlumno);
   } catch (error) {
     res.status(500).json({ message: 'Error al crear el alumno', error });
@@ -44,9 +44,9 @@ export const actualizarAlumnoController = async (req, res) => {
     return res.status(400).json({ message: 'Datos inválidos', error: error.details });
   }
   const { id } = req.params;
-  const { nombre, apellido, email, contraseña, rut, reservasActivas, historialReservas } = req.body;
+  const { nombre, apellido, email, password, rut, reservasActivas, historialReservas } = req.body;
   try {
-    const alumnoActualizado = await alumnoService.actualizarAlumno(id, { nombre, apellido, email, contraseña, rut, reservasActivas, historialReservas });
+    const alumnoActualizado = await alumnoService.actualizarAlumno(id, { nombre, apellido, email, password, rut, reservasActivas, historialReservas });
     if (!alumnoActualizado) {
       return res.status(404).json({ message: 'Alumno no encontrado' });
     }

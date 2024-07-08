@@ -2,6 +2,7 @@
 
 /** Modelo de datos 'User' */
 import User from "../models/user.model.js";
+import Alumno from "../models/alumno.model.js";
 /** Modulo 'jsonwebtoken' para crear tokens */
 import jwt from "jsonwebtoken";
 import { ACCESS_JWT_SECRET, REFRESH_JWT_SECRET } from "../config/configEnv.js";
@@ -14,15 +15,26 @@ import { handleError } from "../utils/errorHandler.js";
  * @param {Object} user - Objeto de usuario
  */
 async function login(user) {
+
   try {
     const { email, password } = user;
 
-    const userFound = await User.findOne({ email: email })
+    let userFound;
+
+    if(email.includes("@alumnos.ubiobio.cl")) {
+      userFound = await Alumno.findOne({email : email})
+      .populate("roles")
+      .exec();      
+    }else{
+      userFound = await User.findOne({ email: email })
       .populate("roles")
       .exec();
-    if (!userFound) {
-      return [null, null, "El usuario y/o contraseña son incorrectos"];
     }
+
+    if (!userFound) {
+      return [null, null, "usuario"];
+    }
+
 
     const matchPassword = await User.comparePassword(
       password,
@@ -30,7 +42,7 @@ async function login(user) {
     );
 
     if (!matchPassword) {
-      return [null, null, "El usuario y/o contraseña son incorrectos"];
+      return [null, null, "password"];
     }
 
     // Añadir log para verificar los roles obtenidos
@@ -57,6 +69,7 @@ async function login(user) {
 
     return [accessToken, refreshToken, null];
   } catch (error) {
+    console.log({error});
     handleError(error, "auth.service -> signIn");
     return [null, null, "Error en el servidor"];
   }

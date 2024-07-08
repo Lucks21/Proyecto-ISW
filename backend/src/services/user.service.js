@@ -92,7 +92,7 @@ async function updateUser(id, user) {
     );
 
     if (!matchPassword) {
-      return [null, "La contraseña no coincide"];
+      return [null, "La password no coincide"];
     }
 
     const rolesFound = await Role.find({ name: { $in: roles } });

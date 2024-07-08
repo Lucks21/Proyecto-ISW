@@ -16,7 +16,12 @@ import { authLoginBodySchema } from "../schema/auth.schema.js";
  */
 async function login(req, res) {
   try {
-    const { body } = req;
+    const { body } = req; 
+    /**{
+     * email: "admin@example"  |  "ecargado@mail.com" | "matias.pereira2001@alumnos.ubiobio.cl"
+     * password: "$12387aseua" | "Mypassword1234" | "contraseña1234"
+     * }
+    */
     const { error: bodyError } = authLoginBodySchema.validate(body);
     if (bodyError) return respondError(req, res, 400, bodyError.message);
 
