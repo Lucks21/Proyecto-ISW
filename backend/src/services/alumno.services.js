@@ -1,31 +1,33 @@
 import Alumno from '../models/alumno.model.js';
-import { format } from 'date-fns';
-import levenshtein from 'js-levenshtein';
+import bcrypt from 'bcryptjs';
 
-// Función para normalizar el nombre
-const normalizarNombre = (nombre) => {
-  return nombre.toLowerCase().trim().replace(/\s+/g, ' ');
-};
-
-// Función para verificar nombres similares permitiendo diferencias significativas como números
-const esNombreSimilar = (nombre, nombreExistente) => {
-  const distancia = levenshtein(nombre, nombreExistente);
-  return distancia < 3 && !/\d/.test(nombreExistente) && !/\d/.test(nombre);
+// Función para encriptar la contraseña
+const encriptarContraseña = async (contraseña) => {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(contraseña, salt);
 };
 
 // Servicio para crear un alumno
 export const crearAlumno = async (datosAlumno) => {
   const { rut, contraseña, nombre, correoElectronico } = datosAlumno;
 
-  // Verificar unicidad del correo por RUT
-  const alumnoExistente = await Alumno.findOne({ correoElectronico });
-  if (alumnoExistente && alumnoExistente.rut !== rut) {
-    throw new Error('El correo electrónico ya está en uso con otro RUT.');
+  // Verificar unicidad del RUT
+  const rutExistente = await Alumno.findOne({ rut });
+  if (rutExistente) {
+    throw new Error('El RUT ya está en uso.');
   }
+
+  // Verificar unicidad del correo electrónico
+  const correoExistente = await Alumno.findOne({ correoElectronico });
+  if (correoExistente) {
+    throw new Error('El correo electrónico ya está en uso.');
+  }
+
+  const contraseñaEncriptada = await encriptarContraseña(contraseña);
 
   const nuevoAlumno = new Alumno({
     rut,
-    contraseña,
+    contraseña: contraseñaEncriptada,
     nombre,
     correoElectronico,
   });
@@ -51,7 +53,7 @@ export const obtenerAlumnoPorId = async (id) => {
 
 // Servicio para actualizar un alumno
 export const actualizarAlumno = async (id, datosActualizados) => {
-  const { correoElectronico, rut } = datosActualizados;
+  const { correoElectronico, rut, contraseña } = datosActualizados;
 
   // Verificar unicidad del correo por RUT si se está actualizando
   if (correoElectronico) {
@@ -59,6 +61,10 @@ export const actualizarAlumno = async (id, datosActualizados) => {
     if (alumnoExistente && alumnoExistente._id.toString() !== id) {
       throw new Error('El correo electrónico ya está en uso con otro RUT.');
     }
+  }
+
+  if (contraseña) {
+    datosActualizados.contraseña = await encriptarContraseña(contraseña);
   }
 
   const alumnoActualizado = await Alumno.findByIdAndUpdate(id, datosActualizados, { new: true });
