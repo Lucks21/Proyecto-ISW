@@ -45,10 +45,10 @@ async function notificarDisponibilidadImplemento(implementoId) {
 
     for (const notificacion of notificaciones) {
       const user = await User.findById(notificacion.userId);
-      if (user && user.correoElectronico) {
+      if (user && user.email) {
         const subject = "El implemento está disponible";
         const text = "El implemento que solicitaste está ahora disponible.";
-        await sendEmail(user.correoElectronico, subject, text);
+        await sendEmail(user.email, subject, text);
       }
       await notificacion.remove();
     }

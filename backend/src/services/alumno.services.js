@@ -1,16 +1,17 @@
+// backend/src/services/alumno.services.js
 import Alumno from '../models/alumno.model.js';
 import Role from '../models/role.model.js';
 import bcrypt from 'bcryptjs';
 
-// Función para encriptar la contraseña
-const encriptarContraseña = async (contraseña) => {
+// Función para encriptar la password
+const encriptarPassword = async (password) => {
   const salt = await bcrypt.genSalt(10);
-  return await bcrypt.hash(contraseña, salt);
+  return await bcrypt.hash(password, salt);
 };
 
 // Servicio para crear un alumno
-export const crearAlumno = async (datosAlumno) => {
-  const { rut, contraseña, nombre, correoElectronico } = datosAlumno;
+const crearAlumno = async (datosAlumno) => {
+  const { rut, password, nombre, email } = datosAlumno;
 
   // Verificar unicidad del RUT
   const rutExistente = await Alumno.findOne({ rut });
@@ -19,12 +20,12 @@ export const crearAlumno = async (datosAlumno) => {
   }
 
   // Verificar unicidad del correo electrónico
-  const correoExistente = await Alumno.findOne({ correoElectronico });
+  const correoExistente = await Alumno.findOne({ email });
   if (correoExistente) {
     throw new Error('El correo electrónico ya está en uso.');
   }
 
-  const contraseñaEncriptada = await encriptarContraseña(contraseña);
+  const passwordEncriptada = await encriptarPassword(password);
 
   // Buscar el rol de alumno
   const rolAlumno = await Role.findOne({ name: "alumno" });
@@ -34,9 +35,9 @@ export const crearAlumno = async (datosAlumno) => {
 
   const nuevoAlumno = new Alumno({
     rut,
-    contraseña: contraseñaEncriptada,
+    password: passwordEncriptada,
     nombre,
-    correoElectronico,
+    email,
     roles: [rolAlumno._id], // Asignar el rol de "alumno" por defecto
   });
 
@@ -45,13 +46,13 @@ export const crearAlumno = async (datosAlumno) => {
 };
 
 // Servicio para obtener todos los alumnos
-export const obtenerAlumnos = async () => {
+const obtenerAlumnos = async () => {
   const alumnos = await Alumno.find().populate('roles');
   return { message: 'Alumnos obtenidos con éxito.', data: alumnos };
 };
 
 // Servicio para obtener un alumno por ID
-export const obtenerAlumnoPorId = async (id) => {
+const obtenerAlumnoPorId = async (id) => {
   const alumno = await Alumno.findById(id).populate('roles');
   if (!alumno) {
     throw new Error('Alumno no encontrado.');
@@ -60,21 +61,21 @@ export const obtenerAlumnoPorId = async (id) => {
 };
 
 // Servicio para actualizar un alumno
-export const actualizarAlumno = async (id, datosActualizados) => {
-  const { correoElectronico, rut, contraseña } = datosActualizados;
+const actualizarAlumno = async (id, datosActualizados) => {
+  const { email, rut, password } = datosActualizados;
 
   // Verificar unicidad del correo por RUT si se está actualizando
-  if (correoElectronico) {
-    const alumnoExistente = await Alumno.findOne({ correoElectronico });
+  if (email) {
+    const alumnoExistente = await Alumno.findOne({ email });
     if (alumnoExistente && alumnoExistente._id.toString() !== id) {
       throw new Error('El correo electrónico ya está en uso con otro RUT.');
     }
   }
 
-  if (contraseña) {
-    datosActualizados.contraseña = await encriptarContraseña(contraseña);
+  if (password) {
+    datosActualizados.password = await encriptarPassword(password);
   } else {
-    delete datosActualizados.contraseña;
+    delete datosActualizados.password;
   }
 
   const alumnoActualizado = await Alumno.findByIdAndUpdate(id, datosActualizados, { new: true }).populate('roles');
@@ -85,10 +86,18 @@ export const actualizarAlumno = async (id, datosActualizados) => {
 };
 
 // Servicio para eliminar un alumno
-export const eliminarAlumno = async (id) => {
+const eliminarAlumno = async (id) => {
   const alumnoEliminado = await Alumno.findByIdAndDelete(id);
   if (!alumnoEliminado) {
     throw new Error('Alumno no encontrado.');
   }
   return { message: 'Alumno eliminado con éxito.' };
+};
+
+export default {
+  crearAlumno,
+  obtenerAlumnos,
+  obtenerAlumnoPorId,
+  actualizarAlumno,
+  eliminarAlumno,
 };

@@ -129,7 +129,7 @@ const ImplementoSchema = new Schema({
     type: [HistorialModificacionesSchema],
     default: []
   }
-}, { timestamps: true });
+}, { timestamps: false });
 
 const Implemento = mongoose.model('Implemento', ImplementoSchema);
 

@@ -15,7 +15,7 @@ const ConfiguracionSchema = new Schema({
       //message: 'Las fechas deshabilitadas deben ser únicas.'
     //}
   }
-}, { timestamps: true });
+}, { timestamps: false });
 
 const Configuracion = mongoose.model('Configuracion', ConfiguracionSchema);
 

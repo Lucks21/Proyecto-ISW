@@ -1,3 +1,4 @@
+// backend/src/middlewares/authorization.middleware.js
 "use strict";
 // Autorización - Comprobar el rol del usuario
 import User from "../models/user.model.js";
