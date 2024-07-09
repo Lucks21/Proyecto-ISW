@@ -11,6 +11,7 @@ async function registrarReservaImplemento(req, res) {
 
   try {
     const { implementoId, fechaInicio, fechaFin, userId } = req.body;
+    console.log(`Solicitud de reserva recibida con userId: ${userId}`);
     const resultado = await ReservaServices.registrarReservaImplemento(implementoId, fechaInicio, fechaFin, userId);
     if (resultado.error) {
       return respondError(req, res, 400, resultado.error);

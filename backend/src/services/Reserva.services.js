@@ -1,7 +1,9 @@
-// backend/src/services/Reserva.services.js
 import Reserva from '../models/reservas.model.js';
-import Configuracion from '../models/configuracion.model.js';
-import { addHours, isFuture, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
+import { obtenerDias } from './configuracion.services.js';
+import Alumno from '../models/alumno.model.js';
+import Implemento from '../models/implementos.model.js';
+import mongoose from 'mongoose';
+import { addHours, isFuture, differenceInMinutes, startOfDay, endOfDay, parseISO } from 'date-fns';
 
 const normalizarFechaHora = (fecha, hora) => {
   const [day, month, year] = fecha.split('-');
@@ -9,9 +11,38 @@ const normalizarFechaHora = (fecha, hora) => {
   return new Date(year, month - 1, day, hour, minute, 0, 0);
 };
 
+const normalizarFecha = (fecha) => {
+  const date = new Date(fecha);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+};
+
 // Servicio para registrar una reserva de implemento
 async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, userId) {
   try {
+    // Verificar si el userId es un ObjectId válido
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return { error: 'ID de alumno no es un ObjectId válido.' };
+    }
+
+    // Validar si el ID del alumno es válido
+    console.log(`Buscando alumno con ID: ${userId}`);
+    const alumno = await Alumno.findById(userId);
+    console.log(`Resultado de la búsqueda de alumno: ${alumno}`);
+    if (!alumno) {
+      return { error: 'ID de alumno no válido o no encontrado.' };
+    }
+
+    // Verificar si el implementoId es un ObjectId válido
+    if (!mongoose.Types.ObjectId.isValid(implementoId)) {
+      return { error: 'ID de implemento no es válido.' };
+    }
+
+    // Validar si el ID del implemento es válido
+    const implemento = await Implemento.findById(implementoId);
+    if (!implemento) {
+      return { error: 'ID de implemento no válido o no encontrado.' };
+    }
+
     const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
     const fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
 
@@ -20,9 +51,10 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     }
 
     // Obtener los días deshabilitados desde la base de datos
-    const configuracion = await Configuracion.findOne();
-    if (configuracion && configuracion.diasDeshabilitados.some(dia => dia.getTime() === fechaInicioNormalizada.getTime())) {
-      return { error: 'La fecha de inicio está deshabilitada para reservas.' };
+    const diasDeshabilitados = await obtenerDias();
+    const fechaReservaNormalizada = normalizarFecha(fechaInicioNormalizada);
+    if (diasDeshabilitados.some(dia => normalizarFecha(dia).getTime() === fechaReservaNormalizada.getTime())) {
+      return { error: `La fecha ${fechaInicio.fecha} está deshabilitada para reservas.` };
     }
 
     if (differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada) < 60) {
@@ -72,7 +104,6 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     return { error: "Error interno del servidor." };
   }
 }
-
 // Servicio para cancelar una reserva
 async function cancelarReserva(reservaId) {
   try {

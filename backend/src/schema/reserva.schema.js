@@ -17,7 +17,9 @@ const validarReservaImplemento = Joi.object({
   implementoId: Joi.string().required().messages({
     'any.required': 'El campo "implementoId" es requerido',
   }),
-  fechaInicio: fechaHoraSchema,
+  fechaInicio: fechaHoraSchema.required().messages({
+    'any.required': 'El campo "fechaInicio" es requerido',
+  }),
   fechaFin: fechaHoraSchema.optional(),
   userId: Joi.string().required().messages({
     'any.required': 'El campo "userId" es requerido',
@@ -29,12 +31,15 @@ const validarReservaInstalacion = Joi.object({
   instalacionId: Joi.string().required().messages({
     'any.required': 'El campo "instalacionId" es requerido',
   }),
-  fechaInicio: fechaHoraSchema,
+  fechaInicio: fechaHoraSchema.required().messages({
+    'any.required': 'El campo "fechaInicio" es requerido',
+  }),
   fechaFin: fechaHoraSchema.optional(),
   userId: Joi.string().required().messages({
     'any.required': 'El campo "userId" es requerido',
   })
 });
+
 
 // Esquema de validación para cancelar una reserva
 const validarCancelarReserva = Joi.object({

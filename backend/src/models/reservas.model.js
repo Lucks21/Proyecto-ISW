@@ -21,7 +21,7 @@ const reservaSchema = new mongoose.Schema(
     },
     fechaInicio: {
       type: Date,
-      required: false,
+      required: true,
     },
     fechaFin: {
       type: Date,
