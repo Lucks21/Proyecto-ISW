@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 
 // Función para normalizar el nombre
 const normalizarNombre = (nombre) => {
-  return nombre.toLowerCase().trim().replace(/\s+/g, ' ');
+  return nombre.toLowerCase().trim().replace(/\s+/g, '_');
 };
 
 // Función para verificar nombres similares permitiendo diferencias significativas como números

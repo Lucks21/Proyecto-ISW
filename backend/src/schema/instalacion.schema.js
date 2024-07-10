@@ -11,9 +11,9 @@ const horarioSchema = Joi.object({
 });
 
 const crearInstalacionSchema = Joi.object({
-  nombre: Joi.string().pattern(/^[a-zA-Z0-9-_]+$/).trim().required().messages({
+  nombre: Joi.string().pattern(/^[a-zA-Z0-9-_ ]+$/).trim().required().messages({
     'any.required': 'El nombre es obligatorio',
-    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones y guiones bajos, y debe incluir letras'
+    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones, guiones bajos y espacios, y debe incluir letras'
   }),
   descripcion: Joi.string().trim().optional(),
   capacidad: Joi.number().integer().min(1).required().messages({
