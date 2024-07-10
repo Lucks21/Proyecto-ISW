@@ -11,33 +11,28 @@ const horarioSchema = Joi.object({
 });
 
 const crearInstalacionSchema = Joi.object({
-  nombre: Joi.string().trim().required().messages({
-    'any.required': 'El nombre es obligatorio'
+  nombre: Joi.string().pattern(/^[a-zA-Z0-9-_]+$/).trim().required().messages({
+    'any.required': 'El nombre es obligatorio',
+    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones y guiones bajos, y debe incluir letras'
   }),
   descripcion: Joi.string().trim().optional(),
   capacidad: Joi.number().integer().min(1).required().messages({
     'any.required': 'La capacidad es obligatoria',
     'number.min': 'La capacidad debe ser al menos 1'
   }),
-  fechaAdquisicion: Joi.date().max('now').optional().messages({
-    'date.max': 'La fecha de adquisición no puede ser una fecha futura'
-  }),
-  ubicacion: Joi.string().trim().optional(),
   horarioDisponibilidad: Joi.array().items(horarioSchema).unique((a, b) => a.dia === b.dia).optional().messages({
     'array.unique': 'No puede haber horarios superpuestos para el mismo día'
   })
 });
 
 const actualizarInstalacionSchema = Joi.object({
-  nombre: Joi.string().trim().optional(),
+  nombre: Joi.string().pattern(/^[a-zA-Z0-9-_]+$/).trim().optional().messages({
+    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones y guiones bajos, y debe incluir letras'
+  }),
   descripcion: Joi.string().trim().optional(),
   capacidad: Joi.number().integer().min(1).optional().messages({
     'number.min': 'La capacidad debe ser al menos 1'
   }),
-  fechaAdquisicion: Joi.date().max('now').optional().messages({
-    'date.max': 'La fecha de adquisición no puede ser una fecha futura'
-  }),
-  ubicacion: Joi.string().trim().optional(),
   horarioDisponibilidad: Joi.array().items(horarioSchema).unique((a, b) => a.dia === b.dia).optional().messages({
     'array.unique': 'No puede haber horarios superpuestos para el mismo día'
   })

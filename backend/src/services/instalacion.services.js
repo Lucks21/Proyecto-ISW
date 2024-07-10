@@ -1,38 +1,26 @@
 import Instalacion from '../models/Instalacion.model.js';
 import levenshtein from 'js-levenshtein';
+import { format } from 'date-fns';
 
 // Función para normalizar el nombre
 const normalizarNombre = (nombre) => {
   return nombre.toLowerCase().trim().replace(/\s+/g, ' ');
 };
 
-// Función para verificar similaridad
-const esNombreSimilar = (nuevoNombre, nombreExistente) => {
-  const baseNuevoNombre = nuevoNombre.replace(/\d+$/, '').trim();
-  const baseNombreExistente = nombreExistente.replace(/\d+$/, '').trim();
-  const distancia = levenshtein(baseNuevoNombre, baseNombreExistente);
-  return distancia < 3 && baseNuevoNombre !== baseNombreExistente;
+// Función para verificar nombres similares permitiendo diferencias significativas como números
+const esNombreSimilar = (nombre, nombreExistente) => {
+  const distancia = levenshtein(nombre, nombreExistente);
+  return distancia < 3 && !/\d/.test(nombreExistente) && !/\d/.test(nombre);
 };
 
 // Servicio para crear una instalación
 export const crearInstalacion = async (datosInstalacion) => {
-  const { nombre, descripcion, capacidad, fechaAdquisicion, horarioDisponibilidad } = datosInstalacion;
-
-  // Validar capacidad
-  if (capacidad <= 0) {
-    throw new Error('La capacidad debe ser un número positivo.');
-  }
-
-  // Validar fecha de adquisición
-  const fechaActual = new Date();
-  if (new Date(fechaAdquisicion) > fechaActual) {
-    throw new Error('La fecha de adquisición no puede ser una fecha futura.');
-  }
+  const { nombre, descripcion, capacidad, horarioDisponibilidad } = datosInstalacion;
 
   // Normalizar el nombre
   const nombreNormalizado = normalizarNombre(nombre);
 
-  // Verificar unicidad del nombre y similaridad
+  // Verificar unicidad del nombre y similitud
   const instalacionesExistentes = await Instalacion.find();
   for (let instalacion of instalacionesExistentes) {
     if (esNombreSimilar(nombreNormalizado, instalacion.nombre)) {
@@ -40,23 +28,23 @@ export const crearInstalacion = async (datosInstalacion) => {
     }
   }
 
-  const nuevaInstalacion = new Instalacion({
-    nombre: nombreNormalizado,
-    descripcion,
-    capacidad,
-    fechaAdquisicion,
-    horarioDisponibilidad,
-    estado: 'disponible' // Estado por defecto
-  });
-
   try {
+    const nuevaInstalacion = new Instalacion({
+      nombre: nombreNormalizado,
+      descripcion,
+      capacidad,
+      horarioDisponibilidad,
+      estado: 'disponible' // Estado por defecto
+    });
+
     await nuevaInstalacion.save();
     return { message: 'Instalación creada con éxito.', data: nuevaInstalacion };
   } catch (error) {
     if (error.code === 11000) {
-      throw new Error('El nombre de la instalación ya está en uso. Por favor, elija un nombre diferente.');
+      // Error de clave duplicada
+      throw new Error('El nombre de la instalación ya existe. Por favor, elija otro nombre.');
     }
-    throw new Error(error.message || 'Error al crear la instalación.');
+    throw error; // Lanzar otros errores no relacionados con clave duplicada
   }
 };
 
@@ -77,20 +65,82 @@ export const obtenerInstalacionPorId = async (id) => {
 
 // Servicio para actualizar una instalación
 export const actualizarInstalacion = async (id, datosActualizados) => {
-  // Si el nombre está siendo actualizado, normalizar y verificar unicidad
+  const instalacionActual = await Instalacion.findById(id);
+  if (!instalacionActual) {
+    throw new Error('Instalación no encontrada.');
+  }
+
+  // Verificar unicidad del nombre y similitud si el nombre está siendo actualizado
   if (datosActualizados.nombre) {
     datosActualizados.nombre = normalizarNombre(datosActualizados.nombre);
-    const instalacionExistente = await Instalacion.findOne({ nombre: datosActualizados.nombre });
-    if (instalacionExistente && instalacionExistente._id.toString() !== id) {
-      throw new Error('El nombre de la instalación ya está en uso.');
+
+    const instalacionesExistentes = await Instalacion.find();
+    for (let instalacion of instalacionesExistentes) {
+      if (esNombreSimilar(datosActualizados.nombre, instalacion.nombre) && instalacion._id.toString() !== id) {
+        throw new Error('El nombre de la instalación es muy similar a uno existente.');
+      }
     }
   }
 
-  const instalacionActualizada = await Instalacion.findByIdAndUpdate(id, datosActualizados, { new: true });
-  if (!instalacionActualizada) {
+  // Registrar todas las modificaciones en el historial
+  const modificaciones = [];
+  for (let clave in datosActualizados) {
+    if (datosActualizados[clave] !== instalacionActual[clave]) {
+      modificaciones.push({
+        campo: clave,
+        valorAnterior: instalacionActual[clave],
+        valorNuevo: datosActualizados[clave],
+        fecha: format(new Date(), 'dd-MM-yyyy'),
+      });
+    }
+  }
+  instalacionActual.historialModificaciones.push(...modificaciones);
+
+  // Actualizar campos de la instalación
+  Object.assign(instalacionActual, datosActualizados);
+  await instalacionActual.save();
+
+  return { message: 'Instalación actualizada con éxito.', data: instalacionActual };
+};
+
+// Servicio para actualizar una instalación parcialmente
+export const actualizarInstalacionParcial = async (id, datosActualizados) => {
+  const instalacionActual = await Instalacion.findById(id);
+  if (!instalacionActual) {
     throw new Error('Instalación no encontrada.');
   }
-  return { message: 'Instalación actualizada con éxito.', data: instalacionActualizada };
+
+  // Verificar unicidad del nombre y similitud si el nombre está siendo actualizado
+  if (datosActualizados.nombre) {
+    datosActualizados.nombre = normalizarNombre(datosActualizados.nombre);
+
+    const instalacionesExistentes = await Instalacion.find();
+    for (let instalacion of instalacionesExistentes) {
+      if (esNombreSimilar(datosActualizados.nombre, instalacion.nombre) && instalacion._id.toString() !== id) {
+        throw new Error('El nombre de la instalación es muy similar a uno existente.');
+      }
+    }
+  }
+
+  // Registrar todas las modificaciones en el historial
+  const modificaciones = [];
+  for (let clave in datosActualizados) {
+    if (datosActualizados[clave] !== instalacionActual[clave]) {
+      modificaciones.push({
+        campo: clave,
+        valorAnterior: instalacionActual[clave],
+        valorNuevo: datosActualizados[clave],
+        fecha: format(new Date(), 'dd-MM-yyyy'),
+      });
+    }
+  }
+  instalacionActual.historialModificaciones.push(...modificaciones);
+
+  // Actualizar solo los campos que se pasen en el body
+  Object.assign(instalacionActual, datosActualizados);
+  await instalacionActual.save();
+
+  return { message: 'Instalación actualizada con éxito.', data: instalacionActual };
 };
 
 // Servicio para eliminar una instalación
@@ -102,20 +152,27 @@ export const eliminarInstalacion = async (id) => {
   return { message: 'Instalación eliminada con éxito.' };
 };
 
- //Servicio para visualizar Reserva de instalaciones
-async function getInstalacionesReservadas() {
-  try {
-    const instalaciones = await Instalacion.find();
-    
-    const instalacionesReservadas = instalaciones.filter( instalacion => instalacion.estado === "no disponible") || [];
+// Servicio para obtener el historial de modificaciones de una instalación
+export const obtenerHistorialInstalacion = async (id) => {
+  const instalacion = await Instalacion.findById(id).select('historialModificaciones nombre');
+  if (!instalacion) {
+    throw new Error('Instalación no encontrada.');
+  }
 
-    return [instalacionesReservadas, null];
-  } catch (error) {
-    return [null, "Error al obtener las instalaciones"];
-  } 
-}
- //Servicio para visualizar Reserva de instalaciones por ID
+  const historial = instalacion.historialModificaciones.map(mod => ({
+    fecha: mod.fecha,
+    mensaje: `La instalación '${instalacion.nombre}' ha tenido una modificación en el campo '${mod.campo}' de '${mod.valorAnterior}' a '${mod.valorNuevo}' el ${mod.fecha}`
+  }));
 
- export default {
-  getInstalacionesReservadas,
+  return { message: 'Historial obtenido con éxito.', data: historial };
+};
+
+export default {
+  crearInstalacion,
+  obtenerInstalaciones,
+  obtenerInstalacionPorId,
+  actualizarInstalacion,
+  actualizarInstalacionParcial,
+  eliminarInstalacion,
+  obtenerHistorialInstalacion,
 };

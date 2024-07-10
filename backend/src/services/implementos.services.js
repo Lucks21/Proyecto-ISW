@@ -13,14 +13,25 @@ const esNombreSimilar = (nombre, nombreExistente) => {
   return distancia < 3 && !/\d/.test(nombreExistente) && !/\d/.test(nombre);
 };
 
+// Función para actualizar el estado basado en la cantidad
+const actualizarEstadoImplemento = async (id) => {
+  const implemento = await Implemento.findById(id);
+  if (!implemento) {
+    throw new Error('Implemento no encontrado');
+  }
+
+  implemento.estado = implemento.cantidad <= 0 ? 'no disponible' : 'disponible';
+  await implemento.save();
+};
+
 // Servicio para crear un implemento
 export const crearImplemento = async (datosImplemento) => {
-  const { nombre, descripcion, cantidad, estado, fechaAdquisicion, categoria, horarioDisponibilidad } = datosImplemento;
+  const { nombre, descripcion, cantidad, fechaAdquisicion, horarioDisponibilidad } = datosImplemento;
 
   // Normalizar el nombre
   const nombreNormalizado = normalizarNombre(nombre);
 
-  // Verificar unicidad del nombre
+  // Verificar unicidad del nombre y similitud
   const implementosExistentes = await Implemento.find();
   for (let implemento of implementosExistentes) {
     if (esNombreSimilar(nombreNormalizado, implemento.nombre)) {
@@ -28,18 +39,26 @@ export const crearImplemento = async (datosImplemento) => {
     }
   }
 
-  const nuevoImplemento = new Implemento({
-    nombre: nombreNormalizado,
-    descripcion,
-    cantidad,
-    estado,
-    fechaAdquisicion,
-    categoria,
-    horarioDisponibilidad,
-  });
+  try {
+    const nuevoImplemento = new Implemento({
+      nombre: nombreNormalizado,
+      descripcion,
+      cantidad,
+      fechaAdquisicion,
+      categoria: datosImplemento.categoria,
+      horarioDisponibilidad,
+    });
 
-  await nuevoImplemento.save();
-  return { message: 'Implemento creado con éxito.', data: nuevoImplemento };
+    await nuevoImplemento.save();
+    await actualizarEstadoImplemento(nuevoImplemento._id); // Actualizar estado después de guardar
+    return { message: 'Implemento creado con éxito.', data: nuevoImplemento };
+  } catch (error) {
+    if (error.code === 11000) {
+      // Error de clave duplicada
+      throw new Error('El nombre del implemento ya existe. Por favor, elija otro nombre.');
+    }
+    throw error; // Lanzar otros errores no relacionados con clave duplicada
+  }
 };
 
 // Servicio para obtener todos los implementos
@@ -84,34 +103,24 @@ export const actualizarImplemento = async (id, datosActualizados) => {
     throw new Error('Implemento no encontrado.');
   }
 
-  // Actualizar campos del implemento
-  const { cantidad, motivo } = datosActualizados;
-  if (cantidad !== undefined && cantidad !== implementoActual.cantidad) {
-    if (motivo) {
-      const cantidadModificada = cantidad - implementoActual.cantidad;
-      if (cantidad < 0) {
-        throw new Error('La cantidad no puede ser negativa.');
-      }
-
-      const nuevoStock = cantidad;
-      const fecha = format(new Date(), 'dd-MM-yyyy'); // Fecha actual
-
-      implementoActual.historialModificaciones.push({
-        fecha,
-        usuario: 'Encargado',  // Asumiendo que el encargado es el único que puede hacer esta acción
-        cantidadModificada,
-        nuevoStock,
-        motivo,
+  // Registrar todas las modificaciones en el historial
+  const modificaciones = [];
+  for (let clave in datosActualizados) {
+    if (datosActualizados[clave] !== implementoActual[clave]) {
+      modificaciones.push({
+        campo: clave,
+        valorAnterior: implementoActual[clave],
+        valorNuevo: datosActualizados[clave],
+        fecha: format(new Date(), 'dd-MM-yyyy'),
       });
-
-      implementoActual.cantidad = cantidad;
-    } else {
-      throw new Error('El motivo es obligatorio cuando se modifica la cantidad.');
     }
   }
+  implementoActual.historialModificaciones.push(...modificaciones);
 
+  // Actualizar campos del implemento
   Object.assign(implementoActual, datosActualizados);
   await implementoActual.save();
+  await actualizarEstadoImplemento(implementoActual._id); // Actualizar estado después de actualizar
 
   return { message: 'Implemento actualizado con éxito.', data: implementoActual };
 };
@@ -143,9 +152,24 @@ export const actualizarImplementoParcial = async (id, datosActualizados) => {
     }
   }
 
+  // Registrar todas las modificaciones en el historial
+  const modificaciones = [];
+  for (let clave in datosActualizados) {
+    if (datosActualizados[clave] !== implementoActual[clave]) {
+      modificaciones.push({
+        campo: clave,
+        valorAnterior: implementoActual[clave],
+        valorNuevo: datosActualizados[clave],
+        fecha: format(new Date(), 'dd-MM-yyyy'),
+      });
+    }
+  }
+  implementoActual.historialModificaciones.push(...modificaciones);
+
   // Actualizar solo los campos que se pasen en el body
   Object.assign(implementoActual, datosActualizados);
   await implementoActual.save();
+  await actualizarEstadoImplemento(implementoActual._id); // Actualizar estado después de actualizar
 
   return { message: 'Implemento actualizado con éxito.', data: implementoActual };
 };
@@ -161,27 +185,26 @@ export const eliminarImplemento = async (id) => {
 
 // Servicio para obtener el historial de modificaciones de un implemento
 export const obtenerHistorialImplemento = async (id) => {
-  const implemento = await Implemento.findById(id).select('historialModificaciones');
+  const implemento = await Implemento.findById(id).select('historialModificaciones nombre');
   if (!implemento) {
     throw new Error('Implemento no encontrado.');
   }
-  return { message: 'Historial obtenido con éxito.', data: implemento.historialModificaciones };
+
+  const historial = implemento.historialModificaciones.map(mod => ({
+    fecha: mod.fecha,
+    mensaje: `El implemento '${implemento.nombre}' ha tenido una modificación en el campo '${mod.campo}' de '${mod.valorAnterior}' a '${mod.valorNuevo}' el ${mod.fecha}`
+  }));
+
+  return { message: 'Historial obtenido con éxito.', data: historial };
 };
-//Servicio para visualizar Reserva de implementos
-async function getImplementosReservados() { 
-  try {
-    const implementos = await Implemento.find();
-
-    const implementosReservados = implementos.filter( implemento => implemento.estado === "no disponible") || [];
-
-    return [implementosReservados, null];
-
-  } catch (error) {
-    return [null, "Error al obtener los implementos"];
-  }
-}
-//Servicio para visualizar la reserva de implementos por ID
 
 export default {
-  getImplementosReservados,
+  crearImplemento,
+  obtenerImplementos,
+  obtenerImplementoPorId,
+  actualizarImplemento,
+  actualizarImplementoParcial,
+  eliminarImplemento,
+  obtenerHistorialImplemento,
+  actualizarEstadoImplemento, // Añadido a las exportaciones
 };
