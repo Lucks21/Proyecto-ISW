@@ -17,15 +17,10 @@ async function createRoles() {
       const roleExists = await Role.findOne({ name: roleName });
       if (!roleExists) {
         await new Role({ name: roleName }).save();
-        console.log(`* => Rol '${roleName}' creado exitosamente`);
-      } else {
-        console.log(`* => Rol '${roleName}' ya existe`);
       }
     }
 
     const existingRoles = await Role.find({});
-    console.log("Roles existentes:", existingRoles);  // Imprime los roles existentes
-
   } catch (error) {
     console.error("Error creando roles:", error);
   }

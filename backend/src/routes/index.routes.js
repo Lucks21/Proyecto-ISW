@@ -16,6 +16,8 @@ import configuracionRoutes from './configuracion.routes.js';
 import notificacionRoutes from './notificacion.routes.js';
 import reservasRoutes from './reservas.routes.js';
 import Alumno from "../routes/alumno.routes.js";
+import cronAuthMiddleware from "../middlewares/cronAuth.middleware.js"
+import {finalizarReservasExpiradas} from "../controllers/reservas.controller.js";
 
 const router = Router();
 router.use("/implementos", authenticationMiddleware, implementosRoutes);
@@ -23,6 +25,7 @@ router.use("/users", authenticationMiddleware, userRoutes);
 router.use("/auth", authRoutes);
 router.use("/instalacion", authenticationMiddleware, instalacionRoutes);
 router.use("/reservas",authenticationMiddleware, reservasRoutes);
+router.get("/finalizarReservasExpiradas",cronAuthMiddleware, finalizarReservasExpiradas);
 router.use("/configuracion", authenticationMiddleware, configuracionRoutes);
 router.use("/notificaciones", authenticationMiddleware, notificacionRoutes);
 router.use("/alumno", Alumno);

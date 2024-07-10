@@ -1,7 +1,7 @@
 // backend/src/controllers/reservas.controller.js
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import ReservaServices from "../services/reserva.services.js";
-import { validarReservaImplemento, validarCancelarReserva, validarExtenderReserva, validarFinalizarReservasExpiradas } from '../schema/reserva.schema.js';
+import { validarReservaImplemento, validarCancelarReserva, validarExtenderReserva} from '../schema/reserva.schema.js';
 import {CRON_SECRET} from "../config/configEnv.js"
 
 async function registrarReservaImplemento(req, res) {
@@ -58,16 +58,24 @@ async function extenderReserva(req, res) {
     respondError(req, res, 500, "Error al extender la reserva", error);
   }
 }
+//aqui hay un error 
 async function finalizarReservasExpiradas(req, res) {
+  console.log('CRON_SECRET:', CRON_SECRET);
+  console.log('cronSecret header:', req.headers['cron-secret']);
+
   const cronSecret = req.headers['cron-secret'];
   if (cronSecret !== CRON_SECRET) {
+    console.log("Acceso denegado: El token secreto no coincide.");
     return respondError(req, res, 403, "Acceso denegado");
   }
 
   try {
+    console.log("Llamando a ReservaServices.finalizarReservasExpiradas()");
     const resultado = await ReservaServices.finalizarReservasExpiradas();
+    console.log("Resultado de finalizarReservasExpiradas:", resultado);
     respondSuccess(req, res, 200, resultado.message);
   } catch (error) {
+    console.error("Error en finalizarReservasExpiradas:", error);
     respondError(req, res, 500, "Error al finalizar las reservas expiradas", error.message);
   }
 }

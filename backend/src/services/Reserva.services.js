@@ -152,22 +152,26 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
 // Servicio para finalizar una reserva
 async function finalizarReservasExpiradas() {
   try {
+    console.log("Buscando reservas expiradas...");
     const now = new Date();
     const reservasExpiradas = await Reserva.find({ fechaFin: { $lte: endOfMinute(now) }, estado: 'activo' });
-    
+
     if (reservasExpiradas.length === 0) {
       console.log('No hay reservas expiradas para finalizar.');
-      return;
+      return { message: 'No hay reservas expiradas para finalizar.' };
     }
 
     for (const reserva of reservasExpiradas) {
-      reserva.estado = 'finalizado';
+      console.log(`Finalizando reserva con ID: ${reserva._id}`);
+      reserva.estado = 'no activo';
       await reserva.save();
     }
 
     console.log(`Finalizadas ${reservasExpiradas.length} reservas expiradas.`);
+    return { message: `Finalizadas ${reservasExpiradas.length} reservas expiradas.` };
   } catch (error) {
-    console.error("Error en finalizarReservasExpiradas: ", error);
+    console.error("Error en finalizarReservasExpiradas:", error);
+    throw new Error("Error en finalizarReservasExpiradas");
   }
 }
 

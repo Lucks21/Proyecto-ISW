@@ -35,7 +35,7 @@ const reservaSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true,
+    timestamps: false,
     versionKey: false, // esto es para desactivar la creción del campo '_v' en los documentos
   },
 );

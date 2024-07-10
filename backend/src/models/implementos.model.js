@@ -31,7 +31,7 @@ const ImplementoSchema = new Schema({
       dia: {
         type: String,
         required: true,
-        enum: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
+        enum: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes']
       },
       inicio: {
         type: String,

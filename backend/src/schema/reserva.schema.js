@@ -58,16 +58,9 @@ const validarExtenderReserva = Joi.object({
   })
 });
 
-const validarFinalizarReservasExpiradas = Joi.object({
-  reservaId: Joi.string().required().messages({
-    'any.required': 'El campo "reservaId" es requerido',
-  })
-});
-
 export { 
   validarReservaImplemento, 
   validarReservaInstalacion, 
   validarCancelarReserva, 
   validarExtenderReserva,
-  validarFinalizarReservasExpiradas
 };

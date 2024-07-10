@@ -24,6 +24,40 @@ const actualizarEstadoImplemento = async (id) => {
   await implemento.save();
 };
 
+// Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
+const validarHorarios = (horarioDisponibilidad) => {
+  const horariosPorDia = {};
+
+  horarioDisponibilidad.forEach(item => {
+    if (!horariosPorDia[item.dia]) {
+      horariosPorDia[item.dia] = [];
+    }
+    const inicioHora = parseInt(item.inicio.replace(':', ''), 10);
+    const finHora = parseInt(item.fin.replace(':', ''), 10);
+
+    if (inicioHora >= finHora) {
+      throw new Error(`La hora de inicio (${item.inicio}) no puede ser mayor o igual que la hora de fin (${item.fin}) para el día ${item.dia}.`);
+    }
+
+    horariosPorDia[item.dia].push({
+      inicio: inicioHora,
+      fin: finHora
+    });
+  });
+
+  for (const dia in horariosPorDia) {
+    const horarios = horariosPorDia[dia];
+    for (let i = 0; i < horarios.length; i++) {
+      for (let j = i + 1; j < horarios.length; j++) {
+        if ((horarios[i].inicio < horarios[j].fin && horarios[i].fin > horarios[j].inicio) ||
+            (horarios[j].inicio < horarios[i].fin && horarios[j].fin > horarios[i].inicio)) {
+          throw new Error(`No puede haber horarios superpuestos para el mismo día: ${dia}.`);
+        }
+      }
+    }
+  }
+};
+
 // Servicio para crear un implemento
 export const crearImplemento = async (datosImplemento) => {
   const { nombre, descripcion, cantidad, fechaAdquisicion, horarioDisponibilidad } = datosImplemento;
@@ -37,6 +71,11 @@ export const crearImplemento = async (datosImplemento) => {
     if (esNombreSimilar(nombreNormalizado, implemento.nombre)) {
       throw new Error('El nombre del implemento es muy similar a uno existente.');
     }
+  }
+
+  // Validar que no haya días duplicados ni horarios solapados
+  if (horarioDisponibilidad) {
+    validarHorarios(horarioDisponibilidad);
   }
 
   try {
@@ -90,12 +129,9 @@ export const actualizarImplemento = async (id, datosActualizados) => {
     }
   }
 
-  // Validar que no haya días duplicados en el horario de disponibilidad
+  // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
   if (datosActualizados.horarioDisponibilidad) {
-    const dias = datosActualizados.horarioDisponibilidad.map(item => item.dia);
-    if (dias.length !== new Set(dias).size) {
-      throw new Error('No puede haber horarios superpuestos para el mismo día.');
-    }
+    validarHorarios(datosActualizados.horarioDisponibilidad);
   }
 
   const implementoActual = await Implemento.findById(id);
@@ -144,12 +180,9 @@ export const actualizarImplementoParcial = async (id, datosActualizados) => {
     }
   }
 
-  // Validar que no haya días duplicados en el horario de disponibilidad
+  // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
   if (datosActualizados.horarioDisponibilidad) {
-    const dias = datosActualizados.horarioDisponibilidad.map(item => item.dia);
-    if (dias.length !== new Set(dias).size) {
-      throw new Error('No puede haber horarios superpuestos para el mismo día.');
-    }
+    validarHorarios(datosActualizados.horarioDisponibilidad);
   }
 
   // Registrar todas las modificaciones en el historial

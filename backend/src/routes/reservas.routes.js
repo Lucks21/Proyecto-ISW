@@ -4,14 +4,12 @@ import {
   registrarReservaImplemento,
   cancelarReserva,
   extenderReserva,
-  finalizarReservasExpiradas,
   getAllReservasByUser,
   getAllReservasActivos,
   obtenerDatosGraficos
 } from "../controllers/reservas.controller.js";
 import { isEncargado, isAlumno } from '../middlewares/authorization.middleware.js';
 import authenticationMiddleware from '../middlewares/authentication.middleware.js';
-import cronAuthMiddleware from "../middlewares/cronAuth.middleware.js"
 
 const router = Router();
 
@@ -24,7 +22,7 @@ router.post('/cancelar-reserva', authenticationMiddleware, isAlumno, cancelarRes
 // Ruta para extender una reserva
 router.post('/extender-reserva', authenticationMiddleware, isAlumno, extenderReserva);
 // Ruta para finalizar una reserva
-router.post('/finalizarReservasExpiradas', cronAuthMiddleware, finalizarReservasExpiradas);
+//router.post('/finalizarReservasExpiradas', cronAuthMiddleware, finalizarReservasExpiradas);
 // Ruta para obtener todas las reservas de un usuario
 router.get('/reservas-usuario/:id', authenticationMiddleware, isAlumno, getAllReservasByUser);
 // Ruta para obtener datos para gráficos

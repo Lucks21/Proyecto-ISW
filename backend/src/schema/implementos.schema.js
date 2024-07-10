@@ -17,9 +17,11 @@ const fechaSchema = Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).custom((value, h
   'any.invalid': 'La fecha no es válida o está fuera del rango permitido (1947-presente)'
 });
 
+
+
 // Validación para el horario de disponibilidad
 const horarioSchema = Joi.object({
-  dia: Joi.string().pattern(/^(lunes|martes|mi[ée]rcoles|jueves|viernes)$/i).required(),
+  dia: Joi.string().valid('lunes', 'martes', 'miercoles', 'jueves', 'viernes').required(),
   inicio: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d)$/).required().messages({
     'string.pattern.base': 'La hora de inicio debe estar en formato HH:MM'
   }),

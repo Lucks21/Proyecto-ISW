@@ -1,17 +1,19 @@
 import cron from 'node-cron';
 import axios from 'axios';
-import { CRON_SECRET } from '../config/configEnv.js';
+import { PORT, HOST, CRON_SECRET} from "../config/configEnv.js";
 
 console.log('=> Cron job configurado');
+console.log('CRON_SECRET:', CRON_SECRET);
 
 cron.schedule('* * * * *', async () => {
   console.log('Cron job ejecutándose: Revisando reservas expiradas...');
   try {
-    await axios.get('http://localhost:3200/api/finalizarReservasExpiradas', {
+    const response = await axios.get(`http://${HOST}:${PORT}/api/finalizarReservasExpiradas`, {
       headers: {
-        'Cron-Secret': CRON_SECRET
+        'cron-secret': CRON_SECRET
       }
     });
+    console.log('Respuesta del servidor:', response.data);
   } catch (error) {
     console.error('Error al ejecutar el cron job:', error.message);
   }
