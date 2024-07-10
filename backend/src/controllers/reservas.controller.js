@@ -1,7 +1,8 @@
 // backend/src/controllers/reservas.controller.js
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import ReservaServices from "../services/reserva.services.js";
-import { validarReservaImplemento, validarCancelarReserva, validarExtenderReserva, validarFinalizarReserva } from '../schema/reserva.schema.js';
+import { validarReservaImplemento, validarCancelarReserva, validarExtenderReserva, validarFinalizarReservasExpiradas } from '../schema/reserva.schema.js';
+import {CRON_SECRET} from "../config/configEnv.js"
 
 async function registrarReservaImplemento(req, res) {
   const { error } = validarReservaImplemento.validate(req.body);
@@ -57,22 +58,17 @@ async function extenderReserva(req, res) {
     respondError(req, res, 500, "Error al extender la reserva", error);
   }
 }
-
-async function finalizarReserva(req, res) {
-  const { error } = validarFinalizarReserva.validate(req.body);
-  if (error) {
-    return respondError(req, res, 400, error.details[0].message);
+async function finalizarReservasExpiradas(req, res) {
+  const cronSecret = req.headers['cron-secret'];
+  if (cronSecret !== CRON_SECRET) {
+    return respondError(req, res, 403, "Acceso denegado");
   }
 
   try {
-    const { reservaId } = req.body;
-    const resultado = await ReservaServices.finalizarReserva(reservaId);
-    if (resultado.error) {
-      return respondError(req, res, 400, resultado.error);
-    }
+    const resultado = await ReservaServices.finalizarReservasExpiradas();
     respondSuccess(req, res, 200, resultado.message);
   } catch (error) {
-    respondError(req, res, 500, "Error al finalizar la reserva", error);
+    respondError(req, res, 500, "Error al finalizar las reservas expiradas", error.message);
   }
 }
 
@@ -124,6 +120,6 @@ export {
   registrarReservaImplemento,
   cancelarReserva,
   extenderReserva,
-  finalizarReserva,
+  finalizarReservasExpiradas,
   obtenerDatosGraficos
 };

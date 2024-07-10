@@ -22,3 +22,4 @@ export const REFRESH_JWT_SECRET = process.env.REFRESH_JWT_SECRET;
 
 export const EMAIL_USER = process.env.EMAIL_USER;
 export const EMAIL_PASS = process.env.EMAIL_PASS;
+export const CRON_SECRET = process.env.CRON_SECRET;

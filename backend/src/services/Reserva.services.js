@@ -3,7 +3,7 @@ import { obtenerDias } from './configuracion.services.js';
 import Alumno from '../models/alumno.model.js';
 import Implemento from '../models/implementos.model.js';
 import mongoose from 'mongoose';
-import { addHours, isFuture, differenceInMinutes, startOfDay, endOfDay, parseISO } from 'date-fns';
+import { endOfMinute, addHours, isPast, isFuture, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
 
 const normalizarFechaHora = (fecha, hora) => {
   const [day, month, year] = fecha.split('-');
@@ -150,19 +150,24 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
 }
 
 // Servicio para finalizar una reserva
-async function finalizarReserva(reservaId) {
+async function finalizarReservasExpiradas() {
   try {
-    const reserva = await Reserva.findById(reservaId);
-    if (!reserva) {
-      return { error: 'Reserva no encontrada.' };
+    const now = new Date();
+    const reservasExpiradas = await Reserva.find({ fechaFin: { $lte: endOfMinute(now) }, estado: 'activo' });
+    
+    if (reservasExpiradas.length === 0) {
+      console.log('No hay reservas expiradas para finalizar.');
+      return;
     }
 
-    reserva.fechaFin = new Date();
-    await reserva.save();
-    return { message: 'Reserva finalizada con éxito.' };
+    for (const reserva of reservasExpiradas) {
+      reserva.estado = 'finalizado';
+      await reserva.save();
+    }
+
+    console.log(`Finalizadas ${reservasExpiradas.length} reservas expiradas.`);
   } catch (error) {
-    console.error("Error en finalizarReserva: ", error);
-    return { error: "Error interno del servidor." };
+    console.error("Error en finalizarReservasExpiradas: ", error);
   }
 }
 
@@ -218,7 +223,7 @@ export default {
   registrarReservaImplemento,
   cancelarReserva,
   extenderReserva,
-  finalizarReserva,
+  finalizarReservasExpiradas,
   getAllReservasActivos,
   getAllReservasByUser,
   obtenerDatosGraficos

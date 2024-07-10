@@ -1,5 +1,5 @@
 // Importa el archivo 'configEnv.js' para cargar las variables de entorno
-import { PORT, HOST } from "./config/configEnv.js";
+import { PORT, HOST, CRON_SECRET} from "./config/configEnv.js";
 // Importa el módulo 'cors' para agregar los cors
 import cors from "cors";
 // Importa el módulo 'express' para crear la aplicacion web
@@ -15,6 +15,7 @@ import { setupDB } from "./config/configDB.js";
 // Importa el handler de errores
 import { handleFatalError, handleError } from "./utils/errorHandler.js";
 import { createRoles, createUsers } from "./config/initialSetup.js";
+
 /**
  * Inicia el servidor web
  */
@@ -67,3 +68,5 @@ async function setupAPI() {
 setupAPI()
   .then(() => console.log("=> API Iniciada exitosamente"))
   .catch((err) => handleFatalError(err, "/server.js -> setupAPI"));
+
+import './services/cronJobs.js';
