@@ -3,21 +3,18 @@ import { parse, isValid, format } from 'date-fns';
 
 // Validación para la fecha
 const fechaSchema = Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).custom((value, helpers) => {
-  console.log(`Validando fecha: ${value}`);
-  
   const parsedDate = parse(value, 'dd-MM-yyyy', new Date());
-  console.log(`Fecha convertida: ${format(parsedDate, 'yyyy-MM-dd')}`);
-
   if (!isValid(parsedDate)) {
-    console.log('Fecha inválida durante la validación');
     return helpers.error('any.invalid');
   }
-
+  if (parsedDate > new Date() || parsedDate.getFullYear() < 1947) {
+    return helpers.error('any.invalid');
+  }
   return value;
 }, 'validación de fecha').required().messages({
   'string.pattern.base': 'La fecha debe estar en formato DD-MM-YYYY',
   'any.required': 'La fecha es obligatoria',
-  'any.invalid': 'La fecha no es válida'
+  'any.invalid': 'La fecha no es válida o está fuera del rango permitido (1947-presente)'
 });
 
 // Validación para el horario de disponibilidad
@@ -52,24 +49,29 @@ const historialModificacionesSchema = Joi.object({
 
 // Validación para el implemento
 const implementoSchema = Joi.object({
-  nombre: Joi.string().pattern(/^[a-zA-Z0-9\s-_]+$/).required().messages({
-    'string.pattern.base': 'El nombre solo puede contener letras, números, espacios, guiones y guiones bajos',
+  nombre: Joi.string().pattern(/^[a-zA-Z0-9]+(?:[_-][a-zA-Z0-9]+)*$/).required().messages({
+    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones y guiones bajos, y debe incluir letras',
     'any.required': 'El nombre es obligatorio'
   }),
-  descripcion: Joi.string().optional(),
-  cantidad: Joi.number().min(0).required().messages({
+  descripcion: Joi.string().max(100).pattern(/^[a-zA-Z0-9\s]+$/).optional().messages({
+    'string.max': 'Has excedido el máximo de 100 caracteres',
+    'string.pattern.base': 'La descripción solo puede contener letras y números, sin caracteres especiales'
+  }),
+  cantidad: Joi.number().integer().min(1).max(50).required().messages({
     'number.base': 'La cantidad debe ser un número',
-    'number.min': 'La cantidad no puede ser negativa',
+    'number.integer': 'La cantidad debe ser un número entero',
+    'number.min': 'La cantidad no puede ser menor que 1',
+    'number.max': 'La cantidad no puede ser mayor que 50',
     'any.required': 'La cantidad es obligatoria'
   }),
   estado: Joi.string().valid('disponible', 'no disponible').required().messages({
     'any.only': 'El estado debe ser "disponible" o "no disponible"',
     'any.required': 'El estado es obligatorio'
   }),
-  fechaAdquisicion: Joi.date().max('now').messages({
-    'date.max': 'La fecha de adquisición no puede ser una fecha futura'
-  }),
-  categoria: Joi.string().required().messages({
+  fechaAdquisicion: fechaSchema,
+  categoria: Joi.string().max(25).pattern(/^[a-zA-Z0-9\s-]+$/).required().messages({
+    'string.pattern.base': 'La categoría solo puede contener letras, números, y guiones, sin caracteres especiales',
+    'string.max': 'La categoría no puede exceder las 25 caracteres',
     'any.required': 'La categoría es obligatoria'
   }),
   horarioDisponibilidad: Joi.array().items(horarioSchema).default([]),
@@ -77,22 +79,26 @@ const implementoSchema = Joi.object({
 });
 
 const actualizarImplementoSchema = Joi.object({
-  nombre: Joi.string().pattern(/^[a-zA-Z0-9\s-_]+$/).messages({
-    'string.pattern.base': 'El nombre solo puede contener letras, números, espacios, guiones y guiones bajos',
+  nombre: Joi.string().pattern(/^[a-zA-Z0-9]+(?:[_-][a-zA-Z0-9]+)*$/).messages({
+    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones y guiones bajos, y debe incluir letras',
   }),
-  descripcion: Joi.string().optional(),
-  cantidad: Joi.number().min(0).messages({
+  descripcion: Joi.string().max(100).pattern(/^[a-zA-Z0-9\s]+$/).optional().messages({
+    'string.max': 'Has excedido el máximo de 100 caracteres',
+    'string.pattern.base': 'La descripción solo puede contener letras y números, sin caracteres especiales'
+  }),
+  cantidad: Joi.number().integer().min(1).max(50).messages({
     'number.base': 'La cantidad debe ser un número',
-    'number.min': 'La cantidad no puede ser negativa',
+    'number.integer': 'La cantidad debe ser un número entero',
+    'number.min': 'La cantidad no puede ser menor que 1',
+    'number.max': 'La cantidad no puede ser mayor que 50'
   }),
   estado: Joi.string().valid('disponible', 'no disponible').messages({
     'any.only': 'El estado debe ser "disponible" o "no disponible"',
   }),
-  fechaAdquisicion: Joi.date().max('now').messages({
-    'date.max': 'La fecha de adquisición no puede ser una fecha futura'
-  }),
-  categoria: Joi.string().messages({
-    'any.required': 'La categoría es obligatoria'
+  fechaAdquisicion: fechaSchema,
+  categoria: Joi.string().max(25).pattern(/^[a-zA-Z0-9\s-]+$/).messages({
+    'string.pattern.base': 'La categoría solo puede contener letras, números, y guiones, sin caracteres especiales',
+    'string.max': 'La categoría no puede exceder las 25 caracteres'
   }),
   horarioDisponibilidad: Joi.array().items(horarioSchema).default([]),
   historialModificaciones: Joi.array().items(historialModificacionesSchema).default([])
