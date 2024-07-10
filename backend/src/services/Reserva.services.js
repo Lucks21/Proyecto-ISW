@@ -37,11 +37,6 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'ID de implemento no es válido.' };
     }
 
-    // Validar si el ID del implemento es válido
-    const implemento = await Implemento.findById(implementoId);
-    if (!implemento) {
-      return { error: 'ID de implemento no válido o no encontrado.' };
-    }
 
     const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
     const fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
