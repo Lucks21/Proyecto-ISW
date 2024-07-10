@@ -1,6 +1,6 @@
 // backend/src/controllers/reservas.controller.js
 import { respondSuccess, respondError } from "../utils/resHandler.js";
-import ReservaServices from "../services/Reserva.services.js";
+import ReservaServices from "../services/reserva.services.js";
 import { validarReservaImplemento, validarCancelarReserva, validarExtenderReserva, validarFinalizarReserva } from '../schema/reserva.schema.js';
 
 async function registrarReservaImplemento(req, res) {

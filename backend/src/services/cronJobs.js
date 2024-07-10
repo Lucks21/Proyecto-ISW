@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import ReservaService from './services/reservas.service.js';
+import ReservaService from './services/Reserva.services.js';
 
 console.log('=> Cron job configurado');
 
