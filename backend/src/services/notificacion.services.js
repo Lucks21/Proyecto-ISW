@@ -1,7 +1,7 @@
 import Notificacion from '../models/notificacion.model.js';
 import Alumno from '../models/alumno.model.js';
 import Implemento from '../models/implementos.model.js';
-import Instalacion from '../models/instalacion.model.js';
+import Instalacion from '../models/Instalacion.model.js';
 import sendEmail from './email.services.js';
 
 // solicitar una notificacion
