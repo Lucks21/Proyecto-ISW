@@ -18,10 +18,6 @@ const NotificacionSchema = new Schema({
     ref: 'Alumno',
     required: true,
   },
-  fechaCreacion: {
-    type: Date,
-    default: Date.now,
-  },
 });
 
 const Notificacion = mongoose.model('Notificacion', NotificacionSchema);
