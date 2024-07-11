@@ -23,7 +23,7 @@ const verifyJWT = (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     jwt.verify(token, ACCESS_JWT_SECRET, (err, decoded) => {
-      if (err) return respondError(req, res, 403, "No autorizado", err.message);
+      if (err) return respondError(req, res, 403, "No autorizado","No hay token válido", err.message);
       req.email = decoded.email;
       req.roles = decoded.roles;
       console.log(`Token decodificado: email=${req.email}, roles=${req.roles}`); // Añadir log
