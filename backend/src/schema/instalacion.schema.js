@@ -1,18 +1,22 @@
 import Joi from 'joi';
-import { parse, isValid } from 'date-fns';
+import { parse, isValid, format } from 'date-fns';
 
 // Validación para la fecha
-const fechaSchema = Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).custom((value, helpers) => {
-  const parsedDate = parse(value, 'dd-MM-yyyy', new Date());
+const fechaSchema = Joi.string().custom((value, helpers) => {
+  // Intentar parsear con el formato DD-MM-YYYY
+  let parsedDate = parse(value, 'dd-MM-yyyy', new Date());
   if (!isValid(parsedDate)) {
-    return helpers.error('any.invalid');
+    // Intentar parsear con el formato DD/MM/YYYY
+    parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+    if (!isValid(parsedDate)) {
+      return helpers.error('any.invalid');
+    }
   }
   if (parsedDate > new Date() || parsedDate.getFullYear() < 1947) {
     return helpers.error('any.invalid');
   }
-  return value;
+  return format(parsedDate, 'dd-MM-yyyy'); // Normalizar la fecha al formato DD-MM-YYYY
 }, 'validación de fecha').required().messages({
-  'string.pattern.base': 'La fecha debe estar en formato DD-MM-YYYY',
   'any.required': 'La fecha es obligatoria',
   'any.invalid': 'La fecha no es válida o está fuera del rango permitido (1947-presente)'
 });
