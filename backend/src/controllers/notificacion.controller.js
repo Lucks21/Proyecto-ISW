@@ -30,7 +30,7 @@ async function solicitarNotificacion(req, res) {
 
     respondSuccess(req, res, 201, result.message);
   } catch (error) {
-    respondError(req, res, 500, "Error al solicitar notificación", error);
+    respondError(req, res, 500, "Error al solicitar notificación", error.message);
   }
 }
 
@@ -43,7 +43,7 @@ async function notificarDisponibilidadImplemento(req, res) {
     }
     respondSuccess(req, res, 200, result.message);
   } catch (error) {
-    respondError(req, res, 500, "Error al notificar disponibilidad de implemento", error);
+    respondError(req, res, 500, "Error al notificar disponibilidad de implemento", error.message);
   }
 }
 
@@ -56,7 +56,7 @@ async function notificarDisponibilidadInstalacion(req, res) {
     }
     respondSuccess(req, res, 200, result.message);
   } catch (error) {
-    respondError(req, res, 500, "Error al notificar disponibilidad de instalación", error);
+    respondError(req, res, 500, "Error al notificar disponibilidad de instalación", error.message);
   }
 }
 

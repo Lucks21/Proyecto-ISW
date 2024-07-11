@@ -5,7 +5,7 @@ import User from "../models/user.model.js";
 import Role from "../models/role.model.js";
 import { respondError } from "../utils/resHandler.js";
 import { handleError } from "../utils/errorHandler.js";
-
+import Alumno from "../models/alumno.model.js";
 /**
  * Comprueba el rol del usuario
  * @param {Object} req - Objeto de petición
@@ -17,15 +17,38 @@ async function checkRole(req, res, next, roleName) {
   try {
     // Imprime el email obtenido del token JWT
     console.log(`Email del usuario (checkRole): ${req.email}`);
-    
+    //estoy modificando aqui
     const user = await User.findOne({ email: req.email });
-    if (!user) {
-      console.log(req.email)
+    const alumno = await Alumno.findOne({ email: req.email });
+
+    /*console.log("user",user)
+    console.log("alumno",alumno)
+    if (alumno!=null) {
+      console.log("Entro al if alumno!=null ")
+    } else {
+      console.log("Hizo el else")
+    }
+    */
+
+    if (!user && !alumno) {
+      console.log(req.email);
       return respondError(req, res, 404, "Usuario no encontrado");
     }
+    let roles = [];
 
-    const roles = await Role.find({ _id: { $in: user.roles } });
-    console.log(`Roles del usuario (checkRole): ${roles.map(role => role.name)}`);
+    // esto para saber si se encontro en user
+    if (user) {
+      roles = await Role.find({ _id: { $in: user.roles } });
+    }
+
+    // esto para saber si se encontro en alumno
+    if (alumno) {
+      const rolAlumno = await Role.find({ _id: { $in: alumno.roles } });
+      roles = roles.concat(rolAlumno);
+    }
+    console.log(
+      `Roles del usuario (checkRole): ${roles.map((role) => role.name)}`
+    );
 
     for (let i = 0; i < roles.length; i++) {
       if (roles[i].name === roleName) {
@@ -33,7 +56,13 @@ async function checkRole(req, res, next, roleName) {
         return;
       }
     }
-    return respondError(req, res, 401, `Se requiere un rol de ${roleName} para realizar esta acción`);
+
+    return respondError(
+      req,
+      res,
+      401,
+      `Se requiere un rol de ${roleName} para realizar esta acción`
+    );
   } catch (error) {
     handleError(error, `authorization.middleware -> checkRole -> ${roleName}`);
   }
