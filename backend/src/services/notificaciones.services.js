@@ -12,6 +12,17 @@ async function solicitarNotificacion(recursoId, recursoTipo, userId) {
       return { error: 'Alumno no encontrado.' };
     }
 
+    let recurso;
+    if (recursoTipo === 'implemento') {
+      recurso = await Implemento.findById(recursoId);
+    } else if (recursoTipo === 'instalacion') {
+      recurso = await Instalacion.findById(recursoId);
+    }
+
+    if (!recurso) {
+      return { error: `Recurso no encontrado para el tipo ${recursoTipo}.` };
+    }
+    
     const nuevaNotificacion = new Notificacion({
       recursoId,
       recursoTipo,
