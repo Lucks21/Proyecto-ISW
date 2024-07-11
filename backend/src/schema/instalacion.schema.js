@@ -1,4 +1,21 @@
 import Joi from 'joi';
+import { parse, isValid } from 'date-fns';
+
+// Validación para la fecha
+const fechaSchema = Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).custom((value, helpers) => {
+  const parsedDate = parse(value, 'dd-MM-yyyy', new Date());
+  if (!isValid(parsedDate)) {
+    return helpers.error('any.invalid');
+  }
+  if (parsedDate > new Date() || parsedDate.getFullYear() < 1947) {
+    return helpers.error('any.invalid');
+  }
+  return value;
+}, 'validación de fecha').required().messages({
+  'string.pattern.base': 'La fecha debe estar en formato DD-MM-YYYY',
+  'any.required': 'La fecha es obligatoria',
+  'any.invalid': 'La fecha no es válida o está fuera del rango permitido (1947-presente)'
+});
 
 const horarioSchema = Joi.object({
   dia: Joi.string().valid('lunes', 'martes', 'miércoles', 'jueves', 'viernes').required(),
@@ -16,10 +33,7 @@ const crearInstalacionSchema = Joi.object({
     'string.pattern.base': 'El nombre solo puede contener letras, números, guiones, guiones bajos y espacios, y debe incluir letras'
   }),
   descripcion: Joi.string().trim().optional(),
-  fechaAdquisicion: Joi.date().required().messages({
-    'any.required': 'La fecha de adquisición es obligatoria',
-    'date.base': 'La fecha de adquisición debe ser una fecha válida'
-  }),
+  fechaAdquisicion: fechaSchema,
   horarioDisponibilidad: Joi.array().items(horarioSchema).unique((a, b) => a.dia === b.dia).optional().messages({
     'array.unique': 'No puede haber horarios superpuestos para el mismo día'
   }),
@@ -31,9 +45,7 @@ const actualizarInstalacionSchema = Joi.object({
     'string.pattern.base': 'El nombre solo puede contener letras, números, guiones y guiones bajos, y debe incluir letras'
   }),
   descripcion: Joi.string().trim().optional(),
-  fechaAdquisicion: Joi.date().optional().messages({
-    'date.base': 'La fecha de adquisición debe ser una fecha válida'
-  }),
+  fechaAdquisicion: fechaSchema.optional(),
   horarioDisponibilidad: Joi.array().items(horarioSchema).unique((a, b) => a.dia === b.dia).optional().messages({
     'array.unique': 'No puede haber horarios superpuestos para el mismo día'
   }),

@@ -1,6 +1,6 @@
 import Implemento from '../models/implementos.model.js';
 import levenshtein from 'js-levenshtein';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 
 // Función para normalizar el nombre
 const normalizarNombre = (nombre) => {
@@ -34,6 +34,10 @@ const validarHorarios = (horarioDisponibilidad) => {
     }
     const inicioHora = parseInt(item.inicio.replace(':', ''), 10);
     const finHora = parseInt(item.fin.replace(':', ''), 10);
+
+    if (inicioHora % 100 !== 0 || finHora % 100 !== 0) {
+      throw new Error(`Las horas deben estar en bloques completos. Horario inválido: ${item.inicio} - ${item.fin} para el día ${item.dia}.`);
+    }
 
     if (inicioHora >= finHora) {
       throw new Error(`La hora de inicio (${item.inicio}) no puede ser mayor o igual que la hora de fin (${item.fin}) para el día ${item.dia}.`);
@@ -84,7 +88,6 @@ export const crearImplemento = async (datosImplemento) => {
       descripcion,
       cantidad,
       fechaAdquisicion,
-      categoria: datosImplemento.categoria,
       horarioDisponibilidad,
     });
 
@@ -239,5 +242,4 @@ export default {
   actualizarImplementoParcial,
   eliminarImplemento,
   obtenerHistorialImplemento,
-  actualizarEstadoImplemento, // Añadido a las exportaciones
 };
