@@ -2,31 +2,31 @@ import Joi from 'joi';
 import { parse, isValid, format } from 'date-fns';
 
 // Validación para la fecha
-const fechaSchema = Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).custom((value, helpers) => {
-  const parsedDate = parse(value, 'dd-MM-yyyy', new Date());
+const fechaSchema = Joi.string().custom((value, helpers) => {
+  let parsedDate = parse(value, 'dd-MM-yyyy', new Date());
   if (!isValid(parsedDate)) {
-    return helpers.error('any.invalid');
+    parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+    if (!isValid(parsedDate)) {
+      return helpers.error('any.invalid');
+    }
   }
   if (parsedDate > new Date() || parsedDate.getFullYear() < 1947) {
     return helpers.error('any.invalid');
   }
-  return value;
+  return format(parsedDate, 'dd-MM-yyyy');
 }, 'validación de fecha').required().messages({
-  'string.pattern.base': 'La fecha debe estar en formato DD-MM-YYYY',
   'any.required': 'La fecha es obligatoria',
   'any.invalid': 'La fecha no es válida o está fuera del rango permitido (1947-presente)'
 });
 
-
-
 // Validación para el horario de disponibilidad
 const horarioSchema = Joi.object({
-  dia: Joi.string().valid('lunes', 'martes', 'miercoles', 'jueves', 'viernes').required(),
-  inicio: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d)$/).required().messages({
-    'string.pattern.base': 'La hora de inicio debe estar en formato HH:MM'
+  dia: Joi.string().valid('lunes', 'martes', 'miércoles', 'jueves', 'viernes').required(),
+  inicio: Joi.string().pattern(/^([01]\d|2[0-3]):00$/).required().messages({
+    'string.pattern.base': 'La hora de inicio debe estar en formato HH:00'
   }),
-  fin: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d)$/).required().messages({
-    'string.pattern.base': 'La hora de fin debe estar en formato HH:MM'
+  fin: Joi.string().pattern(/^([01]\d|2[0-3]):00$/).required().messages({
+    'string.pattern.base': 'La hora de fin debe estar en formato HH:00'
   })
 });
 

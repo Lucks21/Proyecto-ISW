@@ -1,6 +1,6 @@
 import Implemento from '../models/implementos.model.js';
 import levenshtein from 'js-levenshtein';
-import { format, parse } from 'date-fns';
+import { format, parse, isValid } from 'date-fns';
 
 // Función para normalizar el nombre
 const normalizarNombre = (nombre) => {
@@ -24,7 +24,7 @@ const actualizarEstadoImplemento = async (id) => {
   await implemento.save();
 };
 
-// Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
+// Función para validar horarios de disponibilidad
 const validarHorarios = (horarioDisponibilidad) => {
   const horariosPorDia = {};
 
@@ -62,12 +62,27 @@ const validarHorarios = (horarioDisponibilidad) => {
   }
 };
 
+// Función para normalizar la fecha
+const normalizarFecha = (fecha) => {
+  let parsedDate = parse(fecha, 'dd-MM-yyyy', new Date());
+  if (!isValid(parsedDate)) {
+    parsedDate = parse(fecha, 'dd/MM/yyyy', new Date());
+  }
+  if (!isValid(parsedDate)) {
+    throw new Error('Fecha no válida');
+  }
+  return format(parsedDate, 'yyyy-MM-dd');
+};
+
 // Servicio para crear un implemento
 export const crearImplemento = async (datosImplemento) => {
   const { nombre, descripcion, cantidad, fechaAdquisicion, horarioDisponibilidad } = datosImplemento;
 
   // Normalizar el nombre
   const nombreNormalizado = normalizarNombre(nombre);
+
+  // Normalizar la fecha
+  const fechaNormalizada = normalizarFecha(fechaAdquisicion);
 
   // Verificar unicidad del nombre y similitud
   const implementosExistentes = await Implemento.find();
@@ -87,7 +102,7 @@ export const crearImplemento = async (datosImplemento) => {
       nombre: nombreNormalizado,
       descripcion,
       cantidad,
-      fechaAdquisicion,
+      fechaAdquisicion: fechaNormalizada,
       horarioDisponibilidad,
     });
 
@@ -130,6 +145,11 @@ export const actualizarImplemento = async (id, datosActualizados) => {
         throw new Error('El nombre del implemento es muy similar a uno existente.');
       }
     }
+  }
+
+  // Normalizar la fecha
+  if (datosActualizados.fechaAdquisicion) {
+    datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
   }
 
   // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
@@ -181,6 +201,11 @@ export const actualizarImplementoParcial = async (id, datosActualizados) => {
         throw new Error('El nombre del implemento es muy similar a uno existente.');
       }
     }
+  }
+
+  // Normalizar la fecha
+  if (datosActualizados.fechaAdquisicion) {
+    datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
   }
 
   // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
