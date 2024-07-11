@@ -3,10 +3,8 @@ import { parse, isValid, format } from 'date-fns';
 
 // Validación para la fecha
 const fechaSchema = Joi.string().custom((value, helpers) => {
-  // Intentar parsear con el formato DD-MM-YYYY
   let parsedDate = parse(value, 'dd-MM-yyyy', new Date());
   if (!isValid(parsedDate)) {
-    // Intentar parsear con el formato DD/MM/YYYY
     parsedDate = parse(value, 'dd/MM/yyyy', new Date());
     if (!isValid(parsedDate)) {
       return helpers.error('any.invalid');
@@ -15,7 +13,7 @@ const fechaSchema = Joi.string().custom((value, helpers) => {
   if (parsedDate > new Date() || parsedDate.getFullYear() < 1947) {
     return helpers.error('any.invalid');
   }
-  return format(parsedDate, 'dd-MM-yyyy'); // Normalizar la fecha al formato DD-MM-YYYY
+  return format(parsedDate, 'dd-MM-yyyy');
 }, 'validación de fecha').required().messages({
   'any.required': 'La fecha es obligatoria',
   'any.invalid': 'La fecha no es válida o está fuera del rango permitido (1947-presente)'

@@ -1,16 +1,19 @@
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import Instalacion from '../models/Instalacion.model.js';
 import levenshtein from 'js-levenshtein';
 
+// Función para normalizar el nombre
 const normalizarNombre = (nombre) => {
   return nombre.toLowerCase().trim().replace(/\s+/g, ' ');
 };
 
+// Función para verificar nombres similares permitiendo diferencias significativas como números
 const esNombreSimilar = (nombre, nombreExistente) => {
   const distancia = levenshtein(nombre, nombreExistente);
   return distancia < 3 && !/\d/.test(nombreExistente) && !/\d/.test(nombre);
 };
 
+// Función para validar horarios de disponibilidad
 const validarHorarios = (horarioDisponibilidad) => {
   const horariosPorDia = {};
 
@@ -44,11 +47,21 @@ const validarHorarios = (horarioDisponibilidad) => {
   }
 };
 
+// Función para normalizar la fecha
+const normalizarFecha = (fecha) => {
+  const parsedDate = parse(fecha, 'dd-MM-yyyy', new Date());
+  return format(parsedDate, 'yyyy-MM-dd');
+};
+
+// Servicio para crear una instalación
 export const crearInstalacion = async (datosInstalacion) => {
   const { nombre, descripcion, fechaAdquisicion, horarioDisponibilidad, categoria } = datosInstalacion;
 
   // Normalizar el nombre
   const nombreNormalizado = normalizarNombre(nombre);
+
+  // Normalizar la fecha
+  const fechaNormalizada = normalizarFecha(fechaAdquisicion);
 
   // Verificar unicidad del nombre y similitud
   const instalacionesExistentes = await Instalacion.find();
@@ -67,7 +80,7 @@ export const crearInstalacion = async (datosInstalacion) => {
     const nuevaInstalacion = new Instalacion({
       nombre: nombreNormalizado,
       descripcion,
-      fechaAdquisicion,
+      fechaAdquisicion: fechaNormalizada,
       categoria,
       horarioDisponibilidad,
       estado: 'disponible' // Establecer estado predeterminado
@@ -84,11 +97,13 @@ export const crearInstalacion = async (datosInstalacion) => {
   }
 };
 
+// Servicio para obtener todas las instalaciones
 export const obtenerInstalaciones = async () => {
   const instalaciones = await Instalacion.find();
   return { message: 'Instalaciones obtenidas con éxito.', data: instalaciones };
 };
 
+// Servicio para obtener una instalación por ID
 export const obtenerInstalacionPorId = async (id) => {
   const instalacion = await Instalacion.findById(id);
   if (!instalacion) {
@@ -97,6 +112,7 @@ export const obtenerInstalacionPorId = async (id) => {
   return { message: 'Instalación obtenida con éxito.', data: instalacion };
 };
 
+// Servicio para actualizar una instalación
 export const actualizarInstalacion = async (id, datosActualizados) => {
   const instalacionActual = await Instalacion.findById(id);
   if (!instalacionActual) {
@@ -116,6 +132,11 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
         throw new Error('El nombre de la instalación es muy similar a uno existente.');
       }
     }
+  }
+
+  // Normalizar la fecha
+  if (datosActualizados.fechaAdquisicion) {
+    datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
   }
 
   // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
@@ -151,6 +172,7 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
   return { message: 'Instalación actualizada con éxito.', data: instalacionActual };
 };
 
+// Servicio para actualizar parcialmente una instalación
 export const actualizarInstalacionParcial = async (id, datosActualizados) => {
   const instalacionActual = await Instalacion.findById(id);
   if (!instalacionActual) {
@@ -170,6 +192,11 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
         throw new Error('El nombre de la instalación es muy similar a uno existente.');
       }
     }
+  }
+
+  // Normalizar la fecha
+  if (datosActualizados.fechaAdquisicion) {
+    datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
   }
 
   // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
@@ -205,6 +232,7 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
   return { message: 'Instalación actualizada con éxito.', data: instalacionActual };
 };
 
+// Servicio para eliminar una instalación
 export const eliminarInstalacion = async (id) => {
   const instalacionEliminada = await Instalacion.findByIdAndDelete(id);
   if (!instalacionEliminada) {
@@ -213,6 +241,7 @@ export const eliminarInstalacion = async (id) => {
   return { message: 'Instalación eliminada con éxito.' };
 };
 
+// Servicio para obtener el historial de modificaciones de una instalación
 export const obtenerHistorialInstalacion = async (id) => {
   const instalacion = await Instalacion.findById(id).select('historialModificaciones nombre');
   if (!instalacion) {
@@ -225,7 +254,8 @@ export const obtenerHistorialInstalacion = async (id) => {
   }));
 
   return { message: 'Historial obtenido con éxito.', data: historial };
-}
+};
+
 export default {
   crearInstalacion,
   obtenerInstalaciones,
