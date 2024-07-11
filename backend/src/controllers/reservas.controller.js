@@ -1,7 +1,7 @@
 // backend/src/controllers/reservas.controller.js
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import ReservaServices from "../services/reserva.services.js";
-import { validarReservaImplemento, validarCancelarReserva, validarExtenderReserva} from '../schema/reserva.schema.js';
+import { validarReservaImplemento,validarReservaInstalacion, validarCancelarReserva, validarExtenderReserva} from '../schema/reserva.schema.js';
 import {CRON_SECRET} from "../config/configEnv.js"
 
 async function registrarReservaImplemento(req, res) {
@@ -20,6 +20,25 @@ async function registrarReservaImplemento(req, res) {
     respondSuccess(req, res, 200, resultado.message);
   } catch (error) {
     respondError(req, res, 500, "Error al realizar la reserva de implemento", error);
+  }
+}
+
+async function registrarReservaInstalacion(req, res) {
+  const { error } = validarReservaInstalacion.validate(req.body);
+  if (error) {
+    return respondError(req, res, 400, error.details[0].message);
+  }
+
+  try {
+    const { instalacionId, fechaInicio, fechaFin, userId } = req.body;
+    console.log(`Solicitud de reserva recibida con userId: ${userId}`);
+    const resultado = await ReservaServices.registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin, userId);
+    if (resultado.error) {
+      return respondError(req, res, 400, resultado.error);
+    }
+    respondSuccess(req, res, 200, resultado.message);
+  } catch (error) {
+    respondError(req, res, 500, "Error al realizar la reserva de instalación", error.message);
   }
 }
 
@@ -126,6 +145,7 @@ export {
   getAllReservasByUser,
   getAllReservasActivos,
   registrarReservaImplemento,
+  registrarReservaInstalacion,
   cancelarReserva,
   extenderReserva,
   finalizarReservasExpiradas,

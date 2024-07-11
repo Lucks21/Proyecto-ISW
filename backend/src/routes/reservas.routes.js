@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import {
   registrarReservaImplemento,
+  registrarReservaInstalacion,
   cancelarReserva,
   extenderReserva,
   getAllReservasByUser,
@@ -17,7 +18,7 @@ const router = Router();
 router.get('/obtenerReservasActivas', authenticationMiddleware, isEncargado, getAllReservasActivos);
 // Ruta para que el alumno realice una reserva
 router.post('/registrarReservaImplemento', authenticationMiddleware,  registrarReservaImplemento);
-router.post('/registrarReservaInstalacion', authenticationMiddleware,  registrarReservaImplemento);
+router.post('/registrarReservaInstalacion', authenticationMiddleware,  registrarReservaInstalacion);
 // Ruta para cancelar una reserva
 router.post('/cancelarReserva', authenticationMiddleware, isAlumno, cancelarReserva);
 // Ruta para extender una reserva

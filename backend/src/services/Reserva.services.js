@@ -4,6 +4,7 @@ import Alumno from '../models/alumno.model.js';
 import Implemento from '../models/implementos.model.js';
 import mongoose from 'mongoose';
 import { endOfMinute, addHours, isPast, isFuture, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
+import Instalacion from '../models/Instalacion.model.js';
 
 const normalizarFechaHora = (fecha, hora) => {
   const [day, month, year] = fecha.split('-');
@@ -96,6 +97,94 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     return { message: 'Reserva creada con éxito.', data: nuevaReserva };
   } catch (error) {
     console.error("Error en registrarReservaImplemento: ", error);
+    return { error: "Error interno del servidor." };
+  }
+}
+
+// Servicio para reservar instalacion
+
+async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin, userId) {
+  try {
+    // Verificar si el userId es un ObjectId válido
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return { error: 'ID de alumno no es un ObjectId válido.' };
+    }
+
+    // Validar si el ID del alumno es válido
+    console.log(`Buscando alumno con ID: ${userId}`);
+    const alumno = await Alumno.findById(userId);
+    if (!alumno) {
+      return { error: 'ID de alumno no válido o no encontrado.' };
+    }
+
+    // Verificar si el instalacionId es un ObjectId válido
+    if (!mongoose.Types.ObjectId.isValid(instalacionId)) {
+      return { error: 'ID de instalación no es válido.' };
+    }
+
+    const instalacion = await Instalacion.findById(instalacionId);
+    if (!instalacion) {
+      return { error: 'Instalación no encontrada.' };
+    }
+
+    const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
+    const fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
+
+    if (!isFuture(fechaInicioNormalizada)) {
+      return { error: 'La fecha de inicio no puede ser en el pasado.' };
+    }
+
+    // Obtener los días deshabilitados desde la base de datos
+    const diasDeshabilitados = await obtenerDias();
+    const fechaReservaNormalizada = normalizarFecha(fechaInicioNormalizada);
+    if (diasDeshabilitados.some(dia => normalizarFecha(dia).getTime() === fechaReservaNormalizada.getTime())) {
+      return { error: `La fecha ${fechaInicio.fecha} está deshabilitada para reservas.` };
+    }
+
+    if (differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada) < 60) {
+      return { error: 'La duración mínima de la reserva es de 1 hora.' };
+    }
+
+    // Verificar disponibilidad de la hora solicitada
+    const reservasExistentes = await Reserva.find({
+      instalacionId,
+      $or: [
+        { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: fechaInicioNormalizada } }
+      ]
+    });
+    if (reservasExistentes.length > 0) {
+      return { error: 'La hora solicitada ya está reservada.' };
+    }
+
+    // Verificar que el estudiante no exceda el límite de 2 horas por día
+    const reservasUsuario = await Reserva.find({
+      userId,
+      fechaInicio: {
+        $gte: startOfDay(fechaInicioNormalizada),
+        $lte: endOfDay(fechaInicioNormalizada)
+      }
+    });
+
+    const totalHorasReservadas = reservasUsuario.reduce((total, reserva) => {
+      return total + differenceInMinutes(reserva.fechaFin, reserva.fechaInicio) / 60;
+    }, 0);
+
+    if (totalHorasReservadas >= 2) {
+      return { error: 'No puede reservar más de 2 horas en un solo día.' };
+    }
+
+    const nuevaReserva = new Reserva({
+      userId,
+      instalacionId,
+      fechaInicio: fechaInicioNormalizada,
+      fechaFin: fechaFinNormalizada,
+      estado: 'activo'
+    });
+
+    await nuevaReserva.save();
+    return { message: 'Reserva creada con éxito.', data: nuevaReserva };
+  } catch (error) {
+    console.error("Error en registrarReservaInstalacion: ", error);
     return { error: "Error interno del servidor." };
   }
 }
@@ -225,6 +314,7 @@ async function obtenerDatosGraficos() {
 
 export default {
   registrarReservaImplemento,
+  registrarReservaInstalacion,
   cancelarReserva,
   extenderReserva,
   finalizarReservasExpiradas,
