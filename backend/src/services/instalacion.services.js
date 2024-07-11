@@ -24,6 +24,10 @@ const validarHorarios = (horarioDisponibilidad) => {
     const inicioHora = parseInt(item.inicio.replace(':', ''), 10);
     const finHora = parseInt(item.fin.replace(':', ''), 10);
 
+    if (inicioHora % 100 !== 0 || finHora % 100 !== 0) {
+      throw new Error(`Las horas deben estar en bloques completos de una hora (por ejemplo, 08:00, 09:00). Horario inválido: ${item.inicio} - ${item.fin} para el día ${item.dia}.`);
+    }
+
     if (inicioHora >= finHora) {
       throw new Error(`La hora de inicio (${item.inicio}) no puede ser mayor o igual que la hora de fin (${item.fin}) para el día ${item.dia}.`);
     }
