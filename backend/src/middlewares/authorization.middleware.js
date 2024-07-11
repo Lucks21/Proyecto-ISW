@@ -20,6 +20,7 @@ async function checkRole(req, res, next, roleName) {
     
     const user = await User.findOne({ email: req.email });
     if (!user) {
+      console.log(req.email)
       return respondError(req, res, 404, "Usuario no encontrado");
     }
 
