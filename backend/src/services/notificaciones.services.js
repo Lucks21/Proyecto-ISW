@@ -1,4 +1,4 @@
-import Notificacion from '../models/notificacion.model.js';
+import Notificacion from '../models/notificaciones.model.js';
 import Alumno from '../models/alumno.model.js';
 import Implemento from '../models/implementos.model.js';
 import Instalacion from '../models/Instalacion.model.js';
