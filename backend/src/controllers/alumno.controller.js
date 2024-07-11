@@ -5,14 +5,15 @@ import { crearAlumnoSchema, actualizarAlumnoSchema } from '../schema/alumno.sche
 export const crearAlumnoController = async (req, res) => {
   const { error } = crearAlumnoSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ message: 'Datos inválidos', error: error.details });
+    return res.status(400).json({ message: 'Datos inválidos', error: error.message });
   }
   const { nombre, apellido, email, password, rut, reservasActivas, historialReservas } = req.body;
   try {
     const nuevoAlumno = await alumnoService.crearAlumno({ nombre, apellido, email, password, rut, reservasActivas, historialReservas });
     res.status(201).json(nuevoAlumno);
   } catch (error) {
-    res.status(500).json({ message: 'Error al crear el alumno', error });
+    res.status(500).json({ message: 'Error al crear el alumno', error: error.message });
+    console.log(error) //quiero ver el error
   }
 };
 
