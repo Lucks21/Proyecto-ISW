@@ -26,6 +26,7 @@ const reservaSchema = new mongoose.Schema(
     fechaFin: {
       type: Date,
     },
+    
     estado: {
       // activo: reservaron
       // inactivo: se termino de usar la instalacion o implemento

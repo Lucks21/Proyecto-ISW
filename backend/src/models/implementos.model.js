@@ -2,40 +2,63 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
-// Definir el esquema de Implementos
-const ImplementoSchema = new Schema({
+// Esquema para el historial de modificaciones
+const HistorialModificacionesSchema = new Schema({
+  fecha: {
+    type: String,
+    required: true,
+  },
+  campo: {
+    type: String,
+    required: true,
+  },
+  valorAnterior: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true,
+  },
+  valorNuevo: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true,
+  },
+  motivo: {
+    type: String,
+  }
+});
+
+// Esquema de Instalación
+const InstalacionSchema = new Schema({
   nombre: {
     type: String,
-    trim: true,
-    unique: true // Asegura unicidad del nombre
+    required: true,
+    unique: true,
   },
   descripcion: {
     type: String,
-    trim: true,
-  },
-  cantidad: {
-    type: Number,
-    required: true,
   },
   fechaAdquisicion: {
     type: Date,
-    default: Date.now,
+    required: true,
   },
   categoria: {
     type: String,
     required: true,
-    trim: true,
   },
   horarioDisponibilidad: {
     type: [{
       dia: {
         type: String,
         required: true,
-        enum: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes']
+        enum: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes']
       },
       inicio: {
         type: String,
         required: true,
+        validate: {
+          validator: function (value) {
+            return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value); // HH:MM format
+          },
+          message: 'La hora de inicio debe estar en formato HH:MM'
+        }
       },
       fin: {
         type: String,
@@ -50,30 +73,17 @@ const ImplementoSchema = new Schema({
     }],
     default: []
   },
+  estado: {
+    type: String,
+    enum: ['disponible', 'no disponible'],
+    default: 'disponible',
+  },
   historialModificaciones: {
-    type: [{
-      fecha: {
-        type: String,
-        required: true,
-      },
-      cantidadModificada: {
-        type: Number,
-        required: true,
-      },
-      nuevoStock: {
-        type: Number,
-        required: true,
-      },
-      motivo: {
-        type: String,
-        required: true,
-        trim: true
-      }
-    }],
+    type: [HistorialModificacionesSchema],
     default: []
   }
-}, { timestamps: false });
+});
 
-const Implemento = mongoose.model('Implemento', ImplementoSchema);
+const Instalacion = mongoose.models.Instalacion || mongoose.model('Instalacion', InstalacionSchema);
 
-export default Implemento;
+export default Instalacion;
