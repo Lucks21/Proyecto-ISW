@@ -38,6 +38,12 @@ const crearInstalacionSchema = Joi.object({
   }),
   descripcion: Joi.string().trim().optional(),
   fechaAdquisicion: fechaSchema,
+  capacidad: Joi.number().integer().min(1).required().messages({
+    'number.base': 'La capacidad debe ser un número',
+    'number.integer': 'La capacidad debe ser un número entero',
+    'number.min': 'La capacidad debe ser al menos 1',
+    'any.required': 'La capacidad es obligatoria'
+  }),
   horarioDisponibilidad: Joi.array().items(horarioSchema).unique((a, b) => a.dia === b.dia).optional().messages({
     'array.unique': 'No puede haber horarios superpuestos para el mismo día'
   }),
@@ -50,6 +56,11 @@ const actualizarInstalacionSchema = Joi.object({
   }),
   descripcion: Joi.string().trim().optional(),
   fechaAdquisicion: fechaSchema.optional(),
+  capacidad: Joi.number().integer().min(1).optional().messages({
+    'number.base': 'La capacidad debe ser un número',
+    'number.integer': 'La capacidad debe ser un número entero',
+    'number.min': 'La capacidad debe ser al menos 1'
+  }),
   horarioDisponibilidad: Joi.array().items(horarioSchema).unique((a, b) => a.dia === b.dia).optional().messages({
     'array.unique': 'No puede haber horarios superpuestos para el mismo día'
   }),
