@@ -1,58 +1,73 @@
-"use strict";
 import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
-// Subdocumento para el horario de disponibilidad
-const HorarioSchema = new Schema({
-  dia: {
+// Esquema para el historial de modificaciones
+const HistorialModificacionesSchema = new Schema({
+  fecha: {
     type: String,
     required: true,
   },
-  inicio: {
+  campo: {
     type: String,
     required: true,
   },
-  fin: {
-    type: String,
+  valorAnterior: {
+    type: mongoose.Schema.Types.Mixed,
     required: true,
+  },
+  valorNuevo: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true,
+  },
+  motivo: {
+    type: String, // Motivo no es obligatorio, por lo tanto no tiene `required: true`
   }
-}, );
+});
 
-// Definir el esquema de Instalaciones
+// Esquema de Instalación
 const InstalacionSchema = new Schema({
   nombre: {
     type: String,
-    required: true, 
-
-    unique: true, // Asegura unicidad del nombre
+    required: true,
+    unique: true,
   },
   descripcion: {
     type: String,
+  },
+  fechaAdquisicion: {
+    type: Date,
+    required: true,
+  },
+  horarioDisponibilidad: {
+    type: [{
+      dia: {
+        type: String,
+        required: true,
+        enum: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes']
+      },
+      inicio: {
+        type: String,
+        required: true,
+      },
+      fin: {
+        type: String,
+        required: true,
+      }
+    }],
+    default: []
   },
   estado: {
     type: String,
     enum: ['disponible', 'no disponible'],
     default: 'disponible',
   },
-  capacidad: {
-    type: Number,
-    required: true
-  },
-  fechaAdquisicion: {
-    type: Date,
-    default: Date.now,
-  },
-  horarioDisponibilidad: {
-    type: [HorarioSchema],
-    default: [],
+  historialModificaciones: {
+    type: [HistorialModificacionesSchema],
+    default: []
   }
-},{
-  timestamps: false,
-  versionKey: false, // esto es para desactivar la creción del campo '_v' en los documentos
-},  
-); 
+});
 
-const Instalacion = mongoose.model('Instalacion', InstalacionSchema);
+const Instalacion = mongoose.models.Instalacion || mongoose.model('Instalacion', InstalacionSchema);
 
 export default Instalacion;

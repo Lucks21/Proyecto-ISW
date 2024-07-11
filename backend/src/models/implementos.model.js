@@ -25,8 +25,8 @@ const HistorialModificacionesSchema = new Schema({
   }
 });
 
-// Esquema de Instalación
-const InstalacionSchema = new Schema({
+// Esquema de Implemento
+const ImplementoSchema = new Schema({
   nombre: {
     type: String,
     required: true,
@@ -35,12 +35,12 @@ const InstalacionSchema = new Schema({
   descripcion: {
     type: String,
   },
-  fechaAdquisicion: {
-    type: Date,
+  cantidad: {
+    type: Number,
     required: true,
   },
-  categoria: {
-    type: String,
+  fechaAdquisicion: {
+    type: Date,
     required: true,
   },
   horarioDisponibilidad: {
@@ -53,22 +53,10 @@ const InstalacionSchema = new Schema({
       inicio: {
         type: String,
         required: true,
-        validate: {
-          validator: function (value) {
-            return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value); // HH:MM format
-          },
-          message: 'La hora de inicio debe estar en formato HH:MM'
-        }
       },
       fin: {
         type: String,
         required: true,
-        validate: {
-          validator: function (value) {
-            return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value); // HH:MM format
-          },
-          message: 'La hora de fin debe estar en formato HH:MM'
-        }
       }
     }],
     default: []
@@ -84,6 +72,6 @@ const InstalacionSchema = new Schema({
   }
 });
 
-const Instalacion = mongoose.models.Instalacion || mongoose.model('Instalacion', InstalacionSchema);
+const Implemento = mongoose.models.Implemento || mongoose.model('Implemento', ImplementoSchema);
 
-export default Instalacion;
+export default Implemento;
