@@ -23,6 +23,7 @@ async function checkRole(req, res, next, roleName) {
 
     /*console.log("user",user)
     console.log("alumno",alumno)
+    
     if (alumno!=null) {
       console.log("Entro al if alumno!=null ")
     } else {
