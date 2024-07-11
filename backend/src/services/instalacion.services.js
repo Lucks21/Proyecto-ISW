@@ -1,4 +1,4 @@
-import { format, parse } from 'date-fns';
+import { format, parse, isValid } from 'date-fns';
 import Instalacion from '../models/Instalacion.model.js';
 import levenshtein from 'js-levenshtein';
 
@@ -49,13 +49,19 @@ const validarHorarios = (horarioDisponibilidad) => {
 
 // Función para normalizar la fecha
 const normalizarFecha = (fecha) => {
-  const parsedDate = parse(fecha, 'dd-MM-yyyy', new Date());
+  let parsedDate = parse(fecha, 'dd-MM-yyyy', new Date());
+  if (!isValid(parsedDate)) {
+    parsedDate = parse(fecha, 'dd/MM/yyyy', new Date());
+  }
+  if (!isValid(parsedDate)) {
+    throw new Error('Fecha no válida');
+  }
   return format(parsedDate, 'yyyy-MM-dd');
 };
 
 // Servicio para crear una instalación
 export const crearInstalacion = async (datosInstalacion) => {
-  const { nombre, descripcion, fechaAdquisicion, horarioDisponibilidad, categoria } = datosInstalacion;
+  const { nombre, descripcion, fechaAdquisicion, horarioDisponibilidad, capacidad } = datosInstalacion;
 
   // Normalizar el nombre
   const nombreNormalizado = normalizarNombre(nombre);
@@ -81,7 +87,7 @@ export const crearInstalacion = async (datosInstalacion) => {
       nombre: nombreNormalizado,
       descripcion,
       fechaAdquisicion: fechaNormalizada,
-      categoria,
+      capacidad,
       horarioDisponibilidad,
       estado: 'disponible' // Establecer estado predeterminado
     });
