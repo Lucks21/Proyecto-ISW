@@ -1,5 +1,5 @@
 import { respondError, respondSuccess } from "../utils/resHandler.js";
-import NotificacionService from '../services/notificacion.services.js';
+import NotificacionService from '../services/notificaciones.services.js';
 import sendEmail from '../services/email.services.js';
 import Alumno from '../models/alumno.model.js';
 import { notificacionSchema } from '../schema/notificacion.schema.js';
