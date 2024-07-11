@@ -1,22 +1,29 @@
 "use strict";
 import mongoose from "mongoose";
+const { Schema } = mongoose;
 
-const NotificacionSchema = new mongoose.Schema({
-  userId: {
+
+const NotificacionSchema = new Schema({
+  recursoId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    require: true, //esto para asegurar que este vinculado a un usuario
+    required: true,
   },
-  recursoId: { //este es la id del implemento o instalacion
-    type: mongoose.Schema.Types.ObjectId,
-    refPath: "recursoTipo",
-    require: true,
-  }, 
   recursoTipo: {
     type: String,
-    enum: ["Implemento", "Instalacion"],
+    enum: ['implemento', 'instalacion'],
     required: true,
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Alumno',
+    required: true,
+  },
+  fechaCreacion: {
+    type: Date,
+    default: Date.now,
   },
 });
 
-export default mongoose.model("Notificacion", NotificacionSchema);
+const Notificacion = mongoose.model('Notificacion', NotificacionSchema);
+
+export default Notificacion;

@@ -4,9 +4,9 @@ const notificacionSchema = Joi.object({
   recursoId: Joi.string().required().messages({
     'any.required': 'El campo "recursoId" es requerido',
   }),
-  recursoTipo: Joi.string().valid('Implemento', 'Instalacion').required().messages({
+  recursoTipo: Joi.string().valid('implemento', 'instalacion').required().messages({
     'any.required': 'El campo "recursoTipo" es requerido',
-    'any.only': 'El campo "recursoTipo" debe ser "Implemento" o "Instalacion"'
+    'any.only': 'El campo "recursoTipo" debe ser "implemento" o "instalacion"'
   }),
   userId: Joi.string().required().messages({
     'any.required': 'El campo "userId" es requerido',

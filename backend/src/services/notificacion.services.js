@@ -1,63 +1,83 @@
-import Notificacion from "../models/notificacion.model.js";
-import Implemento from "../models/implementos.model.js";
-import Instalacion from "../models/Instalacion.model.js";
-import sendEmail from '../services/email.services.js';
-import User from "../models/alumno.model.js";
+import Notificacion from '../models/notificacion.model.js';
+import Alumno from '../models/alumno.model.js';
+import Implemento from '../models/implementos.model.js';
+import Instalacion from '../models/instalacion.model.js';
+import sendEmail from './email.services.js';
 
+// solicitar una notificacion
 async function solicitarNotificacion(recursoId, recursoTipo, userId) {
   try {
-    recursoTipo = recursoTipo.charAt(0).toUpperCase() + recursoTipo.slice(1);
-
-    let recurso;
-    if (recursoTipo === "Implemento") {
-      recurso = await Implemento.findById(recursoId);
-    } else if (recursoTipo === "Instalacion") {
-      recurso = await Instalacion.findById(recursoId);
-    } else {
-      return { error: "Tipo de recurso no válido" };
+    const alumno = await Alumno.findById(userId);
+    if (!alumno) {
+      return { error: 'Alumno no encontrado.' };
     }
 
-    if (!recurso || recurso.estado === "disponible") {
-      return { error: "El recurso ya está disponible" };
-    }
+    const nuevaNotificacion = new Notificacion({
+      recursoId,
+      recursoTipo,
+      userId,
+    });
 
-    const notificacion = new Notificacion({ userId, recursoId, recursoTipo });
-    await notificacion.save();
-
-    return { message: "Solicitud de notificación realizada con éxito" };
+    await nuevaNotificacion.save();
+    return { message: 'Solicitud de notificación registrada con éxito.' };
   } catch (error) {
-    return { error: "Error al solicitar notificación", details: error.message };
+    console.error('Error en solicitarNotificacion:', error);
+    return { error: 'Error interno del servidor.' };
   }
 }
 
+//notificar disponibilidad de implemento
 async function notificarDisponibilidadImplemento(implementoId) {
   try {
     const implemento = await Implemento.findById(implementoId);
     if (!implemento) {
-      console.error(`No se encontró el implemento con ID: ${implementoId}`);
-      return;
+      return { error: 'Implemento no encontrado.' };
     }
 
-    const notificaciones = await Notificacion.find({
-      recursoId: implementoId,
-      recursoTipo: "Implemento",
-    });
+    const notificaciones = await Notificacion.find({ recursoId: implementoId, recursoTipo: 'implemento' });
+    const emails = await Alumno.find({ _id: { $in: notificaciones.map(n => n.userId) } }).select('email');
 
-    for (const notificacion of notificaciones) {
-      const user = await User.findById(notificacion.userId);
-      if (user && user.email) {
-        const subject = "El implemento está disponible";
-        const text = "El implemento que solicitaste está ahora disponible.";
-        await sendEmail(user.email, subject, text);
-      }
-      await notificacion.remove();
+    const subject = 'Disponibilidad de Implemento';
+    const text = `El implemento ${implemento.nombre} está ahora disponible.`;
+
+    for (const email of emails) {
+      await sendEmail(email.email, subject, text);
     }
+
+    return { message: 'Notificaciones de disponibilidad de implemento enviadas con éxito.' };
   } catch (error) {
-    console.error("Error al notificar disponibilidad", error);
+    console.error('Error en notificarDisponibilidadImplemento:', error);
+    return { error: 'Error interno del servidor.' };
+  }
+}
+
+//notificar disponibilidad de instalación
+async function notificarDisponibilidadInstalacion(instalacionId) {
+  try {
+    const instalacion = await Instalacion.findById(instalacionId);
+    if (!instalacion) {
+      return { error: 'Instalación no encontrada.' };
+    }
+
+    const notificaciones = await Notificacion.find({ recursoId: instalacionId, recursoTipo: 'instalacion' });
+    const emails = await Alumno.find({ _id: { $in: notificaciones.map(n => n.userId) } }).select('email');
+
+    const subject = 'Disponibilidad de Instalación';
+    const text = `La instalación ${instalacion.nombre} está ahora disponible.`;
+
+    for (const email of emails) {
+      await sendEmail(email.email, subject, text);
+    }
+
+    return { message: 'Notificaciones de disponibilidad de instalación enviadas con éxito.' };
+  } catch (error) {
+    console.error('Error en notificarDisponibilidadInstalacion:', error);
+    return { error: 'Error interno del servidor.' };
   }
 }
 
 export default {
   solicitarNotificacion,
   notificarDisponibilidadImplemento,
+  notificarDisponibilidadInstalacion,
 };

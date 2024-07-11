@@ -1,4 +1,3 @@
-// backend/src/models/alumno.model.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
