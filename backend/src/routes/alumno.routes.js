@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.post('/CrearAlumnos', crearAlumnoController);
 router.get('/VerAlumnos', authenticationMiddleware, isEncargado, obtenerAlumnosController);
-router.get('/Alumnos/:id', authenticationMiddleware, isEncargado, obtenerAlumnoPorIdController);
+router.get('/VerAlumnos/:id', authenticationMiddleware, isEncargado, obtenerAlumnoPorIdController);
 router.put('/ActualizarAlumnos/:id', authenticationMiddleware, isEncargado, actualizarAlumnoController);
 router.delete('/BorrarAlumnos/:id', authenticationMiddleware, isEncargado, eliminarAlumnoController);
 
