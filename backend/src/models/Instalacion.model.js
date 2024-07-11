@@ -47,6 +47,9 @@ const InstalacionSchema = new Schema({
     type: [HorarioSchema],
     default: [],
   }
+},{
+  timestamps: false,
+  versionKey: false, // esto es para desactivar la creción del campo '_v' en los documentos
 },  
 ); 
 

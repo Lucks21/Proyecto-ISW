@@ -18,11 +18,10 @@ const NotificacionSchema = new Schema({
     ref: 'Alumno',
     required: true,
   },
-  fechaCreacion: {
-    type: Date,
-    default: Date.now,
-  },
-});
+},{
+  timestamps: false,
+  versionKey: false, // esto es para desactivar la creción del campo '_v' en los documentos
+},);
 
 const Notificacion = mongoose.model('Notificacion', NotificacionSchema);
 
