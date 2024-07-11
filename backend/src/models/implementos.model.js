@@ -72,7 +72,10 @@ const ImplementoSchema = new Schema({
     }],
     default: []
   }
-}, { timestamps: false });
+},{
+  timestamps: false,
+  versionKey: false, // esto es para desactivar la creción del campo '_v' en los documentos
+},);
 
 const Implemento = mongoose.model('Implemento', ImplementoSchema);
 

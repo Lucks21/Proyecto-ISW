@@ -13,7 +13,8 @@ const roleSchema = new Schema(
     },
   },
   {
-    versionKey: false,
+    timestamps: false,
+    versionKey: false, // esto es para desactivar la creción del campo '_v' en los documentos
   },
 );
 

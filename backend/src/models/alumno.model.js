@@ -24,7 +24,12 @@ const alumnoSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Role'
   }] // Referencia al modelo Role
-});
+},
+{
+  timestamps: false,
+  versionKey: false, // esto es para desactivar la creción del campo '_v' en los documentos
+},
+);
 
 // Método para comparar passwords
 alumnoSchema.methods.comparePassword = async function (password) {

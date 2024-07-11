@@ -15,7 +15,10 @@ const ConfiguracionSchema = new Schema({
       //message: 'Las fechas deshabilitadas deben ser únicas.'
     //}
   }
-}, { timestamps: false });
+},{
+  timestamps: false,
+  versionKey: false, // esto es para desactivar la creción del campo '_v' en los documentos
+},);
 
 const Configuracion = mongoose.model('Configuracion', ConfiguracionSchema);
 
