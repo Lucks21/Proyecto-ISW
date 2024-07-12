@@ -168,7 +168,7 @@ export const actualizarImplemento = async (id, datosActualizados) => {
     if (datosActualizados[clave] !== implementoActual[clave]) {
       modificaciones.push({
         campo: clave,
-        valorAnterior: implementoActual[clave],
+        valorAnterior: implementoActual[clave] !== undefined ? implementoActual[clave] : 'N/A',
         valorNuevo: datosActualizados[clave],
         fecha: format(new Date(), 'dd-MM-yyyy'),
       });
@@ -219,7 +219,7 @@ export const actualizarImplementoParcial = async (id, datosActualizados) => {
     if (datosActualizados[clave] !== implementoActual[clave]) {
       modificaciones.push({
         campo: clave,
-        valorAnterior: implementoActual[clave],
+        valorAnterior: implementoActual[clave] !== undefined ? implementoActual[clave] : 'N/A',
         valorNuevo: datosActualizados[clave],
         fecha: format(new Date(), 'dd-MM-yyyy'),
       });
