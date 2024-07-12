@@ -79,7 +79,7 @@ async function createUsers() {
           console.error(`Error: Rol '${userData.roleName}' no encontrado`);
         }
       } else {
-        console.log(`* => Usuario '${userData.username}' ya existe`);
+        //console.log(`* => Usuario '${userData.username}' ya existe`);
       }
     }
 

@@ -3,6 +3,8 @@ import NotificacionService from '../services/notificaciones.services.js';
 import sendEmail from '../services/email.services.js';
 import Alumno from '../models/alumno.model.js';
 import { notificacionSchema } from '../schema/notificacion.schema.js';
+import { CRON_SECRET } from "../config/configEnv.js";
+
 
 async function solicitarNotificacion(req, res) {
   try {
@@ -60,8 +62,10 @@ async function notificarDisponibilidadInstalacion(req, res) {
   }
 }
 
+
+
 export default {
   solicitarNotificacion,
   notificarDisponibilidadImplemento,
-  notificarDisponibilidadInstalacion
+  notificarDisponibilidadInstalacion,
 };

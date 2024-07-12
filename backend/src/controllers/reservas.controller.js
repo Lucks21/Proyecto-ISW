@@ -79,8 +79,8 @@ async function extenderReserva(req, res) {
 }
 //aqui hay un error 
 async function finalizarReservasExpiradas(req, res) {
-  console.log('CRON_SECRET:', CRON_SECRET);
-  console.log('cronSecret header:', req.headers['cron-secret']);
+  //console.log('CRON_SECRET:', CRON_SECRET);
+  //console.log('cronSecret header:', req.headers['cron-secret']);
 
   const cronSecret = req.headers['cron-secret'];
   if (cronSecret !== CRON_SECRET) {

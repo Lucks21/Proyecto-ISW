@@ -46,13 +46,13 @@ async function notificarDisponibilidadImplemento(implementoId) {
     }
 
     const notificaciones = await Notificacion.find({ recursoId: implementoId, recursoTipo: 'implemento' });
-    const emails = await Alumno.find({ _id: { $in: notificaciones.map(n => n.userId) } }).select('email');
+    const alumnos = await Alumno.find({ _id: { $in: notificaciones.map(n => n.userId) } }).select('email');
 
     const subject = 'Disponibilidad de Implemento';
     const text = `El implemento ${implemento.nombre} está ahora disponible.`;
 
-    for (const email of emails) {
-      await sendEmail(email.email, subject, text);
+    for (const alumno of alumnos) {
+      await sendEmail(alumno.email, subject, text);
     }
 
     return { message: 'Notificaciones de disponibilidad de implemento enviadas con éxito.' };
@@ -71,13 +71,13 @@ async function notificarDisponibilidadInstalacion(instalacionId) {
     }
 
     const notificaciones = await Notificacion.find({ recursoId: instalacionId, recursoTipo: 'instalacion' });
-    const emails = await Alumno.find({ _id: { $in: notificaciones.map(n => n.userId) } }).select('email');
+    const alumnos = await Alumno.find({ _id: { $in: notificaciones.map(n => n.userId) } }).select('email');
 
     const subject = 'Disponibilidad de Instalación';
     const text = `La instalación ${instalacion.nombre} está ahora disponible.`;
 
-    for (const email of emails) {
-      await sendEmail(email.email, subject, text);
+    for (const alumno of alumnos) {
+      await sendEmail(alumno.email, subject, text);
     }
 
     return { message: 'Notificaciones de disponibilidad de instalación enviadas con éxito.' };
