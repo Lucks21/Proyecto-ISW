@@ -1,5 +1,5 @@
 import Configuracion from '../models/configuracion.model.js';
-import { parse, isValid } from 'date-fns';
+import { parse, isValid, format } from 'date-fns';
 
 // Función para convertir la fecha en formato DD-MM-YYYY a objeto Date
 const convertirAFecha = (fechaStr) => {
@@ -46,6 +46,11 @@ export const eliminarDia = async (fecha) => {
     const configuracion = await Configuracion.findOne();
     if (!configuracion) {
       throw new Error('No se encontraron días deshabilitados.');
+    }
+
+    const diaEncontrado = configuracion.diasDeshabilitados.find(dia => dia.getTime() === fechaDate.getTime());
+    if (!diaEncontrado) {
+      throw new Error(`El día ${fecha} no se encuentra en los días deshabilitados.`);
     }
 
     configuracion.diasDeshabilitados = configuracion.diasDeshabilitados.filter(dia => dia.getTime() !== fechaDate.getTime());
