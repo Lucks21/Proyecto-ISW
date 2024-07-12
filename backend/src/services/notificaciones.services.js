@@ -75,11 +75,9 @@ async function notificarDisponibilidadInstalacion(instalacionId) {
 
     const subject = 'Disponibilidad de Instalación';
     const text = `La instalación ${instalacion.nombre} está ahora disponible.`;
-
     for (const alumno of alumnos) {
       await sendEmail(alumno.email, subject, text);
     }
-
     return { message: 'Notificaciones de disponibilidad de instalación enviadas con éxito.' };
   } catch (error) {
     console.error('Error en notificarDisponibilidadInstalacion:', error);
