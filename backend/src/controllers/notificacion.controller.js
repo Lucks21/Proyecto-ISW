@@ -4,6 +4,7 @@ import sendEmail from '../services/email.services.js';
 import Alumno from '../models/alumno.model.js';
 import { notificacionSchema } from '../schema/notificacion.schema.js';
 import { CRON_SECRET } from "../config/configEnv.js";
+import notificacionesServices from "../services/notificaciones.services.js";
 
 
 async function solicitarNotificacion(req, res) {
@@ -62,10 +63,24 @@ async function notificarDisponibilidadInstalacion(req, res) {
   }
 }
 
+async function verSolicitudesNotificacion(req, res) {
 
+  try {
+    const [solicitudes, error] = await notificacionesServices.verSolicitudesNotificacion();
+
+    if (error) return respondError(req, res, 404, error);
+
+    solicitudes.length === 0
+      ? respondSuccess(req, res, 204)
+      : respondSuccess(req, res, 200, solicitudes);
+  } catch (error) {
+    respondError(req, res, 500, "Error interno del servidor solicitudes");
+  }
+}
 
 export default {
   solicitarNotificacion,
   notificarDisponibilidadImplemento,
   notificarDisponibilidadInstalacion,
+  verSolicitudesNotificacion,
 };

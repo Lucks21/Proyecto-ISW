@@ -87,8 +87,19 @@ async function notificarDisponibilidadInstalacion(instalacionId) {
   }
 }
 
+async function verSolicitudesNotificacion() {
+  try {
+    const solicitudes = await Notificacion.find().populate('userId', 'email');
+    return [solicitudes, null];
+  } catch (error) {
+    console.error('Error en verSolicitudesNotificacion:', error);
+    return [null, 'Error interno del servidor.'];
+  }
+}
+
 export default {
   solicitarNotificacion,
   notificarDisponibilidadImplemento,
   notificarDisponibilidadInstalacion,
+  verSolicitudesNotificacion,
 };
