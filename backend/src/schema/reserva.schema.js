@@ -57,10 +57,19 @@ const validarExtenderReserva = Joi.object({
     'any.required': 'El campo "nuevaFechaFin" es requerido',
   })
 });
-
+const validarReservasActivasPorIdSchema = Joi.object({
+  recursoId: Joi.string().required().messages({
+    'any.required': 'El campo "recursoId" es requerido',
+  }),
+  recursoTipo: Joi.string().valid('implemento', 'instalacion').required().messages({
+    'any.required': 'El campo "recursoTipo" es requerido',
+    'any.only': 'El campo "recursoTipo" debe ser "implemento" o "instalacion"'
+  })
+}).unknown(true);
 export { 
   validarReservaImplemento, 
   validarReservaInstalacion, 
   validarCancelarReserva, 
   validarExtenderReserva,
+  validarReservasActivasPorIdSchema,
 };

@@ -7,7 +7,8 @@ import {
   extenderReserva,
   getAllReservasByUser,
   getAllReservasActivos,
-  obtenerDatosGraficos
+  obtenerDatosGraficos,
+  getAllReservasActivosById
 } from "../controllers/reservas.controller.js";
 import { isEncargado, isAlumno } from '../middlewares/authorization.middleware.js';
 import authenticationMiddleware from '../middlewares/authentication.middleware.js';
@@ -16,6 +17,8 @@ const router = Router();
 
 // Solo el encargado puede ver todas las reservas activas
 router.get('/obtenerReservasActivas', authenticationMiddleware, isEncargado, getAllReservasActivos);
+router.get('/obtenerReservasActivas/:recursoId/:recursoTipo', authenticationMiddleware, isEncargado, getAllReservasActivosById);
+
 // Ruta para que el alumno realice una reserva
 router.post('/registrarReservaImplemento', authenticationMiddleware,  registrarReservaImplemento);
 router.post('/registrarReservaInstalacion', authenticationMiddleware,  registrarReservaInstalacion);

@@ -1,7 +1,7 @@
 // backend/src/controllers/reservas.controller.js
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import ReservaServices from "../services/reserva.services.js";
-import { validarReservaImplemento,validarReservaInstalacion, validarCancelarReserva, validarExtenderReserva} from '../schema/reserva.schema.js';
+import { validarReservaImplemento,validarReservaInstalacion, validarCancelarReserva, validarExtenderReserva,validarReservasActivasPorIdSchema} from '../schema/reserva.schema.js';
 import {CRON_SECRET} from "../config/configEnv.js"
 
 async function registrarReservaImplemento(req, res) {
@@ -128,6 +128,27 @@ async function getAllReservasActivos(req, res) {
     respondError(req, res, 500, "Error interno del servidor reservas");
   }
 }
+async function getAllReservasActivosById(req, res) {
+  const { params } = req;
+
+  try {
+    const { error } = validarReservasActivasPorIdSchema.validate(params);
+    if (error) {
+      return respondError(req, res, 400, error.details[0].message);
+    }
+
+    const { recursoId, recursoTipo } = params;
+    const [reservas, serviceError] = await ReservaServices.getAllReservasActivosById(recursoId, recursoTipo);
+
+    if (serviceError) return respondError(req, res, 404, serviceError);
+
+    reservas.length === 0
+      ? respondSuccess(req, res, 204)
+      : respondSuccess(req, res, 200, { message: "Reservas activas obtenidas con éxito", reservas });
+  } catch (error) {
+    respondInternalError(req, res, 500, "Error interno del servidor reservas");
+  }
+}
 
 async function obtenerDatosGraficos(req, res) {
   try {
@@ -149,5 +170,6 @@ export {
   cancelarReserva,
   extenderReserva,
   finalizarReservasExpiradas,
-  obtenerDatosGraficos
+  obtenerDatosGraficos,
+  getAllReservasActivosById
 };

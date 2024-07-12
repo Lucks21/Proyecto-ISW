@@ -20,24 +20,18 @@ const normalizarFecha = (fecha) => {
 // Servicio para registrar una reserva de implemento
 async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, userId) {
   try {
-    // Verificar si el userId es un ObjectId válido
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return { error: 'ID de alumno no es un ObjectId válido.' };
     }
 
-    // Validar si el ID del alumno es válido
-    console.log(`Buscando alumno con ID: ${userId}`);
     const alumno = await Alumno.findById(userId);
-    console.log(`Resultado de la búsqueda de alumno: ${alumno}`);
     if (!alumno) {
       return { error: 'ID de alumno no válido o no encontrado.' };
     }
 
-    // Verificar si el implementoId es un ObjectId válido
     if (!mongoose.Types.ObjectId.isValid(implementoId)) {
       return { error: 'ID de implemento no es válido.' };
     }
-
 
     const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
     const fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
@@ -46,7 +40,6 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
-    // Obtener los días deshabilitados desde la base de datos
     const diasDeshabilitados = await obtenerDias();
     const fechaReservaNormalizada = normalizarFecha(fechaInicioNormalizada);
     if (diasDeshabilitados.some(dia => normalizarFecha(dia).getTime() === fechaReservaNormalizada.getTime())) {
@@ -57,7 +50,6 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'La duración mínima de la reserva es de 1 hora.' };
     }
 
-    // Verificar disponibilidad de la hora solicitada
     const reservasExistentes = await Reserva.find({
       implementoId,
       $or: [
@@ -68,9 +60,9 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'La hora solicitada ya está reservada.' };
     }
 
-    // Verificar que el estudiante no exceda el límite de 2 horas por día
     const reservasUsuario = await Reserva.find({
       userId,
+      implementoId,
       fechaInicio: {
         $gte: startOfDay(fechaInicioNormalizada),
         $lte: endOfDay(fechaInicioNormalizada)
@@ -82,7 +74,7 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     }, 0);
 
     if (totalHorasReservadas >= 2) {
-      return { error: 'No puede reservar más de 2 horas en un solo día.' };
+      return { error: 'No puede reservar más de 2 horas por este implemento en un solo día.' };
     }
 
     const nuevaReserva = new Reserva({
@@ -101,23 +93,20 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
   }
 }
 
+
 // Servicio para reservar instalacion
 
 async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin, userId) {
   try {
-    // Verificar si el userId es un ObjectId válido
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return { error: 'ID de alumno no es un ObjectId válido.' };
     }
 
-    // Validar si el ID del alumno es válido
-    console.log(`Buscando alumno con ID: ${userId}`);
     const alumno = await Alumno.findById(userId);
     if (!alumno) {
       return { error: 'ID de alumno no válido o no encontrado.' };
     }
 
-    // Verificar si el instalacionId es un ObjectId válido
     if (!mongoose.Types.ObjectId.isValid(instalacionId)) {
       return { error: 'ID de instalación no es válido.' };
     }
@@ -134,7 +123,6 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
-    // Obtener los días deshabilitados desde la base de datos
     const diasDeshabilitados = await obtenerDias();
     const fechaReservaNormalizada = normalizarFecha(fechaInicioNormalizada);
     if (diasDeshabilitados.some(dia => normalizarFecha(dia).getTime() === fechaReservaNormalizada.getTime())) {
@@ -145,7 +133,6 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La duración mínima de la reserva es de 1 hora.' };
     }
 
-    // Verificar disponibilidad de la hora solicitada
     const reservasExistentes = await Reserva.find({
       instalacionId,
       $or: [
@@ -156,9 +143,9 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La hora solicitada ya está reservada.' };
     }
 
-    // Verificar que el estudiante no exceda el límite de 2 horas por día
     const reservasUsuario = await Reserva.find({
       userId,
+      instalacionId,
       fechaInicio: {
         $gte: startOfDay(fechaInicioNormalizada),
         $lte: endOfDay(fechaInicioNormalizada)
@@ -170,7 +157,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     }, 0);
 
     if (totalHorasReservadas >= 2) {
-      return { error: 'No puede reservar más de 2 horas en un solo día.' };
+      return { error: 'No puede reservar más de 2 horas por esta instalación en un solo día.' };
     }
 
     const nuevaReserva = new Reserva({
@@ -312,6 +299,27 @@ async function obtenerDatosGraficos() {
   }
 }
 
+async function getAllReservasActivosById(recursoId, recursoTipo) {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(recursoId)) {
+      return [null, 'ID de recurso no es un ObjectId válido.'];
+    }
+
+    let query = {};
+    if (recursoTipo === 'implemento') {
+      query = { implementoId: recursoId, estado: 'activo' };
+    } else if (recursoTipo === 'instalacion') {
+      query = { instalacionId: recursoId, estado: 'activo' };
+    }
+
+    const reservas = await Reserva.find(query);
+    return [reservas, null];
+  } catch (error) {
+    console.error("Error en getAllReservasActivosById: ", error);
+    return [null, "Error interno del servidor."];
+  }
+}
+
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
@@ -320,5 +328,6 @@ export default {
   finalizarReservasExpiradas,
   getAllReservasActivos,
   getAllReservasByUser,
-  obtenerDatosGraficos
+  obtenerDatosGraficos,
+  getAllReservasActivosById
 };
