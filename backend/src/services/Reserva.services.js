@@ -33,6 +33,16 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'ID de implemento no es válido.' };
     }
 
+    const implemento = await Implemento.findById(implementoId);
+    if (!implemento) {
+      return { error: 'Implemento no encontrado.' };
+    }
+
+    // Verificar el estado del implemento
+    if (implemento.estado === 'no disponible') {
+      return { error: 'El implemento no está disponible para reservas.' };
+    }
+
     const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
     const fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
 
@@ -138,6 +148,11 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     const instalacion = await Instalacion.findById(instalacionId);
     if (!instalacion) {
       return { error: 'Instalación no encontrada.' };
+    }
+
+    // Verificar el estado de la instalación
+    if (instalacion.estado === 'no disponible') {
+      return { error: 'La instalación no está disponible para reservas.' };
     }
 
     const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
