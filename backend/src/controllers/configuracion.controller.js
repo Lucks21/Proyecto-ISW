@@ -1,4 +1,3 @@
-"use strict";
 import { agregarDia, eliminarDia, obtenerDias } from '../services/configuracion.services.js';
 import { agregarDiaDeshabilitadoSchema } from '../schema/configuracion.schema.js';
 
@@ -10,7 +9,7 @@ export const agregarDiaDeshabilitado = async (req, res) => {
 
   try {
     const { fecha } = req.body;
-    console.log(`Fecha recibida: ${fecha}`);
+    console.log(`Fecha recibida para agregar: ${fecha}`);
     const resultado = await agregarDia(fecha);
     res.status(201).json(resultado);
   } catch (error) {
@@ -18,10 +17,15 @@ export const agregarDiaDeshabilitado = async (req, res) => {
   }
 };
 
-
 export const eliminarDiaDeshabilitado = async (req, res) => {
+  const { error } = agregarDiaDeshabilitadoSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
   try {
-    const { fecha } = req.params;
+    const { fecha } = req.body;
+    console.log(`Fecha recibida para eliminar: ${fecha}`);
     const resultado = await eliminarDia(fecha);
     res.status(200).json(resultado);
   } catch (error) {
