@@ -1,12 +1,14 @@
 import Configuracion from '../models/configuracion.model.js';
-import { parse, isValid, format } from 'date-fns';
+import { parse, isValid } from 'date-fns';
 
 // Función para convertir la fecha en formato DD-MM-YYYY a objeto Date
 const convertirAFecha = (fechaStr) => {
+  if (!fechaStr) {
+    throw new Error('Fecha no proporcionada');
+  }
   console.log(`Convirtiendo fecha: ${fechaStr}`);
   const parsedDate = parse(fechaStr, 'dd-MM-yyyy', new Date());
-  console.log(`Fecha convertida: ${format(parsedDate, 'yyyy-MM-dd')}`);
-
+  console.log(`Fecha convertida: ${parsedDate}`);
   if (!isValid(parsedDate)) {
     throw new Error(`Fecha inválida: ${fechaStr}. Use el formato DD-MM-YYYY.`);
   }
@@ -38,6 +40,7 @@ export const agregarDia = async (fecha) => {
 // Servicio para eliminar un día deshabilitado
 export const eliminarDia = async (fecha) => {
   try {
+    console.log(`Fecha recibida: ${fecha}`);
     const fechaDate = convertirAFecha(fecha);
 
     const configuracion = await Configuracion.findOne();
@@ -47,6 +50,7 @@ export const eliminarDia = async (fecha) => {
 
     configuracion.diasDeshabilitados = configuracion.diasDeshabilitados.filter(dia => dia.getTime() !== fechaDate.getTime());
     await configuracion.save();
+    console.log(`Día deshabilitado eliminado: ${fecha}`);
     return { message: 'Día deshabilitado eliminado.', configuracion };
   } catch (error) {
     throw new Error(`Error al eliminar el día deshabilitado: ${error.message}`);
