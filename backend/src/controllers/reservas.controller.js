@@ -1,6 +1,6 @@
 // backend/src/controllers/reservas.controller.js
 import { respondSuccess, respondError } from "../utils/resHandler.js";
-import ReservaServices from "../services/reserva.services.js";
+import ReservaServices from "../services/Reserva.services.js";
 import { validarReservaImplemento,validarReservaInstalacion, validarCancelarReserva, validarExtenderReserva,validarReservasActivasPorIdSchema} from '../schema/reserva.schema.js';
 import {CRON_SECRET} from "../config/configEnv.js"
 
