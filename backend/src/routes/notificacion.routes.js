@@ -7,4 +7,6 @@ const router = Router();
 
 router.post('/solicitar',isAlumno, notificacionController.solicitarNotificacion);
 router.get('/verSolicitudes', authenticationMiddleware , isEncargado , notificacionController.verSolicitudesNotificacion);
+router.post('/notificarImplemento',authenticationMiddleware, isEncargado, notificacionController.notificarDisponibilidadImplemento);
+router.post('/notificarInstalacion',authenticationMiddleware, isEncargado, notificacionController.notificarDisponibilidadInstalacion);
 export default router;
