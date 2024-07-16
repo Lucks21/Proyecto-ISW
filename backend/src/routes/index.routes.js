@@ -30,7 +30,6 @@ router.use("/reservas",authenticationMiddleware, reservasRoutes);
 router.get("/finalizarReservasExpiradas",cronAuthMiddleware, finalizarReservasExpiradas);
 //router.post('/notificarImplemento',cronAuthMiddleware, notificacionController.notificarDisponibilidadImplemento);
 //router.post('/notificarInstalacion',cronAuthMiddleware, notificacionController.notificarDisponibilidadInstalacion);
-
 router.use("/configuraciones", authenticationMiddleware, configuracionRoutes);
 router.use("/notificaciones", authenticationMiddleware, notificacionRoutes);
 router.use("/alumnos", Alumno);
