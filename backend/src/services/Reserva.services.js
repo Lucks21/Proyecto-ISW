@@ -249,6 +249,13 @@ async function cancelarReserva(reservaId) {
       return { error: 'Reserva no encontrada.' };
     }
 
+    const ahora = new Date();
+    const minutosParaInicio = differenceInMinutes(reserva.fechaInicio, ahora);
+
+    if (minutosParaInicio < 30) {
+      return { error: 'No se puede cancelar la reserva con menos de 30 minutos de anticipación.' };
+    }
+
     reserva.estado = 'no activo';
     await reserva.save();
     return { message: 'Reserva cancelada con éxito.' };
