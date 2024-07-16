@@ -2,9 +2,9 @@ import Implemento from '../models/implementos.model.js';
 import levenshtein from 'js-levenshtein';
 import { format, parse, isValid } from 'date-fns';
 
-// Función para normalizar el nombre
-const normalizarNombre = (nombre) => {
-  return nombre.toLowerCase().trim().replace(/\s+/g, ' ');
+// Función para normalizar texto (nombre y descripción)
+const normalizarTexto = (texto) => {
+  return texto.toLowerCase().trim().replace(/\s+/g, ' ');
 };
 
 // Función para verificar nombres similares permitiendo diferencias significativas como números
@@ -78,8 +78,9 @@ const normalizarFecha = (fecha) => {
 export const crearImplemento = async (datosImplemento) => {
   const { nombre, descripcion, cantidad, fechaAdquisicion, horarioDisponibilidad } = datosImplemento;
 
-  // Normalizar el nombre
-  const nombreNormalizado = normalizarNombre(nombre);
+  // Normalizar el nombre y la descripción
+  const nombreNormalizado = normalizarTexto(nombre);
+  const descripcionNormalizada = normalizarTexto(descripcion);
 
   // Normalizar la fecha
   const fechaNormalizada = normalizarFecha(fechaAdquisicion);
@@ -100,7 +101,7 @@ export const crearImplemento = async (datosImplemento) => {
   try {
     const nuevoImplemento = new Implemento({
       nombre: nombreNormalizado,
-      descripcion,
+      descripcion: descripcionNormalizada,
       cantidad,
       fechaAdquisicion: fechaNormalizada,
       horarioDisponibilidad,
@@ -137,7 +138,7 @@ export const obtenerImplementoPorId = async (id) => {
 export const actualizarImplemento = async (id, datosActualizados) => {
   // Si el nombre está siendo actualizado, normalizar y verificar unicidad
   if (datosActualizados.nombre) {
-    datosActualizados.nombre = normalizarNombre(datosActualizados.nombre);
+    datosActualizados.nombre = normalizarTexto(datosActualizados.nombre);
 
     const implementosExistentes = await Implemento.find();
     for (let implemento of implementosExistentes) {
@@ -150,6 +151,11 @@ export const actualizarImplemento = async (id, datosActualizados) => {
   // Normalizar la fecha
   if (datosActualizados.fechaAdquisicion) {
     datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
+  }
+
+  // Normalizar la descripción si está presente
+  if (datosActualizados.descripcion) {
+    datosActualizados.descripcion = normalizarTexto(datosActualizados.descripcion);
   }
 
   // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
@@ -193,7 +199,7 @@ export const actualizarImplementoParcial = async (id, datosActualizados) => {
 
   // Si el nombre está siendo actualizado, normalizar y verificar unicidad
   if (datosActualizados.nombre) {
-    datosActualizados.nombre = normalizarNombre(datosActualizados.nombre);
+    datosActualizados.nombre = normalizarTexto(datosActualizados.nombre);
 
     const implementosExistentes = await Implemento.find();
     for (let implemento of implementosExistentes) {
@@ -206,6 +212,11 @@ export const actualizarImplementoParcial = async (id, datosActualizados) => {
   // Normalizar la fecha
   if (datosActualizados.fechaAdquisicion) {
     datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
+  }
+
+  // Normalizar la descripción si está presente
+  if (datosActualizados.descripcion) {
+    datosActualizados.descripcion = normalizarTexto(datosActualizados.descripcion);
   }
 
   // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
