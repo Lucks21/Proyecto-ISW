@@ -12,10 +12,10 @@ import { isEncargado} from '../middlewares/authorization.middleware.js';
 
 const router = express.Router();
 
-router.post('/CrearAlumnos', crearAlumnoController);
-router.get('/VerAlumnos', authenticationMiddleware, isEncargado, obtenerAlumnosController);
-router.get('/VerAlumnos/:id', authenticationMiddleware, isEncargado, obtenerAlumnoPorIdController);
-router.put('/ActualizarAlumnos/:id', authenticationMiddleware, isEncargado, actualizarAlumnoController);
-router.delete('/BorrarAlumnos/:id', authenticationMiddleware, isEncargado, eliminarAlumnoController);
+router.post('/crear', crearAlumnoController);
+router.get('/obtener', authenticationMiddleware, isEncargado, obtenerAlumnosController);
+router.get('/obtener/:id', authenticationMiddleware, isEncargado, obtenerAlumnoPorIdController);
+router.put('/actualizar/:id', authenticationMiddleware, isEncargado, actualizarAlumnoController);
+router.delete('/eliminar/:id', authenticationMiddleware, isEncargado, eliminarAlumnoController);
 
 export default router;

@@ -24,15 +24,15 @@ const router = Router();
 router.use("/implementos", authenticationMiddleware, implementosRoutes);
 router.use("/users", authenticationMiddleware, userRoutes);
 router.use("/auth", authRoutes);
-router.use("/instalacion", authenticationMiddleware, instalacionRoutes);
+router.use("/instalaciones", authenticationMiddleware, instalacionRoutes);
 router.use("/reservas",authenticationMiddleware, reservasRoutes);
 //CronJobs
 router.get("/finalizarReservasExpiradas",cronAuthMiddleware, finalizarReservasExpiradas);
 //router.post('/notificarImplemento',cronAuthMiddleware, notificacionController.notificarDisponibilidadImplemento);
 //router.post('/notificarInstalacion',cronAuthMiddleware, notificacionController.notificarDisponibilidadInstalacion);
 
-router.use("/configuracion", authenticationMiddleware, configuracionRoutes);
+router.use("/configuraciones", authenticationMiddleware, configuracionRoutes);
 router.use("/notificaciones", authenticationMiddleware, notificacionRoutes);
-router.use("/alumno", Alumno);
+router.use("/alumnos", Alumno);
 
 export default router;

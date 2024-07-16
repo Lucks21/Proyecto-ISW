@@ -6,16 +6,11 @@ import instalacionController from '../controllers/instalacion.controller.js';
 
 const router = express.Router();
 
-// Ruta para crear una instalación
-router.post('/crear-instalacion', authenticationMiddleware, isEncargado, crearInstalacionController);
-// Ruta para obtener todas las instalaciones
-router.get('/obtener-instalaciones', authenticationMiddleware, isEncargado, obtenerInstalacionesController);
-// Ruta para obtener una instalación por ID
-router.get('/obtener-instalaciones/:id', authenticationMiddleware, isEncargado, obtenerInstalacionPorIdController);
-// Ruta para actualizar una instalación
-router.put('/instalaciones/:id', authenticationMiddleware, isEncargado, actualizarInstalacionController);
-// Ruta para eliminar una instalación
-router.delete('/borrar-instalaciones/:id', authenticationMiddleware, isEncargado, eliminarInstalacionController);
+router.post('/crear', authenticationMiddleware, isEncargado, crearInstalacionController);
+router.get('/obtener', authenticationMiddleware, isEncargado, obtenerInstalacionesController);
+router.get('/obtener/:id', authenticationMiddleware, isEncargado, obtenerInstalacionPorIdController);
+router.put('/actualizar/:id', authenticationMiddleware, isEncargado, actualizarInstalacionController);
+router.delete('/eliminar/:id', authenticationMiddleware, isEncargado, eliminarInstalacionController);
+router.get('/obtener/Reservadas', instalacionController.getInstalacionesReservadas);//esto tengo que cambiarlo al reserva.router
 
-router.get('/obtenerinstalaciones/Reservadas', instalacionController.getInstalacionesReservadas);
 export default router;

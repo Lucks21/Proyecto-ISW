@@ -17,16 +17,14 @@ import implementosController from '../controllers/implementos.controller.js';
 const router = express.Router();
 
 // Rutas para implementos
-router.post('/crear-implementos', authenticationMiddleware, isEncargado, crearImplementoController);
-router.get('/obtener-implementos', authenticationMiddleware, isEncargado, obtenerImplementosController);
-router.get('/implementos/:id', authenticationMiddleware, isEncargado, obtenerImplementoPorIdController);
-router.put('/actualizar-implementos/:id', authenticationMiddleware, isEncargado, actualizarImplementoController);
-router.patch('/actualizar-parcial-implementos/:id', authenticationMiddleware, isEncargado, actualizarImplementoParcialController);
-router.delete('/eliminar-implementos/:id', authenticationMiddleware, isEncargado, eliminarImplementoController);
-router.get('/obtener-historial-implementos/:id/historial', authenticationMiddleware, isEncargado, obtenerHistorialImplementoController);
-
-router.get('/obtenerimplementos/reservados', implementosController.getImplementosReservados);
-
+router.post('/crear', authenticationMiddleware, isEncargado, crearImplementoController);
+router.get('/obtener', authenticationMiddleware, isEncargado, obtenerImplementosController);
+router.get('/obtener/:id', authenticationMiddleware, isEncargado, obtenerImplementoPorIdController);
+router.put('/actualizarTodo/:id', authenticationMiddleware, isEncargado, actualizarImplementoController);
+router.patch('/actualizarParcial/:id', authenticationMiddleware, isEncargado, actualizarImplementoParcialController);
+router.delete('/eliminar/:id', authenticationMiddleware, isEncargado, eliminarImplementoController);
+router.get('/historial/:id', authenticationMiddleware, isEncargado, obtenerHistorialImplementoController);
+router.get('/obtener/reservados', implementosController.getImplementosReservados); //esto tengo que cambiarlo al reserva.router
 
 export default router;
 

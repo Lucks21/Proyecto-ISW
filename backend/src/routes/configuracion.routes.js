@@ -5,8 +5,8 @@ import { isAdmin, isEncargado } from '../middlewares/authorization.middleware.js
 
 const router = express.Router();
 
-router.post('/crear-deshabilitados', verifyJWT, isEncargado, agregarDiaDeshabilitado);
-router.delete('/eliminar-diadeshabilitados', verifyJWT, isEncargado, eliminarDiaDeshabilitado);
-router.get('/obtener-dias-deshabilitados', verifyJWT, obtenerDiasDeshabilitados);
+router.post('/crearDiaDeshabilitado', verifyJWT, isEncargado, agregarDiaDeshabilitado);
+router.delete('/eliminarDiaDeshabilitado', verifyJWT, isEncargado, eliminarDiaDeshabilitado);
+router.get('/obtenerDiaDeshabilitado', verifyJWT, obtenerDiasDeshabilitados);
 
 export default router;

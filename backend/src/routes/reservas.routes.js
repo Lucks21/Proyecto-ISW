@@ -15,22 +15,13 @@ import authenticationMiddleware from '../middlewares/authentication.middleware.j
 
 const router = Router();
 
-// Solo el encargado puede ver todas las reservas activas
-router.get('/obtenerReservasActivas', authenticationMiddleware, isEncargado, getAllReservasActivos);
-router.get('/obtenerReservasActivas/:recursoId/:recursoTipo', authenticationMiddleware, isEncargado, getAllReservasActivosById);
-
-// Ruta para que el alumno realice una reserva
-router.post('/registrarReservaImplemento', authenticationMiddleware,  registrarReservaImplemento);
-router.post('/registrarReservaInstalacion', authenticationMiddleware,  registrarReservaInstalacion);
-// Ruta para cancelar una reserva
-router.post('/cancelarReserva', authenticationMiddleware, isAlumno, cancelarReserva);
-// Ruta para extender una reserva
-router.post('/extenderReserva', authenticationMiddleware, isAlumno, extenderReserva);
-// Ruta para finalizar una reserva
-//router.post('/finalizarReservasExpiradas', cronAuthMiddleware, finalizarReservasExpiradas);
-// Ruta para obtener todas las reservas de un usuario
-router.get('/reservasUsuario/:id', authenticationMiddleware, isAlumno, getAllReservasByUser);
-// Ruta para obtener datos para gráficos
-router.get('/obtenerGrafico', authenticationMiddleware, isEncargado, obtenerDatosGraficos);
+router.get('/obtenerActivas', authenticationMiddleware, isEncargado, getAllReservasActivos);
+router.get('/obtenerActivas/:recursoId/:recursoTipo', authenticationMiddleware, isEncargado, getAllReservasActivosById);
+router.post('/registrarImplemento', authenticationMiddleware,  registrarReservaImplemento);
+router.post('/registrarInstalacion', authenticationMiddleware,  registrarReservaInstalacion);
+router.post('/cancelar', authenticationMiddleware, isAlumno, cancelarReserva);
+router.post('/extender', authenticationMiddleware, isAlumno, extenderReserva);
+router.get('/usuario/:id', authenticationMiddleware, isAlumno, getAllReservasByUser);
+router.get('/grafico', authenticationMiddleware, isEncargado, obtenerDatosGraficos);
 
 export default router;
