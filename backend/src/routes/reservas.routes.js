@@ -7,7 +7,8 @@ import authenticationMiddleware from '../middlewares/authentication.middleware.j
 const router = Router();
 
 router.get('/obtenerActivas', authenticationMiddleware, isEncargado, ReservaController.getAllReservasActivos);
-router.get('/obtenerActivas/:recursoId/:recursoTipo', authenticationMiddleware, isEncargado, ReservaController.getAllReservasActivosById);
+router.get('/historialActivas', authenticationMiddleware, isEncargado, ReservaController.getHistorialReservasActivas);
+router.get('/historialNoActivas', authenticationMiddleware, isEncargado, ReservaController.getHistorialReservasNoActivas);
 router.get('/usuario/:id', authenticationMiddleware, isAlumno, ReservaController.getAllReservasByUser);
 router.get('/grafico', authenticationMiddleware, isEncargado, ReservaController.obtenerDatosGraficos);
 router.get('/obtenerImplementos', authenticationMiddleware, isEncargado ,ReservaController.getImplementosReservados);

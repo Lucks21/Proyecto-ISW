@@ -372,24 +372,15 @@ async function obtenerDatosGraficos() {
   }
 }
 
-async function getAllReservasActivosById(recursoId, recursoTipo) {
+async function getHistorialReservasActivas() {
   try {
-    if (!mongoose.Types.ObjectId.isValid(recursoId)) {
-      return [null, 'ID de recurso no es un ObjectId válido.'];
-    }
-
-    let query = {};
-    if (recursoTipo === 'implemento') {
-      query = { implementoId: recursoId, estado: 'activo' };
-    } else if (recursoTipo === 'instalacion') {
-      query = { instalacionId: recursoId, estado: 'activo' };
-    }
-
-    const reservas = await Reserva.find(query);
-    return [reservas, null];
+    const reservas = await Reserva.find({ estado: "activo" })
+      .populate('userId')
+      .populate('implementoId')
+      .populate('instalacionId');
+    return reservas;
   } catch (error) {
-    console.error("Error en getAllReservasActivosById: ", error);
-    return [null, "Error interno del servidor."];
+    throw new Error('Error al obtener el historial de reservas activas: ' + error.message);
   }
 }
 
@@ -445,7 +436,17 @@ async function getHistorialReservas() {
     throw new Error('Error al obtener el historial de reservas: ' + error.message);
   }
 }
-
+async function getHistorialReservasNoActivas() {
+  try {
+    const reservas = await Reserva.find({ estado: "no activo" })
+      .populate('userId')
+      .populate('implementoId')
+      .populate('instalacionId');
+    return reservas;
+  } catch (error) {
+    throw new Error('Error al obtener el historial de reservas no activas: ' + error.message);
+  }
+}
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
@@ -455,10 +456,11 @@ export default {
   getAllReservasActivos,
   getAllReservasByUser,
   obtenerDatosGraficos,
-  getAllReservasActivosById,
+  getHistorialReservasActivas,
   getImplementosReservados,
   getInstalacionesReservadas,
   getImplementosReservadosByUser,
   getInstalacionesReservadasByUser,
-  getHistorialReservas
+  getHistorialReservas,
+  getHistorialReservasNoActivas
 };

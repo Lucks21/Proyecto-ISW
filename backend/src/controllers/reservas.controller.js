@@ -129,25 +129,13 @@ async function getAllReservasActivos(req, res) {
     respondError(req, res, 500, "Error interno del servidor reservas");
   }
 }
-async function getAllReservasActivosById(req, res) {
-  const { params } = req;
 
+async function getHistorialReservasActivas(req, res) {
   try {
-    const { error } = validarReservasActivasPorIdSchema.validate(params);
-    if (error) {
-      return respondError(req, res, 400, error.details[0].message);
-    }
-
-    const { recursoId, recursoTipo } = params;
-    const [reservas, serviceError] = await ReservaServices.getAllReservasActivosById(recursoId, recursoTipo);
-
-    if (serviceError) return respondError(req, res, 404, serviceError);
-
-    reservas.length === 0
-      ? respondSuccess(req, res, 204)
-      : respondSuccess(req, res, 200, { message: "Reservas activas obtenidas con éxito", reservas });
+    const reservas = await ReservaServices.getHistorialReservasActivas();
+    return respondSuccess(req, res, 200, reservas);
   } catch (error) {
-    respondInternalError(req, res, 500, "Error interno del servidor reservas");
+    return respondError(req, res, 500, error.message);
   }
 }
 
@@ -216,6 +204,14 @@ async function getHistorialReservas(req, res) {
     return respondError(req, res, 500, error.message);
   }
 }
+async function getHistorialReservasNoActivas(req, res) {
+  try {
+    const reservas = await ReservaServices.getHistorialReservasNoActivas();
+    return respondSuccess(req, res, 200, reservas);
+  } catch (error) {
+    return respondError(req, res, 500, error.message);
+  }
+}
 export default{
   getAllReservasByUser,
   getAllReservasActivos,
@@ -225,10 +221,11 @@ export default{
   extenderReserva,
   finalizarReservasExpiradas,
   obtenerDatosGraficos,
-  getAllReservasActivosById,
+  getHistorialReservasActivas,
   getImplementosReservados,
   getInstalacionesReservadas,
   getImplementosReservadosByUser,
   getInstalacionesReservadasByUser,
-  getHistorialReservas
+  getHistorialReservas,
+  getHistorialReservasNoActivas
 };
