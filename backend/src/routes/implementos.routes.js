@@ -11,7 +11,6 @@ import {
 } from '../controllers/implementos.controller.js';
 import authenticationMiddleware from '../middlewares/authentication.middleware.js';
 import { isEncargado } from '../middlewares/authorization.middleware.js';
-import implementosController from '../controllers/implementos.controller.js';
 
 
 const router = express.Router();
@@ -24,7 +23,6 @@ router.put('/actualizarTodo/:id', authenticationMiddleware, isEncargado, actuali
 router.patch('/actualizarParcial/:id', authenticationMiddleware, isEncargado, actualizarImplementoParcialController);
 router.delete('/eliminar/:id', authenticationMiddleware, isEncargado, eliminarImplementoController);
 router.get('/historial/:id', authenticationMiddleware, isEncargado, obtenerHistorialImplementoController);
-router.get('/obtener/reservados', implementosController.getImplementosReservados); //esto tengo que cambiarlo al reserva.router
 
 export default router;
 

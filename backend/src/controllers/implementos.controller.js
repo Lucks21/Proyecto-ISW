@@ -10,8 +10,6 @@ import {
   obtenerHistorialImplemento
 } from '../services/implementos.services.js';
 import { implementoSchema, actualizarImplementoSchema } from '../schema/implementos.schema.js';
-import ImplementoService from "../services/implementos.services.js";
-
 // Controlador para crear un implemento
 export const crearImplementoController = async (req, res) => {
   try {
@@ -103,23 +101,3 @@ export const obtenerHistorialImplementoController = async (req, res) => {
   }
 };
 
-//Controlador para obtener los implementos Reservados
-async function getImplementosReservados(req, res) {
-  try {
-      const [implementos, error] = await ImplementoService.getImplementosReservados();
-
-      if (error) return respondError(req, res, 404, error);
-      
-      implementos.length === 0
-          ? respondSuccess(req, res, 204)
-          : respondSuccess(req, res, 200, implementos);
-
-  } catch (error) {
-      respondError(req, res, 500, "Error interno del servidor");
-  }
-};
-//Controllador para obtener los implementos reservados por ID
-
-export default {
-  getImplementosReservados,
-};

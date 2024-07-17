@@ -1,6 +1,8 @@
 // backend/src/controllers/reservas.controller.js
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import ReservaServices from "../services/Reserva.services.js";
+import Instalacion from "../services/instalacion.services.js";
+import Implemento from "../services/implementos.services.js";
 import { validarReservaImplemento,validarReservaInstalacion, validarCancelarReserva, validarExtenderReserva,validarReservasActivasPorIdSchema} from '../schema/reserva.schema.js';
 import {CRON_SECRET} from "../config/configEnv.js"
 
@@ -77,8 +79,8 @@ async function extenderReserva(req, res) {
     respondError(req, res, 500, "Error al extender la reserva", error);
   }
 }
-//aqui hay un error 
-async function finalizarReservasExpiradas(req, res) {
+
+export const finalizarReservasExpiradas= async (req, res) => {
   //console.log('CRON_SECRET:', CRON_SECRET);
   //console.log('cronSecret header:', req.headers['cron-secret']);
 
@@ -162,7 +164,26 @@ async function obtenerDatosGraficos(req, res) {
   }
 }
 
-export {
+// ver los implementos reservados
+async function getImplementosReservados(req, res) {
+  try {
+    const implementosReservados = await ReservaServices.getImplementosReservados();
+    return respondSuccess(req, res, 200, implementosReservados);
+  } catch (error) {
+    return respondError(req, res, 500, error.message);
+  }
+}
+
+// ver las instalaciones reservadas
+async function getInstalacionesReservadas(req, res) {
+  try {
+    const instalacionesReservadas = await ReservaServices.getInstalacionesReservadas();
+    return respondSuccess(req, res, 200, instalacionesReservadas);
+  } catch (error) {
+    return respondError(req, res, 500, error.message);
+  }
+}
+export default{
   getAllReservasByUser,
   getAllReservasActivos,
   registrarReservaImplemento,
@@ -171,5 +192,7 @@ export {
   extenderReserva,
   finalizarReservasExpiradas,
   obtenerDatosGraficos,
-  getAllReservasActivosById
+  getAllReservasActivosById,
+  getImplementosReservados,
+  getInstalacionesReservadas,
 };

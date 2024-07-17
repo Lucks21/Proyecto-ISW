@@ -393,6 +393,25 @@ async function getAllReservasActivosById(recursoId, recursoTipo) {
   }
 }
 
+// obtener los implementos reservados
+async function getImplementosReservados() {
+  try {
+    const implementosReservados = await Implemento.find({ estado: 'no disponible' });
+    return implementosReservados;
+  } catch (error) {
+    throw new Error('Error al obtener implementos reservados: ' + error.message);
+  }
+}
+// obtener las instalaciones reservadas
+async function getInstalacionesReservadas() {
+  try {
+    const instalacionesReservadas = await Instalacion.find({ estado: 'no disponible' });
+    return instalacionesReservadas;
+  } catch (error) {
+    throw new Error('Error al obtener instalaciones reservadas: ' + error.message);
+  }
+}
+
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
@@ -402,5 +421,7 @@ export default {
   getAllReservasActivos,
   getAllReservasByUser,
   obtenerDatosGraficos,
-  getAllReservasActivosById
+  getAllReservasActivosById,
+  getImplementosReservados,
+  getInstalacionesReservadas,
 };
