@@ -12,6 +12,8 @@ router.get('/usuario/:id', authenticationMiddleware, isAlumno, ReservaController
 router.get('/grafico', authenticationMiddleware, isEncargado, ReservaController.obtenerDatosGraficos);
 router.get('/obtenerImplementos', authenticationMiddleware, isEncargado ,ReservaController.getImplementosReservados);
 router.get('/obtenerInstalaciones', authenticationMiddleware, isEncargado ,ReservaController.getInstalacionesReservadas);
+router.get('/obtenerImplementosByUser', authenticationMiddleware, isAlumno ,ReservaController.getImplementosReservadosByUser);
+router.get('/obtenerInstalacionesByUser', authenticationMiddleware, isAlumno ,ReservaController.getInstalacionesReservadasByUser);
 
 router.post('/registrarImplemento', authenticationMiddleware,  ReservaController.registrarReservaImplemento);
 router.post('/registrarInstalacion', authenticationMiddleware,  ReservaController.registrarReservaInstalacion);

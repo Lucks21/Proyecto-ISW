@@ -412,6 +412,31 @@ async function getInstalacionesReservadas() {
   }
 }
 
+// implemento reservado por usuario
+async function getImplementosReservadosByUser(userId) {
+  try {
+    const reservas = await Reserva.find({ userId, implementoId: { $exists: true } });
+    const implementosIds = reservas.map(reserva => reserva.implementoId);
+    const implementosReservados = await Implemento.find({ _id: { $in: implementosIds } });
+    return implementosReservados;
+  } catch (error) {
+    throw new Error('Error al obtener implementos reservados por usuario: ' + error.message);
+  }
+}
+
+
+// obtener una instalación reservada por usuario
+async function getInstalacionesReservadasByUser(userId) {
+  try {
+    const reservas = await Reserva.find({ userId, instalacionId: { $exists: true } });
+    const instalacionesIds = reservas.map(reserva => reserva.instalacionId);
+    const instalacionesReservadas = await Instalacion.find({ _id: { $in: instalacionesIds } });
+    return instalacionesReservadas;
+  } catch (error) {
+    throw new Error('Error al obtener instalaciones reservadas por usuario: ' + error.message);
+  }
+}
+
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
@@ -424,4 +449,6 @@ export default {
   getAllReservasActivosById,
   getImplementosReservados,
   getInstalacionesReservadas,
+  getImplementosReservadosByUser,
+  getInstalacionesReservadasByUser,
 };
