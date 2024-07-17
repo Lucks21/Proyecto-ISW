@@ -1,7 +1,5 @@
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import ReservaServices from "../services/Reserva.services.js";
-import Instalacion from "../services/instalacion.services.js";
-import Implemento from "../services/implementos.services.js";
 import { validarReservaImplemento,validarReservaInstalacion, validarCancelarReserva, validarExtenderReserva,validarReservasActivasPorIdSchema} from '../schema/reserva.schema.js';
 import {CRON_SECRET} from "../config/configEnv.js"
 import User from "../models/user.model.js"
@@ -210,7 +208,14 @@ async function getInstalacionesReservadasByUser(req, res) {
     return respondError(req, res, 500, error.message);
   }
 }
-
+async function getHistorialReservas(req, res) {
+  try {
+    const reservas = await ReservaServices.getHistorialReservas();
+    return respondSuccess(req, res, 200, reservas);
+  } catch (error) {
+    return respondError(req, res, 500, error.message);
+  }
+}
 export default{
   getAllReservasByUser,
   getAllReservasActivos,
@@ -225,4 +230,5 @@ export default{
   getInstalacionesReservadas,
   getImplementosReservadosByUser,
   getInstalacionesReservadasByUser,
+  getHistorialReservas
 };

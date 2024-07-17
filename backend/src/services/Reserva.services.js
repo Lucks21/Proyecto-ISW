@@ -437,6 +437,15 @@ async function getInstalacionesReservadasByUser(userId) {
   }
 }
 
+async function getHistorialReservas() {
+  try {
+    const reservas = await Reserva.find().populate('userId').populate('implementoId').populate('instalacionId');
+    return reservas;
+  } catch (error) {
+    throw new Error('Error al obtener el historial de reservas: ' + error.message);
+  }
+}
+
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
@@ -451,4 +460,5 @@ export default {
   getInstalacionesReservadas,
   getImplementosReservadosByUser,
   getInstalacionesReservadasByUser,
+  getHistorialReservas
 };
