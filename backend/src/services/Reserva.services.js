@@ -415,7 +415,6 @@ async function getImplementosReservadosByUser(userId) {
   }
 }
 
-
 // obtener una instalación reservada por usuario
 async function getInstalacionesReservadasByUser(userId) {
   try {
@@ -447,6 +446,7 @@ async function getHistorialReservasNoActivas() {
     throw new Error('Error al obtener el historial de reservas no activas: ' + error.message);
   }
 }
+
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
