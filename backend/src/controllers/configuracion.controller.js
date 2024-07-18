@@ -1,6 +1,6 @@
 import { agregarDia, eliminarDia, obtenerDias } from '../services/configuracion.services.js';
 import Joi from 'joi';
-import { agregarDiaDeshabilitadoSchema } from '../schemas/configuracion.schema.js';
+import { agregarDiaDeshabilitadoSchema } from '../schema/configuracion.schema.js';
 
 // Controlador para agregar un día deshabilitado
 export const agregarDiaDeshabilitado = async (req, res) => {
