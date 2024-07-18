@@ -18,6 +18,13 @@ const validarHorarios = (horarioDisponibilidad) => {
   const horariosPorDia = {};
 
   horarioDisponibilidad.forEach(item => {
+    const diaNormalizado = item.dia.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const diasValidos = ['lunes', 'martes', 'miercoles', 'miércoles', 'jueves', 'viernes'];
+    
+    if (!diasValidos.includes(diaNormalizado)) {
+      throw new Error(`Día inválido: ${item.dia}. Debe ser uno de ${diasValidos.join(', ')}.`);
+    }
+
     if (!horariosPorDia[item.dia]) {
       horariosPorDia[item.dia] = [];
     }
@@ -42,8 +49,8 @@ const validarHorarios = (horarioDisponibilidad) => {
     const horarios = horariosPorDia[dia];
     for (let i = 0; i < horarios.length; i++) {
       for (let j = i + 1; j < horarios.length; j++) {
-        if ((horarios[i].inicio < horarios[j].fin && horarios[i].fin > horarios[j].inicio) ||
-            (horarios[j].inicio < horarios[i].fin && horarios[j].fin > horarios[i].inicio)) {
+        if ((horarios[i].inicio < horarios[j].fin && horarios[i].fin > horarios[j.inicio]) ||
+            (horarios[j].inicio < horarios.i.fin && horarios[j.fin] > horarios.i.inicio)) {
           throw new Error(`No puede haber horarios superpuestos para el mismo día: ${dia}.`);
         }
       }
@@ -171,7 +178,7 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
 
       modificaciones.push({
         campo: clave,
-        valorAnterior: instalacionActual[clave],
+        valorAnterior: instalacionActual[clave] !== undefined ? instalacionActual[clave] : 'N/A',
         valorNuevo: datosActualizados[clave],
         fecha: format(new Date(), 'dd-MM-yyyy'),
         motivo: motivo
@@ -236,7 +243,7 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
 
       modificaciones.push({
         campo: clave,
-        valorAnterior: instalacionActual[clave],
+        valorAnterior: instalacionActual[clave] !== undefined ? instalacionActual[clave] : 'N/A',
         valorNuevo: datosActualizados[clave],
         fecha: format(new Date(), 'dd-MM-yyyy'),
         motivo: motivo

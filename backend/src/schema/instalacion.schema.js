@@ -21,16 +21,6 @@ const fechaSchema = Joi.string().custom((value, helpers) => {
   'any.invalid': 'La fecha no es válida o está fuera del rango permitido (1947-presente)'
 });
 
-const horarioSchema = Joi.object({
-  dia: Joi.string().valid('lunes', 'martes', 'miércoles', 'jueves', 'viernes').required(),
-  inicio: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d)$/).required().messages({
-    'string.pattern.base': 'La hora de inicio debe estar en formato HH:MM'
-  }),
-  fin: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d)$/).required().messages({
-    'string.pattern.base': 'La hora de fin debe estar en formato HH:MM'
-  })
-});
-
 const crearInstalacionSchema = Joi.object({
   nombre: Joi.string().pattern(/^[a-zA-Z0-9-_ ]+$/).trim().required().messages({
     'any.required': 'El nombre es obligatorio',
@@ -44,9 +34,7 @@ const crearInstalacionSchema = Joi.object({
     'number.min': 'La capacidad debe ser al menos 1',
     'any.required': 'La capacidad es obligatoria'
   }),
-  horarioDisponibilidad: Joi.array().items(horarioSchema).unique((a, b) => a.dia === b.dia).optional().messages({
-    'array.unique': 'No puede haber horarios superpuestos para el mismo día'
-  }),
+  horarioDisponibilidad: Joi.array().default([]),
   estado: Joi.string().valid('disponible', 'no disponible').optional()
 });
 
@@ -61,9 +49,7 @@ const actualizarInstalacionSchema = Joi.object({
     'number.integer': 'La capacidad debe ser un número entero',
     'number.min': 'La capacidad debe ser al menos 1'
   }),
-  horarioDisponibilidad: Joi.array().items(horarioSchema).unique((a, b) => a.dia === b.dia).optional().messages({
-    'array.unique': 'No puede haber horarios superpuestos para el mismo día'
-  }),
+  horarioDisponibilidad: Joi.array().default([]),
   estado: Joi.string().valid('disponible', 'no disponible').optional()
 });
 
