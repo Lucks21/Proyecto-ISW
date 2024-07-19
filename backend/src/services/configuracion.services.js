@@ -1,6 +1,6 @@
 import Configuracion from '../models/configuracion.model.js';
 import Reserva from '../models/reservas.model.js';
-import { parse, isValid, format } from 'date-fns';
+import { parse, isValid, format, startOfDay, endOfDay } from 'date-fns';
 
 // Función para convertir la fecha en formato DD-MM-YYYY a objeto Date
 const convertirAFecha = (fechaStr) => {
@@ -54,7 +54,7 @@ export const eliminarDia = async (fecha) => {
     await configuracion.save();
     return { message: 'Día deshabilitado eliminado.', configuracion };
   } catch (error) {
-    throw new Error(`Error al eliminar el día deshabilitado: ${error.message}`);
+    throw new Error(`: ${error.message}`);
   }
 };
 

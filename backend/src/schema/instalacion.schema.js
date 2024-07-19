@@ -22,7 +22,7 @@ const fechaSchema = Joi.string().custom((value, helpers) => {
 });
 
 const crearInstalacionSchema = Joi.object({
-  nombre: Joi.string().pattern(/^[a-zA-Z0-9-_ ]+$/).trim().required().messages({
+  nombre: Joi.string().pattern(/^(?=.*[a-zA-Z])[a-zA-Z0-9\s_-]+$/).trim().required().messages({
     'any.required': 'El nombre es obligatorio',
     'string.pattern.base': 'El nombre solo puede contener letras, números, guiones, guiones bajos y espacios, y debe incluir letras'
   }),
@@ -39,8 +39,8 @@ const crearInstalacionSchema = Joi.object({
 });
 
 const actualizarInstalacionSchema = Joi.object({
-  nombre: Joi.string().pattern(/^[a-zA-Z0-9-_]+$/).trim().optional().messages({
-    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones y guiones bajos, y debe incluir letras'
+  nombre: Joi.string().pattern(/^(?=.*[a-zA-Z])[a-zA-Z0-9\s_-]+$/).trim().optional().messages({
+    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones, guiones bajos y espacios, y debe incluir letras'
   }),
   descripcion: Joi.string().trim().optional(),
   fechaAdquisicion: fechaSchema.optional(),

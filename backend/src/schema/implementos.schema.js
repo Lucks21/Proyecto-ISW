@@ -43,8 +43,8 @@ const implementoSchema = Joi.object({
 });
 
 const actualizarImplementoSchema = Joi.object({
-  nombre: Joi.string().pattern(/^[a-zA-Z0-9]+(?:[_-][a-zA-Z0-9]+)*$/).messages({
-    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones y guiones bajos, y debe incluir letras',
+  nombre: Joi.string().pattern(/^(?=.*[a-zA-Z])[a-zA-Z0-9\s_-]+$/).messages({
+    'string.pattern.base': 'El nombre solo puede contener letras, números, guiones, guiones bajos y espacios, y debe incluir letras',
   }),
   descripcion: Joi.string().max(100).pattern(/^[a-zA-Z0-9\s]+$/).optional().messages({
     'string.max': 'Has excedido el máximo de 100 caracteres',
