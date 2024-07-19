@@ -1,4 +1,3 @@
-// backend/src/routes/reservas.routes.js
 import { Router } from 'express';
 import ReservaController from "../controllers/reservas.controller.js";
 import { isEncargado, isAlumno } from '../middlewares/authorization.middleware.js';

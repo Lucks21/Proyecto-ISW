@@ -42,7 +42,10 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     if (implemento.estado === 'no disponible') {
       return { error: 'El implemento no está disponible para reservas.' };
     }
-
+    //verifica que el implemento no sea menor o igual a 0
+    if (implemento.cantidad <= 0) {
+      return { error: 'El implemento no está disponible para reservas porque no hay unidades disponibles.' };
+    }
     const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
     const fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
 
@@ -67,9 +70,13 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
         { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: fechaInicioNormalizada } }
       ]
     });
-    if (reservasExistentes.length > 0) {
-      return { error: 'La hora solicitada ya está reservada.' };
+    
+    // esto para contar implementos que ya estan reservados
+    const cantidadReservada = reservasExistentes.length;
+    if (cantidadReservada >= implemento.cantidad) {
+      return { error: 'No hay suficientes implementos disponibles para la hora solicitada.' };
     }
+    
 
     const reservasUsuario = await Reserva.find({
       userId,
