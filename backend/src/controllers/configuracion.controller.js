@@ -13,7 +13,7 @@ export const agregarDiaDeshabilitado = async (req, res) => {
     const { fecha } = req.body;
     const resultado = await agregarDia(fecha);
 
-    res.status(200).json({ message: 'Día deshabilitado agregado con éxito.', data: resultado });
+    res.status(200).json({ message: resultado.message, data: resultado.configuracion });
   } catch (error) {
     res.status(500).json({ message: 'Error al agregar el día deshabilitado.', error: error.message });
   }
@@ -29,7 +29,7 @@ export const eliminarDiaDeshabilitado = async (req, res) => {
   try {
     const { fecha } = req.body;
     const resultado = await eliminarDia(fecha);
-    res.status(200).json({ message: 'Día deshabilitado eliminado con éxito.', data: resultado });
+    res.status(200).json({ message: resultado.message, data: resultado.configuracion });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar el día deshabilitado.', error: error.message });
   }

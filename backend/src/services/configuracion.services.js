@@ -14,6 +14,27 @@ const convertirAFecha = (fechaStr) => {
   return parsedDate;
 };
 
+// Función para cancelar reservas por fecha
+const cancelarReservasPorFecha = async (fecha) => {
+  const inicioDia = startOfDay(fecha);
+  const finDia = endOfDay(fecha);
+
+  const reservas = await Reserva.find({
+    fechaInicio: { $gte: inicioDia, $lte: finDia },
+    estado: 'activo'
+  });
+
+  let reservasCanceladas = 0;
+
+  for (const reserva of reservas) {
+    reserva.estado = 'Cancelado';
+    await reserva.save();
+    reservasCanceladas++;
+  }
+
+  return reservasCanceladas;
+};
+
 // Servicio para agregar un día deshabilitado
 export const agregarDia = async (fecha) => {
   try {
@@ -30,9 +51,9 @@ export const agregarDia = async (fecha) => {
     await configuracion.save();
 
     // Cancelar reservas futuras en la fecha deshabilitada
-    await cancelarReservasPorFecha(fechaDate);
+    const reservasCanceladas = await cancelarReservasPorFecha(fechaDate);
 
-    return { message: 'Día deshabilitado agregado.', configuracion };
+    return { message: `Día deshabilitado agregado. Se han cancelado ${reservasCanceladas} reservas.`, configuracion };
   } catch (error) {
     throw new Error(`Error al agregar el día deshabilitado: ${error.message}`);
   }
@@ -54,7 +75,7 @@ export const eliminarDia = async (fecha) => {
     await configuracion.save();
     return { message: 'Día deshabilitado eliminado.', configuracion };
   } catch (error) {
-    throw new Error(`: ${error.message}`);
+    throw new Error(` ${error.message}`);
   }
 };
 
@@ -68,21 +89,5 @@ export const obtenerDias = async () => {
     return configuracion.diasDeshabilitados;
   } catch (error) {
     throw new Error(`Error al obtener los días deshabilitados: ${error.message}`);
-  }
-};
-
-// Función para cancelar reservas por fecha
-const cancelarReservasPorFecha = async (fecha) => {
-  const inicioDia = startOfDay(fecha);
-  const finDia = endOfDay(fecha);
-
-  const reservas = await Reserva.find({
-    fechaInicio: { $gte: inicioDia, $lte: finDia },
-    estado: 'activo'
-  });
-
-  for (const reserva of reservas) {
-    reserva.estado = 'no activo';
-    await reserva.save();
   }
 };
