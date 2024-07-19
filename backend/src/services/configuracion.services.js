@@ -1,6 +1,7 @@
 import Configuracion from '../models/configuracion.model.js';
 import Reserva from '../models/reservas.model.js';
 import { parse, isValid, format, startOfDay, endOfDay } from 'date-fns';
+import { enviarCorreoCancelacion } from './email.services.js'; // Importar la nueva función
 
 // Función para convertir la fecha en formato DD-MM-YYYY a objeto Date
 const convertirAFecha = (fechaStr) => {
@@ -12,27 +13,6 @@ const convertirAFecha = (fechaStr) => {
     throw new Error(`Fecha inválida: ${fechaStr}. Use el formato DD-MM-YYYY.`);
   }
   return parsedDate;
-};
-
-// Función para cancelar reservas por fecha
-const cancelarReservasPorFecha = async (fecha) => {
-  const inicioDia = startOfDay(fecha);
-  const finDia = endOfDay(fecha);
-
-  const reservas = await Reserva.find({
-    fechaInicio: { $gte: inicioDia, $lte: finDia },
-    estado: 'activo'
-  });
-
-  let reservasCanceladas = 0;
-
-  for (const reserva of reservas) {
-    reserva.estado = 'no activo';
-    await reserva.save();
-    reservasCanceladas++;
-  }
-
-  return reservasCanceladas;
 };
 
 // Servicio para agregar un día deshabilitado
@@ -50,12 +30,12 @@ export const agregarDia = async (fecha) => {
     configuracion.diasDeshabilitados.push(fechaDate);
     await configuracion.save();
 
-    // Cancelar reservas futuras en la fecha deshabilitada
+    // Cancelar reservas futuras en la fecha deshabilitada y notificar a los alumnos
     const reservasCanceladas = await cancelarReservasPorFecha(fechaDate);
 
-    return { message: `Día deshabilitado agregado. Se han cancelado ${reservasCanceladas} reservas.`, configuracion };
+    return { message: `Día deshabilitado agregado. Se han cancelado ${reservasCanceladas.length} reservas.`, configuracion };
   } catch (error) {
-    throw new Error(`${error.message}`);
+    throw new Error(`Error al agregar el día deshabilitado: ${error.message}`);
   }
 };
 
@@ -75,7 +55,7 @@ export const eliminarDia = async (fecha) => {
     await configuracion.save();
     return { message: 'Día deshabilitado eliminado.', configuracion };
   } catch (error) {
-    throw new Error(`Error al eliminar el día deshabilitado: ${error.message}`);
+    throw new Error(`: ${error.message}`);
   }
 };
 
@@ -90,4 +70,34 @@ export const obtenerDias = async () => {
   } catch (error) {
     throw new Error(`Error al obtener los días deshabilitados: ${error.message}`);
   }
+};
+
+// Función para cancelar reservas por fecha
+const cancelarReservasPorFecha = async (fecha) => {
+  const inicioDia = startOfDay(fecha);
+  const finDia = endOfDay(fecha);
+
+  const reservas = await Reserva.find({
+    fechaInicio: { $gte: inicioDia, $lte: finDia },
+    estado: 'activo'
+  });
+
+  const reservasCanceladas = [];
+
+  for (const reserva of reservas) {
+    reserva.estado = 'no activo';
+    await reserva.save();
+
+    // Enviar correo electrónico de notificación
+    const alumno = reserva.userId;
+    const recurso = reserva.implementoId || reserva.instalacionId;
+    const tipoRecurso = reserva.implementoId ? 'implemento' : 'instalación';
+    const mensaje = `Su reserva del ${tipoRecurso} "${recurso.nombre}" ha sido cancelada para el día ${format(fecha, 'dd-MM-yyyy')} porque el día ha sido deshabilitado.`;
+    
+    await enviarCorreoCancelacion(alumno.email, recurso.nombre, format(fecha, 'dd-MM-yyyy'));
+
+    reservasCanceladas.push(reserva);
+  }
+
+  return reservasCanceladas;
 };

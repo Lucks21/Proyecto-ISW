@@ -29,7 +29,7 @@ export const eliminarDiaDeshabilitado = async (req, res) => {
   try {
     const { fecha } = req.body;
     const resultado = await eliminarDia(fecha);
-    res.status(200).json({ message: resultado.message, data: resultado.configuracion });
+    res.status(200).json({ message: 'Día deshabilitado eliminado con éxito.', data: resultado });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar el día deshabilitado.', error: error.message });
   }

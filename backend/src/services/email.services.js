@@ -24,4 +24,19 @@ async function sendEmail(to, subject, text) {
   }
 }
 
+export async function enviarCorreoCancelacion(destinatario, implementoOInstalacion, fecha) {
+  try {
+    const info = await transporter.sendMail({
+      from: `"Proyecto ingenieria de software👻" <${EMAIL_USER}>`,
+      to: destinatario,
+      subject: "Reserva cancelada",
+      text: `Su reserva de "${implementoOInstalacion}" ha sido cancelada para el día ${fecha} porque el día ha sido deshabilitado.`,
+    });
+    console.log("Correo enviado: %s", info.messageId);
+  } catch (error) {
+    console.error("Error al enviar el correo: ", error);
+    throw error;
+  }
+}
+
 export default sendEmail;
