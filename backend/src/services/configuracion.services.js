@@ -1,7 +1,8 @@
 import Configuracion from '../models/configuracion.model.js';
 import Reserva from '../models/reservas.model.js';
+import Alumno from '../models/alumno.model.js';  // Importar el modelo Alumno
 import { parse, isValid, format, startOfDay, endOfDay } from 'date-fns';
-import { enviarCorreoCancelacion } from './email.services.js'; // Importar la nueva función
+import { enviarCorreoCancelacion } from './email.services.js';  // Importar la función de envío de correos
 
 // Función para convertir la fecha en formato DD-MM-YYYY a objeto Date
 const convertirAFecha = (fechaStr) => {
@@ -13,6 +14,32 @@ const convertirAFecha = (fechaStr) => {
     throw new Error(`Fecha inválida: ${fechaStr}. Use el formato DD-MM-YYYY.`);
   }
   return parsedDate;
+};
+
+// Función para cancelar reservas por fecha y enviar correos de notificación
+const cancelarReservasPorFecha = async (fecha) => {
+  const inicioDia = startOfDay(fecha);
+  const finDia = endOfDay(fecha);
+
+  const reservas = await Reserva.find({
+    fechaInicio: { $gte: inicioDia, $lte: finDia },
+    estado: 'activo'
+  }).populate('userId'); 
+
+  for (const reserva of reservas) {
+    reserva.estado = 'no activo';
+    await reserva.save();
+
+    // Obtener el correo del alumno y enviar la notificación
+    const alumno = reserva.userId;
+    if (alumno && alumno.email) {
+      await enviarCorreoCancelacion(alumno.email, reserva.implementoId || reserva.instalacionId, format(fecha, 'dd-MM-yyyy'));
+    } else {
+      console.error(`No se pudo enviar correo a ${alumno ? alumno.nombre : 'desconocido'} porque no tiene un email definido.`);
+    }
+  }
+
+  return reservas.length;  // Retornar la cantidad de reservas canceladas
 };
 
 // Servicio para agregar un día deshabilitado
@@ -30,10 +57,10 @@ export const agregarDia = async (fecha) => {
     configuracion.diasDeshabilitados.push(fechaDate);
     await configuracion.save();
 
-    // Cancelar reservas futuras en la fecha deshabilitada y notificar a los alumnos
+    // Cancelar reservas futuras en la fecha deshabilitada y obtener el número de reservas canceladas
     const reservasCanceladas = await cancelarReservasPorFecha(fechaDate);
 
-    return { message: `Día deshabilitado agregado. Se han cancelado ${reservasCanceladas.length} reservas.`, configuracion };
+    return { message: `Día deshabilitado agregado. Se han cancelado ${reservasCanceladas} reservas.`, configuracion };
   } catch (error) {
     throw new Error(`Error al agregar el día deshabilitado: ${error.message}`);
   }
@@ -55,7 +82,7 @@ export const eliminarDia = async (fecha) => {
     await configuracion.save();
     return { message: 'Día deshabilitado eliminado.', configuracion };
   } catch (error) {
-    throw new Error(`: ${error.message}`);
+    throw new Error(`Error al eliminar el día deshabilitado: ${error.message}`);
   }
 };
 
@@ -72,32 +99,8 @@ export const obtenerDias = async () => {
   }
 };
 
-// Función para cancelar reservas por fecha
-const cancelarReservasPorFecha = async (fecha) => {
-  const inicioDia = startOfDay(fecha);
-  const finDia = endOfDay(fecha);
-
-  const reservas = await Reserva.find({
-    fechaInicio: { $gte: inicioDia, $lte: finDia },
-    estado: 'activo'
-  });
-
-  const reservasCanceladas = [];
-
-  for (const reserva of reservas) {
-    reserva.estado = 'no activo';
-    await reserva.save();
-
-    // Enviar correo electrónico de notificación
-    const alumno = reserva.userId;
-    const recurso = reserva.implementoId || reserva.instalacionId;
-    const tipoRecurso = reserva.implementoId ? 'implemento' : 'instalación';
-    const mensaje = `Su reserva del ${tipoRecurso} "${recurso.nombre}" ha sido cancelada para el día ${format(fecha, 'dd-MM-yyyy')} porque el día ha sido deshabilitado.`;
-    
-    await enviarCorreoCancelacion(alumno.email, recurso.nombre, format(fecha, 'dd-MM-yyyy'));
-
-    reservasCanceladas.push(reserva);
-  }
-
-  return reservasCanceladas;
+export default {
+  agregarDia,
+  eliminarDia,
+  obtenerDias,
 };
