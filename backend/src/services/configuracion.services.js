@@ -1,8 +1,10 @@
 import Configuracion from '../models/configuracion.model.js';
 import Reserva from '../models/reservas.model.js';
-import Alumno from '../models/alumno.model.js';  // Importar el modelo Alumno
+import Alumno from '../models/alumno.model.js';
 import { parse, isValid, format, startOfDay, endOfDay } from 'date-fns';
-import { enviarCorreoCancelacion } from './email.services.js';  // Importar la función de envío de correos
+import { enviarCorreoCancelacion } from './email.services.js';
+import Instalacion from '../models/Instalacion.model.js';
+import Implemento from '../models/implementos.model.js';
 
 // Función para convertir la fecha en formato DD-MM-YYYY a objeto Date
 const convertirAFecha = (fechaStr) => {
@@ -24,16 +26,26 @@ const cancelarReservasPorFecha = async (fecha) => {
   const reservas = await Reserva.find({
     fechaInicio: { $gte: inicioDia, $lte: finDia },
     estado: 'activo'
-  }).populate('userId'); 
+  });
 
   for (const reserva of reservas) {
     reserva.estado = 'no activo';
     await reserva.save();
 
     // Obtener el correo del alumno y enviar la notificación
-    const alumno = reserva.userId;
+    const alumno = await Alumno.findById(reserva.userId);
+    let nombreRecurso = '';
+
+    if (reserva.instalacionId) {
+      const instalacion = await Instalacion.findById(reserva.instalacionId);
+      nombreRecurso = instalacion ? instalacion.nombre : 'Instalación desconocida';
+    } else if (reserva.implementoId) {
+      const implemento = await Implemento.findById(reserva.implementoId);
+      nombreRecurso = implemento ? implemento.nombre : 'Implemento desconocido';
+    }
+
     if (alumno && alumno.email) {
-      await enviarCorreoCancelacion(alumno.email, reserva.implementoId || reserva.instalacionId, format(fecha, 'dd-MM-yyyy'));
+      await enviarCorreoCancelacion(alumno.email, nombreRecurso, format(fecha, 'dd-MM-yyyy'));
     } else {
       console.error(`No se pudo enviar correo a ${alumno ? alumno.nombre : 'desconocido'} porque no tiene un email definido.`);
     }
