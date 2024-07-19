@@ -51,26 +51,10 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'El implemento no está disponible para reservas porque no hay unidades disponibles.' };
     }
 
-    const horaActual = new Date();
     let fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
     let fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
 
-    // Si la hora actual es fraccionada, ajustar la hora de inicio a la hora completa actual
-    if (horaActual.getMinutes() !== 0) {
-      fechaInicioNormalizada = startOfHour(horaActual);
-      fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
-    } else {
-      // Si la hora de inicio es fraccionada y en el futuro, ajustar a la próxima hora completa
-      if (fechaInicioNormalizada.getMinutes() !== 0) {
-        fechaInicioNormalizada = startOfHour(fechaInicioNormalizada);
-        fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
-      }
-    }
-
-    if (fechaInicioNormalizada.getTime() < horaActual.getTime() && fechaInicioNormalizada.getDate() === horaActual.getDate()) {
-      fechaInicioNormalizada = startOfHour(horaActual);
-      fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
-    } else if (fechaInicioNormalizada.getTime() < horaActual.getTime()) {
+    if (!isFuture(fechaInicioNormalizada)) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
@@ -86,6 +70,10 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     if (!disponibilidadDia) {
       return { error: `El implemento no está disponible para reservas el ${diaSemana}.` };
     }
+
+    // Ajustar fechas a la hora completa más cercana
+    fechaInicioNormalizada = startOfHour(fechaInicioNormalizada);
+    fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
 
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
     if (duracionReserva <= 0 || duracionReserva > 60) {
@@ -122,6 +110,13 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'No puede reservar más de 2 horas por este implemento en un solo día.' };
     }
 
+    // Permitir reservas que comiencen en horas completas
+    const horaActual = new Date();
+    if (fechaInicioNormalizada.getTime() < horaActual.getTime() && fechaInicioNormalizada.getHours() === horaActual.getHours()) {
+      fechaInicioNormalizada = startOfHour(addMinutes(horaActual, 60));
+      fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
+    }
+
     const nuevaReserva = new Reserva({
       userId,
       implementoId,
@@ -137,7 +132,6 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     return { error: "Error interno del servidor." };
   }
 }
-
 
 
 
@@ -167,26 +161,10 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La instalación no está disponible para reservas.' };
     }
 
-    const horaActual = new Date();
-    let fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
-    let fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
+    const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
+    const fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
 
-    // Si la hora actual es fraccionada, ajustar la hora de inicio a la hora completa actual
-    if (horaActual.getMinutes() !== 0) {
-      fechaInicioNormalizada = startOfHour(horaActual);
-      fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
-    } else {
-      // Si la hora de inicio es fraccionada y en el futuro, ajustar a la próxima hora completa
-      if (fechaInicioNormalizada.getMinutes() !== 0) {
-        fechaInicioNormalizada = startOfHour(fechaInicioNormalizada);
-        fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
-      }
-    }
-
-    if (fechaInicioNormalizada.getTime() < horaActual.getTime() && fechaInicioNormalizada.getDate() === horaActual.getDate()) {
-      fechaInicioNormalizada = startOfHour(horaActual);
-      fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
-    } else if (fechaInicioNormalizada.getTime() < horaActual.getTime()) {
+    if (!isFuture(fechaInicioNormalizada)) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
@@ -197,7 +175,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     }
 
     // Verificar si el día de la semana está en horarioDisponibilidad
-    const diaSemana = obtenerDiaSemana(fechaInicioNormalizada);
+    const diaSemana = fechaInicioNormalizada.toLocaleString('es-ES', { weekday: 'long' }).toLowerCase();
     const disponibilidadDia = instalacion.horarioDisponibilidad.find(horario => horario.dia.toLowerCase() === diaSemana);
     if (!disponibilidadDia) {
       return { error: `La instalación no está disponible para reservas el ${diaSemana}.` };
@@ -235,21 +213,47 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'No puede reservar más de 2 horas por esta instalación en un solo día.' };
     }
 
-    const nuevaReserva = new Reserva({
-      userId,
-      instalacionId,
-      fechaInicio: fechaInicioNormalizada,
-      fechaFin: fechaFinNormalizada,
-      estado: 'activo'
-    });
+    // Validar y permitir reservas en horas fraccionadas
+    const horaActual = new Date();
+    const minutosRestantes = differenceInMinutes(startOfHour(addMinutes(horaActual, 60)), horaActual);
 
-    await nuevaReserva.save();
-    return { message: 'Reserva creada con éxito.', data: nuevaReserva };
+    const inicioHoraCompleta = startOfHour(fechaInicioNormalizada);
+    const finHoraCompleta = addMinutes(inicioHoraCompleta, 60);
+
+    if (fechaInicioNormalizada.getMinutes() !== 0 && fechaInicioNormalizada.getTime() >= horaActual.getTime() && fechaFinNormalizada.getTime() <= finHoraCompleta.getTime()) {
+      const nuevaReserva = new Reserva({
+        userId,
+        instalacionId,
+        fechaInicio: fechaInicioNormalizada,
+        fechaFin: fechaFinNormalizada,
+        estado: 'activo'
+      });
+
+      await nuevaReserva.save();
+      return { message: 'Reserva creada con éxito.', data: nuevaReserva };
+    }
+
+    // Permitir reservas que comiencen en horas completas
+    if (fechaInicioNormalizada.getMinutes() === 0) {
+      const nuevaReserva = new Reserva({
+        userId,
+        instalacionId,
+        fechaInicio: fechaInicioNormalizada,
+        fechaFin: fechaFinNormalizada,
+        estado: 'activo'
+      });
+
+      await nuevaReserva.save();
+      return { message: 'Reserva creada con éxito.', data: nuevaReserva };
+    }
+
+    return { error: 'No se pueden realizar reservas en horas fraccionadas. La siguiente reserva debe comenzar en la siguiente hora completa.' };
   } catch (error) {
     console.error("Error en registrarReservaInstalacion: ", error);
     return { error: "Error interno del servidor." };
   }
 }
+
 
 // Servicio para cancelar una reserva
 async function cancelarReserva(reservaId) {
