@@ -27,7 +27,7 @@ const cancelarReservasPorFecha = async (fecha) => {
   let reservasCanceladas = 0;
 
   for (const reserva of reservas) {
-    reserva.estado = 'Cancelado';
+    reserva.estado = 'no activo';
     await reserva.save();
     reservasCanceladas++;
   }
@@ -55,7 +55,7 @@ export const agregarDia = async (fecha) => {
 
     return { message: `Día deshabilitado agregado. Se han cancelado ${reservasCanceladas} reservas.`, configuracion };
   } catch (error) {
-    throw new Error(`Error al agregar el día deshabilitado: ${error.message}`);
+    throw new Error(`${error.message}`);
   }
 };
 
@@ -75,7 +75,7 @@ export const eliminarDia = async (fecha) => {
     await configuracion.save();
     return { message: 'Día deshabilitado eliminado.', configuracion };
   } catch (error) {
-    throw new Error(` ${error.message}`);
+    throw new Error(`Error al eliminar el día deshabilitado: ${error.message}`);
   }
 };
 
