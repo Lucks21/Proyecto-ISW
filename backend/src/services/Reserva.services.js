@@ -16,7 +16,9 @@ const normalizarFecha = (fecha) => {
   const date = new Date(fecha);
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 };
-
+const obtenerDiaSemana = (fecha) => {
+  return fecha.toLocaleString('es-ES', { weekday: 'long' }).toLowerCase();
+};
 // Servicio para registrar una reserva de implemento
 async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, userId) {
   try {
@@ -42,10 +44,12 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     if (implemento.estado === 'no disponible') {
       return { error: 'El implemento no está disponible para reservas.' };
     }
-    //verifica que el implemento no sea menor o igual a 0
+
+    // Verificar la cantidad de implementos disponibles
     if (implemento.cantidad <= 0) {
       return { error: 'El implemento no está disponible para reservas porque no hay unidades disponibles.' };
     }
+
     const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
     const fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
 
@@ -59,6 +63,13 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: `La fecha ${fechaInicio.fecha} está deshabilitada para reservas.` };
     }
 
+    //horarioDisponibilidad
+    const diaSemana = obtenerDiaSemana(fechaInicioNormalizada);
+    const disponibilidadDia = implemento.horarioDisponibilidad.find(horario => horario.dia.toLowerCase() === diaSemana);
+    if (!disponibilidadDia) {
+      return { error: `El implemento no está disponible para reservas el ${diaSemana}.` };
+    }
+
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
     if (duracionReserva <= 0 || duracionReserva > 60) {
       return { error: 'La duración de la reserva debe ser de hasta 1 hora.' };
@@ -70,13 +81,12 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
         { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: fechaInicioNormalizada } }
       ]
     });
-    
-    // esto para contar implementos que ya estan reservados
+
+    //
     const cantidadReservada = reservasExistentes.length;
     if (cantidadReservada >= implemento.cantidad) {
       return { error: 'No hay suficientes implementos disponibles para la hora solicitada.' };
     }
-    
 
     const reservasUsuario = await Reserva.find({
       userId,
@@ -136,6 +146,8 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
   }
 }
 
+
+
 // Servicio para registrar una reserva de instalación
 async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin, userId) {
   try {
@@ -173,6 +185,13 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     const fechaReservaNormalizada = normalizarFecha(fechaInicioNormalizada);
     if (diasDeshabilitados.some(dia => normalizarFecha(dia).getTime() === fechaReservaNormalizada.getTime())) {
       return { error: `La fecha ${fechaInicio.fecha} está deshabilitada para reservas.` };
+    }
+
+    // horarioDisponibilidad
+    const diaSemana = obtenerDiaSemana(fechaInicioNormalizada);
+    const disponibilidadDia = instalacion.horarioDisponibilidad.find(horario => horario.dia.toLowerCase() === diaSemana);
+    if (!disponibilidadDia) {
+      return { error: `La instalación no está disponible para reservas el ${diaSemana}.` };
     }
 
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
@@ -247,6 +266,8 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     return { error: "Error interno del servidor." };
   }
 }
+
+
 
 // Servicio para cancelar una reserva
 async function cancelarReserva(reservaId) {
