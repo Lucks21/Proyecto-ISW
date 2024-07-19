@@ -20,7 +20,7 @@ async function registrarReservaImplemento(req, res) {
     }
     respondSuccess(req, res, 200, resultado.message);
   } catch (error) {
-    respondError(req, res, 500, "Error al realizar la reserva de implemento", error);
+    respondError(req, res, 500, "Error al realizar la reserva de implemento", error.message);
   }
 }
 
@@ -42,7 +42,6 @@ async function registrarReservaInstalacion(req, res) {
     respondError(req, res, 500, "Error al realizar la reserva de instalación", error.message);
   }
 }
-
 async function cancelarReserva(req, res) {
   const { error } = validarCancelarReserva.validate(req.body);
   if (error) {
