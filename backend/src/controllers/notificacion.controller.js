@@ -31,10 +31,13 @@ const notificarDisponibilidadImplemento = async (req, res) => {
   try {
     const result = await NotificacionServices.notificarDisponibilidadImplemento(implementoId);
     if (result.error) {
+      console.log(`Resultado de notificarDisponibilidadImplemento: { error: '${result.error}' }`);
       return respondError(req, res, 400, result.error);
     }
+    console.log(`Resultado de notificarDisponibilidadImplemento: { message: '${result.message}' }`);
     return respondSuccess(req, res, 200, result.message);
   } catch (error) {
+    console.log(`Resultado de notificarDisponibilidadImplemento: { error: '${error.message}' }`);
     return respondError(req, res, 500, error.message);
   }
 };
@@ -44,10 +47,13 @@ const notificarDisponibilidadInstalacion = async (req, res) => {
   try {
     const result = await NotificacionServices.notificarDisponibilidadInstalacion(instalacionId);
     if (result.error) {
+      console.log(`Resultado de notificarDisponibilidadInstalacion: { error: '${result.error}' }`);
       return respondError(req, res, 400, result.error);
     }
+    console.log(`Resultado de notificarDisponibilidadInstalacion: { message: '${result.message}' }`);
     return respondSuccess(req, res, 200, result.message);
   } catch (error) {
+    console.log(`Resultado de notificarDisponibilidadInstalacion: { error: '${error.message}' }`);
     return respondError(req, res, 500, error.message);
   }
 };

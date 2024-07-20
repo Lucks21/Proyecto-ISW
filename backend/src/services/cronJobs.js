@@ -3,7 +3,7 @@ import axios from 'axios';
 import { PORT, HOST, CRON_SECRET} from "../config/configEnv.js";
 import Implemento from '../models/implementos.model.js'; 
 import Instalacion from '../models/Instalacion.model.js';
-
+import Notificacion from '../models/notificaciones.model.js';
 //este es para finalizar las reservas que expiraron, se esta ejecutando cada 1 minuto
 cron.schedule('* * * * *', async () => {
   console.log('Cron job ejecutándose: Revisando reservas expiradas...');
@@ -20,7 +20,7 @@ cron.schedule('* * * * *', async () => {
 });
 
 // Notificar disponibilidad de implementos cada 5 minutos
-cron.schedule('*/5 * * * *', async () => {
+cron.schedule('* * * * *', async () => {
   console.log('Cron job ejecutándose: Notificando disponibilidad de implementos...');
   try {
     const solicitudesImplementos = await Notificacion.find({ recursoTipo: 'implemento' });
@@ -44,7 +44,7 @@ cron.schedule('*/5 * * * *', async () => {
 });
 
 // Notificar disponibilidad de instalaciones cada 5 minutos
-cron.schedule('*/5 * * * *', async () => {
+cron.schedule('* * * * *', async () => {
   console.log('Cron job ejecutándose: Notificando disponibilidad de instalaciones...');
   try {
     const solicitudesInstalaciones = await Notificacion.find({ recursoTipo: 'instalacion' });
