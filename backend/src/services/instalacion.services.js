@@ -1,10 +1,10 @@
-import { format, parse, isValid } from 'date-fns';
 import Instalacion from '../models/Instalacion.model.js';
+import { format, parse, isValid } from 'date-fns';
 import levenshtein from 'js-levenshtein';
 
-// Función para normalizar texto (nombre y descripción)
-const normalizarTexto = (texto) => {
-  return texto.toLowerCase().trim().replace(/\s+/g, ' ');
+// Función para normalizar el nombre
+const normalizarNombre = (nombre) => {
+  return nombre.toLowerCase().trim().replace(/\s+/g, ' ');
 };
 
 // Función para verificar nombres similares permitiendo diferencias significativas como números
@@ -18,13 +18,6 @@ const validarHorarios = (horarioDisponibilidad) => {
   const horariosPorDia = {};
 
   horarioDisponibilidad.forEach(item => {
-    const diaNormalizado = item.dia.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const diasValidos = ['lunes', 'martes', 'miercoles', 'miércoles', 'jueves', 'viernes'];
-    
-    if (!diasValidos.includes(diaNormalizado)) {
-      throw new Error(`Día inválido: ${item.dia}. Debe ser uno de ${diasValidos.join(', ')}.`);
-    }
-
     if (!horariosPorDia[item.dia]) {
       horariosPorDia[item.dia] = [];
     }
@@ -49,8 +42,8 @@ const validarHorarios = (horarioDisponibilidad) => {
     const horarios = horariosPorDia[dia];
     for (let i = 0; i < horarios.length; i++) {
       for (let j = i + 1; j < horarios.length; j++) {
-        if ((horarios[i].inicio < horarios[j].fin && horarios[i].fin > horarios[j.inicio]) ||
-            (horarios[j].inicio < horarios.i.fin && horarios[j.fin] > horarios.i.inicio)) {
+        if ((horarios[i].inicio < horarios[j].fin && horarios[i].fin > horarios[j].inicio) ||
+            (horarios[j].inicio < horarios[i].fin && horarios[j].fin > horarios[i].inicio)) {
           throw new Error(`No puede haber horarios superpuestos para el mismo día: ${dia}.`);
         }
       }
@@ -74,9 +67,8 @@ const normalizarFecha = (fecha) => {
 export const crearInstalacion = async (datosInstalacion) => {
   const { nombre, descripcion, fechaAdquisicion, horarioDisponibilidad, capacidad } = datosInstalacion;
 
-  // Normalizar el nombre y la descripción
-  const nombreNormalizado = normalizarTexto(nombre);
-  const descripcionNormalizada = normalizarTexto(descripcion);
+  // Normalizar el nombre
+  const nombreNormalizado = normalizarNombre(nombre);
 
   // Normalizar la fecha
   const fechaNormalizada = normalizarFecha(fechaAdquisicion);
@@ -97,7 +89,7 @@ export const crearInstalacion = async (datosInstalacion) => {
   try {
     const nuevaInstalacion = new Instalacion({
       nombre: nombreNormalizado,
-      descripcion: descripcionNormalizada,
+      descripcion,
       fechaAdquisicion: fechaNormalizada,
       capacidad,
       horarioDisponibilidad,
@@ -142,7 +134,7 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
 
   // Verificar si el nombre está siendo actualizado, normalizar y verificar unicidad
   if (datosActualizados.nombre) {
-    datosActualizados.nombre = normalizarTexto(datosActualizados.nombre);
+    datosActualizados.nombre = normalizarNombre(datosActualizados.nombre);
 
     const instalacionesExistentes = await Instalacion.find();
     for (let instalacion of instalacionesExistentes) {
@@ -157,11 +149,6 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
     datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
   }
 
-  // Normalizar la descripción si está presente
-  if (datosActualizados.descripcion) {
-    datosActualizados.descripcion = normalizarTexto(datosActualizados.descripcion);
-  }
-
   // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
   if (datosActualizados.horarioDisponibilidad) {
     validarHorarios(datosActualizados.horarioDisponibilidad);
@@ -171,17 +158,11 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
   const modificaciones = [];
   for (let clave in datosActualizados) {
     if (datosActualizados[clave] !== instalacionActual[clave]) {
-      let motivo = null;
-      if ((clave === 'estado' || clave === 'cantidad') && datosActualizados.motivo) {
-        motivo = datosActualizados.motivo;
-      }
-
       modificaciones.push({
         campo: clave,
         valorAnterior: instalacionActual[clave] !== undefined ? instalacionActual[clave] : 'N/A',
         valorNuevo: datosActualizados[clave],
-        fecha: format(new Date(), 'dd-MM-yyyy'),
-        motivo: motivo
+        fecha: format(new Date(), 'dd-MM-yyyy')
       });
     }
   }
@@ -195,6 +176,7 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
   return { message: 'Instalación actualizada con éxito.', data: instalacionActual };
 };
 
+
 // Servicio para actualizar parcialmente una instalación
 export const actualizarInstalacionParcial = async (id, datosActualizados) => {
   const instalacionActual = await Instalacion.findById(id);
@@ -207,7 +189,7 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
 
   // Verificar si el nombre está siendo actualizado, normalizar y verificar unicidad
   if (datosActualizados.nombre) {
-    datosActualizados.nombre = normalizarTexto(datosActualizados.nombre);
+    datosActualizados.nombre = normalizarNombre(datosActualizados.nombre);
 
     const instalacionesExistentes = await Instalacion.find();
     for (let instalacion of instalacionesExistentes) {
@@ -222,11 +204,6 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
     datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
   }
 
-  // Normalizar la descripción si está presente
-  if (datosActualizados.descripcion) {
-    datosActualizados.descripcion = normalizarTexto(datosActualizados.descripcion);
-  }
-
   // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
   if (datosActualizados.horarioDisponibilidad) {
     validarHorarios(datosActualizados.horarioDisponibilidad);
@@ -236,17 +213,11 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
   const modificaciones = [];
   for (let clave in datosActualizados) {
     if (datosActualizados[clave] !== instalacionActual[clave]) {
-      let motivo = null;
-      if ((clave === 'estado' || clave === 'cantidad') && datosActualizados.motivo) {
-        motivo = datosActualizados.motivo;
-      }
-
       modificaciones.push({
         campo: clave,
         valorAnterior: instalacionActual[clave] !== undefined ? instalacionActual[clave] : 'N/A',
         valorNuevo: datosActualizados[clave],
-        fecha: format(new Date(), 'dd-MM-yyyy'),
-        motivo: motivo
+        fecha: format(new Date(), 'dd-MM-yyyy')
       });
     }
   }
@@ -278,7 +249,7 @@ export const obtenerHistorialInstalacion = async (id) => {
 
   const historial = instalacion.historialModificaciones.map(mod => ({
     fecha: mod.fecha,
-    mensaje: `La instalación '${instalacion.nombre}' ha tenido una modificación en el campo '${mod.campo}' de '${mod.valorAnterior}' a '${mod.valorNuevo}' el ${mod.fecha}, motivo: ${mod.motivo || 'No especificado'}`
+    mensaje: `La instalación '${instalacion.nombre}' ha tenido una modificación en el campo '${mod.campo}' de '${mod.valorAnterior}' a '${mod.valorNuevo}' el ${mod.fecha}`
   }));
 
   return { message: 'Historial obtenido con éxito.', data: historial };
@@ -291,5 +262,5 @@ export default {
   actualizarInstalacion,
   actualizarInstalacionParcial,
   eliminarInstalacion,
-  obtenerHistorialInstalacion,
+  obtenerHistorialInstalacion
 };

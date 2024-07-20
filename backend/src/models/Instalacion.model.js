@@ -39,6 +39,10 @@ const InstalacionSchema = new Schema({
     type: Date,
     required: true,
   },
+  capacidad: {  // Añadir este campo
+    type: Number,
+    required: true,
+  },
   horarioDisponibilidad: {
     type: [{
       dia: {
