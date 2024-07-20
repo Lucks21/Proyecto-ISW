@@ -3,10 +3,8 @@ import { parse, isValid, format } from 'date-fns';
 
 // Validación para la fecha
 const fechaSchema = Joi.string().custom((value, helpers) => {
-  // Intentar parsear con el formato DD-MM-YYYY
   let parsedDate = parse(value, 'dd-MM-yyyy', new Date());
   if (!isValid(parsedDate)) {
-    // Intentar parsear con el formato DD/MM/YYYY
     parsedDate = parse(value, 'dd/MM/yyyy', new Date());
     if (!isValid(parsedDate)) {
       return helpers.error('any.invalid');
@@ -15,7 +13,7 @@ const fechaSchema = Joi.string().custom((value, helpers) => {
   if (parsedDate > new Date() || parsedDate.getFullYear() < 1947) {
     return helpers.error('any.invalid');
   }
-  return format(parsedDate, 'dd-MM-yyyy'); // Normalizar la fecha al formato DD-MM-YYYY
+  return format(parsedDate, 'dd-MM-yyyy');
 }, 'validación de fecha').required().messages({
   'any.required': 'La fecha es obligatoria',
   'any.invalid': 'La fecha no es válida o está fuera del rango permitido (1947-presente)'
@@ -34,8 +32,20 @@ const crearInstalacionSchema = Joi.object({
     'number.min': 'La capacidad debe ser al menos 1',
     'any.required': 'La capacidad es obligatoria'
   }),
-  horarioDisponibilidad: Joi.array().default([]),
-  estado: Joi.string().valid('disponible', 'no disponible').optional()
+  horarioDisponibilidad: Joi.array().items(Joi.object({
+    dia: Joi.string().valid('lunes', 'martes', 'miércoles', 'miercoles', 'jueves', 'viernes').insensitive().required().messages({
+      'any.required': 'El día es obligatorio',
+      'any.only': 'El día debe ser uno de los siguientes: lunes, martes, miércoles, jueves, viernes'
+    }),
+    inicio: Joi.string().required().messages({
+      'any.required': 'La hora de inicio es obligatoria'
+    }),
+    fin: Joi.string().required().messages({
+      'any.required': 'La hora de fin es obligatoria'
+    })
+  })).default([]),
+  estado: Joi.string().valid('disponible', 'no disponible').optional(),
+  historialModificaciones: Joi.array().default([])
 });
 
 const actualizarInstalacionSchema = Joi.object({
@@ -49,9 +59,16 @@ const actualizarInstalacionSchema = Joi.object({
     'number.integer': 'La capacidad debe ser un número entero',
     'number.min': 'La capacidad debe ser al menos 1'
   }),
-  horarioDisponibilidad: Joi.array().default([]),
-  estado: Joi.string().valid('disponible', 'no disponible').optional()
-});
+  horarioDisponibilidad: Joi.array().items(Joi.object({
+    dia: Joi.string().valid('lunes', 'martes', 'miércoles', 'miercoles', 'jueves', 'viernes').insensitive().optional().messages({
+      'any.only': 'El día debe ser uno de los siguientes: lunes, martes, miércoles, jueves, viernes'
+    }),
+    inicio: Joi.string().optional(),
+    fin: Joi.string().optional()
+  })).default([]),
+  estado: Joi.string().valid('disponible', 'no disponible').optional(),
+  historialModificaciones: Joi.array().default([])
+}).min(1);
 
 const idSchema = Joi.string().hex().length(24).required().messages({
   'any.required': 'El ID es obligatorio',

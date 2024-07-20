@@ -38,27 +38,46 @@ const implementoSchema = Joi.object({
     'any.required': 'La cantidad es obligatoria'
   }),
   fechaAdquisicion: fechaSchema,
-  horarioDisponibilidad: Joi.array().default([]),
-  historialModificaciones: Joi.array().default([]) // Eliminamos validación específica aquí
+  horarioDisponibilidad: Joi.array().items(Joi.object({
+    dia: Joi.string().valid('lunes', 'martes', 'miércoles', 'miercoles', 'jueves', 'viernes').insensitive().required().messages({
+      'any.required': 'El día es obligatorio',
+      'any.only': 'El día debe ser uno de los siguientes: lunes, martes, miércoles, jueves, viernes'
+    }),
+    inicio: Joi.string().required().messages({
+      'any.required': 'La hora de inicio es obligatoria'
+    }),
+    fin: Joi.string().required().messages({
+      'any.required': 'La hora de fin es obligatoria'
+    })
+  })).default([]),
+  estado: Joi.string().valid('disponible', 'no disponible').optional(),
+  historialModificaciones: Joi.array().default([])
 });
 
 const actualizarImplementoSchema = Joi.object({
-  nombre: Joi.string().pattern(/^(?=.*[a-zA-Z])[a-zA-Z0-9\s_-]+$/).messages({
+  nombre: Joi.string().pattern(/^(?=.*[a-zA-Z])[a-zA-Z0-9\s_-]+$/).optional().messages({
     'string.pattern.base': 'El nombre solo puede contener letras, números, guiones, guiones bajos y espacios, y debe incluir letras',
   }),
   descripcion: Joi.string().max(100).pattern(/^[a-zA-Z0-9\s]+$/).optional().messages({
     'string.max': 'Has excedido el máximo de 100 caracteres',
     'string.pattern.base': 'La descripción solo puede contener letras y números, sin caracteres especiales'
   }),
-  cantidad: Joi.number().integer().min(1).max(50).messages({
+  cantidad: Joi.number().integer().min(1).max(50).optional().messages({
     'number.base': 'La cantidad debe ser un número',
     'number.integer': 'La cantidad debe ser un número entero',
     'number.min': 'La cantidad no puede ser menor que 1',
     'number.max': 'La cantidad no puede ser mayor que 50'
   }),
-  fechaAdquisicion: fechaSchema,
-  horarioDisponibilidad: Joi.array().default([]),
-  historialModificaciones: Joi.array().default([]) // Eliminamos validación específica aquí
-}).min(1); // Al menos un campo debe ser actualizado
+  fechaAdquisicion: fechaSchema.optional(),
+  horarioDisponibilidad: Joi.array().items(Joi.object({
+    dia: Joi.string().valid('lunes', 'martes', 'miércoles', 'miercoles', 'jueves', 'viernes').insensitive().optional().messages({
+      'any.only': 'El día debe ser uno de los siguientes: lunes, martes, miércoles, jueves, viernes'
+    }),
+    inicio: Joi.string().optional(),
+    fin: Joi.string().optional()
+  })).default([]),
+  estado: Joi.string().valid('disponible', 'no disponible').optional(),
+  historialModificaciones: Joi.array().default([])
+}).min(1);
 
 export { implementoSchema, actualizarImplementoSchema };

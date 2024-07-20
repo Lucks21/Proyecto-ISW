@@ -2,9 +2,9 @@ import Instalacion from '../models/Instalacion.model.js';
 import { format, parse, isValid } from 'date-fns';
 import levenshtein from 'js-levenshtein';
 
-// Función para normalizar el nombre
-const normalizarNombre = (nombre) => {
-  return nombre.toLowerCase().trim().replace(/\s+/g, ' ');
+// Función para normalizar el texto
+const normalizarTexto = (texto) => {
+  return texto.toLowerCase().trim().replace(/\s+/g, ' ');
 };
 
 // Función para verificar nombres similares permitiendo diferencias significativas como números
@@ -25,7 +25,7 @@ const validarHorarios = (horarioDisponibilidad) => {
     const finHora = parseInt(item.fin.replace(':', ''), 10);
 
     if (inicioHora % 100 !== 0 || finHora % 100 !== 0) {
-      throw new Error(`Las horas deben estar en bloques completos de una hora (por ejemplo, 08:00, 09:00). Horario inválido: ${item.inicio} - ${item.fin} para el día ${item.dia}.`);
+      throw new Error(`Las horas deben estar en bloques completos. Horario inválido: ${item.inicio} - ${item.fin} para el día ${item.dia}.`);
     }
 
     if (inicioHora >= finHora) {
@@ -67,8 +67,9 @@ const normalizarFecha = (fecha) => {
 export const crearInstalacion = async (datosInstalacion) => {
   const { nombre, descripcion, fechaAdquisicion, horarioDisponibilidad, capacidad } = datosInstalacion;
 
-  // Normalizar el nombre
-  const nombreNormalizado = normalizarNombre(nombre);
+  // Normalizar el nombre y la descripción
+  const nombreNormalizado = normalizarTexto(nombre); // Normalización aquí
+  const descripcionNormalizada = normalizarTexto(descripcion);
 
   // Normalizar la fecha
   const fechaNormalizada = normalizarFecha(fechaAdquisicion);
@@ -88,8 +89,8 @@ export const crearInstalacion = async (datosInstalacion) => {
 
   try {
     const nuevaInstalacion = new Instalacion({
-      nombre: nombreNormalizado,
-      descripcion,
+      nombre: nombreNormalizado, // Guardar el nombre normalizado
+      descripcion: descripcionNormalizada,
       fechaAdquisicion: fechaNormalizada,
       capacidad,
       horarioDisponibilidad,
@@ -134,7 +135,7 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
 
   // Verificar si el nombre está siendo actualizado, normalizar y verificar unicidad
   if (datosActualizados.nombre) {
-    datosActualizados.nombre = normalizarNombre(datosActualizados.nombre);
+    datosActualizados.nombre = normalizarTexto(datosActualizados.nombre); // Normalización aquí
 
     const instalacionesExistentes = await Instalacion.find();
     for (let instalacion of instalacionesExistentes) {
@@ -149,12 +150,11 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
     datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
   }
 
-  // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
-  if (datosActualizados.horarioDisponibilidad) {
-    validarHorarios(datosActualizados.horarioDisponibilidad);
+  // Normalizar la descripción si está presente
+  if (datosActualizados.descripcion) {
+    datosActualizados.descripcion = normalizarTexto(datosActualizados.descripcion);
   }
 
-  // Registrar modificaciones en el historial
   const modificaciones = [];
   for (let clave in datosActualizados) {
     if (datosActualizados[clave] !== instalacionActual[clave]) {
@@ -167,7 +167,6 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
     }
   }
 
-  // Actualizar campos de la instalación
   Object.assign(instalacionActual, datosActualizados);
   instalacionActual.historialModificaciones.push(...modificaciones);
 
@@ -176,8 +175,7 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
   return { message: 'Instalación actualizada con éxito.', data: instalacionActual };
 };
 
-
-// Servicio para actualizar parcialmente una instalación
+// Servicio para actualizar una instalación parcialmente
 export const actualizarInstalacionParcial = async (id, datosActualizados) => {
   const instalacionActual = await Instalacion.findById(id);
   if (!instalacionActual) {
@@ -189,7 +187,7 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
 
   // Verificar si el nombre está siendo actualizado, normalizar y verificar unicidad
   if (datosActualizados.nombre) {
-    datosActualizados.nombre = normalizarNombre(datosActualizados.nombre);
+    datosActualizados.nombre = normalizarTexto(datosActualizados.nombre); // Normalización aquí
 
     const instalacionesExistentes = await Instalacion.find();
     for (let instalacion of instalacionesExistentes) {
@@ -204,12 +202,11 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
     datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
   }
 
-  // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
-  if (datosActualizados.horarioDisponibilidad) {
-    validarHorarios(datosActualizados.horarioDisponibilidad);
+  // Normalizar la descripción si está presente
+  if (datosActualizados.descripcion) {
+    datosActualizados.descripcion = normalizarTexto(datosActualizados.descripcion);
   }
 
-  // Registrar modificaciones en el historial
   const modificaciones = [];
   for (let clave in datosActualizados) {
     if (datosActualizados[clave] !== instalacionActual[clave]) {
@@ -222,7 +219,6 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
     }
   }
 
-  // Actualizar solo los campos que se pasen en el body
   Object.assign(instalacionActual, datosActualizados);
   instalacionActual.historialModificaciones.push(...modificaciones);
 
@@ -262,5 +258,5 @@ export default {
   actualizarInstalacion,
   actualizarInstalacionParcial,
   eliminarInstalacion,
-  obtenerHistorialInstalacion
+  obtenerHistorialInstalacion,
 };

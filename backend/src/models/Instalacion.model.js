@@ -21,7 +21,7 @@ const HistorialModificacionesSchema = new Schema({
     required: true,
   },
   motivo: {
-    type: String, // Motivo no es obligatorio, por lo tanto no tiene `required: true`
+    type: String,
   }
 });
 
@@ -39,7 +39,7 @@ const InstalacionSchema = new Schema({
     type: Date,
     required: true,
   },
-  capacidad: {  // Añadir este campo
+  capacidad: {
     type: Number,
     required: true,
   },
@@ -48,7 +48,6 @@ const InstalacionSchema = new Schema({
       dia: {
         type: String,
         required: true,
-        enum: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes']
       },
       inicio: {
         type: String,

@@ -1,8 +1,8 @@
+import { format, parse, isValid } from 'date-fns';
 import Implemento from '../models/implementos.model.js';
 import levenshtein from 'js-levenshtein';
-import { format, parse, isValid } from 'date-fns';
 
-// Función para normalizar texto (nombre y descripción)
+// Función para normalizar el texto
 const normalizarTexto = (texto) => {
   return texto.toLowerCase().trim().replace(/\s+/g, ' ');
 };
@@ -29,13 +29,6 @@ const validarHorarios = (horarioDisponibilidad) => {
   const horariosPorDia = {};
 
   horarioDisponibilidad.forEach(item => {
-    const diaNormalizado = item.dia.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const diasValidos = ['lunes', 'martes', 'miercoles', 'miércoles', 'jueves', 'viernes'];
-    
-    if (!diasValidos.includes(diaNormalizado)) {
-      throw new Error(`Día inválido: ${item.dia}. Debe ser uno de ${diasValidos.join(', ')}.`);
-    }
-
     if (!horariosPorDia[item.dia]) {
       horariosPorDia[item.dia] = [];
     }
@@ -60,7 +53,7 @@ const validarHorarios = (horarioDisponibilidad) => {
     const horarios = horariosPorDia[dia];
     for (let i = 0; i < horarios.length; i++) {
       for (let j = i + 1; j < horarios.length; j++) {
-        if ((horarios[i].inicio < horarios[j].fin && horarios[i].fin > horarios[j.inicio]) ||
+        if ((horarios[i].inicio < horarios[j].fin && horarios[i].fin > horarios[j].inicio) ||
             (horarios[j].inicio < horarios[i].fin && horarios[j].fin > horarios[i].inicio)) {
           throw new Error(`No puede haber horarios superpuestos para el mismo día: ${dia}.`);
         }
@@ -143,7 +136,15 @@ export const obtenerImplementoPorId = async (id) => {
 
 // Servicio para actualizar un implemento
 export const actualizarImplemento = async (id, datosActualizados) => {
-  // Si el nombre está siendo actualizado, normalizar y verificar unicidad
+  const implementoActual = await Implemento.findById(id);
+  if (!implementoActual) {
+    throw new Error('Implemento no encontrado.');
+  }
+
+  // Eliminar cualquier intento de modificar el historial de modificaciones
+  delete datosActualizados.historialModificaciones;
+
+  // Verificar si el nombre está siendo actualizado, normalizar y verificar unicidad
   if (datosActualizados.nombre) {
     datosActualizados.nombre = normalizarTexto(datosActualizados.nombre);
 
@@ -170,41 +171,39 @@ export const actualizarImplemento = async (id, datosActualizados) => {
     validarHorarios(datosActualizados.horarioDisponibilidad);
   }
 
-  const implementoActual = await Implemento.findById(id);
-  if (!implementoActual) {
-    throw new Error('Implemento no encontrado.');
-  }
-
   // Registrar todas las modificaciones en el historial
   const modificaciones = [];
   for (let clave in datosActualizados) {
     if (datosActualizados[clave] !== implementoActual[clave]) {
       modificaciones.push({
         campo: clave,
-        valorAnterior: implementoActual[clave] !== undefined ? implementoActual[clave] : 'N/A',
+        valorAnterior: implementoActual[clave],
         valorNuevo: datosActualizados[clave],
         fecha: format(new Date(), 'dd-MM-yyyy'),
       });
     }
   }
+
+  Object.assign(implementoActual, datosActualizados);
   implementoActual.historialModificaciones.push(...modificaciones);
 
-  // Actualizar campos del implemento
-  Object.assign(implementoActual, datosActualizados);
   await implementoActual.save();
   await actualizarEstadoImplemento(implementoActual._id); // Actualizar estado después de actualizar
 
   return { message: 'Implemento actualizado con éxito.', data: implementoActual };
 };
 
-// Servicio para actualizar un implemento parcialmente
+// Servicio para actualizar parcialmente un implemento
 export const actualizarImplementoParcial = async (id, datosActualizados) => {
   const implementoActual = await Implemento.findById(id);
   if (!implementoActual) {
     throw new Error('Implemento no encontrado.');
   }
 
-  // Si el nombre está siendo actualizado, normalizar y verificar unicidad
+  // Eliminar cualquier intento de modificar el historial de modificaciones
+  delete datosActualizados.historialModificaciones;
+
+  // Verificar si el nombre está siendo actualizado, normalizar y verificar unicidad
   if (datosActualizados.nombre) {
     datosActualizados.nombre = normalizarTexto(datosActualizados.nombre);
 
@@ -237,16 +236,16 @@ export const actualizarImplementoParcial = async (id, datosActualizados) => {
     if (datosActualizados[clave] !== implementoActual[clave]) {
       modificaciones.push({
         campo: clave,
-        valorAnterior: implementoActual[clave] !== undefined ? implementoActual[clave] : 'N/A',
+        valorAnterior: implementoActual[clave],
         valorNuevo: datosActualizados[clave],
         fecha: format(new Date(), 'dd-MM-yyyy'),
       });
     }
   }
+
+  Object.assign(implementoActual, datosActualizados);
   implementoActual.historialModificaciones.push(...modificaciones);
 
-  // Actualizar solo los campos que se pasen en el body
-  Object.assign(implementoActual, datosActualizados);
   await implementoActual.save();
   await actualizarEstadoImplemento(implementoActual._id); // Actualizar estado después de actualizar
 

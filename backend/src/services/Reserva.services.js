@@ -16,6 +16,7 @@ const normalizarFecha = (fecha) => {
   const date = new Date(fecha);
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 };
+
 const obtenerDiaSemana = (fecha) => {
   return fecha.toLocaleString('es-ES', { weekday: 'long' }).toLowerCase();
 };
@@ -82,6 +83,7 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
 
     const reservasExistentes = await Reserva.find({
       implementoId,
+      estado: 'activo',
       $or: [
         { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: fechaInicioNormalizada } }
       ]
@@ -96,6 +98,7 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     const reservasUsuario = await Reserva.find({
       userId,
       implementoId,
+      estado: 'activo',
       fechaInicio: {
         $gte: startOfDay(fechaInicioNormalizada),
         $lte: endOfDay(fechaInicioNormalizada)
@@ -132,8 +135,6 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     return { error: "Error interno del servidor." };
   }
 }
-
-
 
 // Servicio para registrar una reserva de instalación
 async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin, userId) {
@@ -188,6 +189,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
 
     const reservasExistentes = await Reserva.find({
       instalacionId,
+      estado: 'activo',
       $or: [
         { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: fechaInicioNormalizada } }
       ]
@@ -199,6 +201,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     const reservasUsuario = await Reserva.find({
       userId,
       instalacionId,
+      estado: 'activo',
       fechaInicio: {
         $gte: startOfDay(fechaInicioNormalizada),
         $lte: endOfDay(fechaInicioNormalizada)
@@ -254,7 +257,6 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
   }
 }
 
-
 // Servicio para cancelar una reserva
 async function cancelarReserva(reservaId) {
   try {
@@ -295,6 +297,7 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
     // Verificar disponibilidad de la nueva hora solicitada
     const reservasExistentes = await Reserva.find({
       implementoId: reserva.implementoId,
+      estado: 'activo',
       $or: [
         { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: reserva.fechaFin } }
       ]
@@ -341,7 +344,7 @@ async function finalizarReservasExpiradas() {
 // Servicio para obtener todas las reservas activas
 async function getAllReservasActivos() {
   try {
-    const reservas = await Reserva.find({ fechaFin: { $gt: new Date() } });
+    const reservas = await Reserva.find({ fechaFin: { $gt: new Date() }, estado: 'activo' });
     return [reservas, null];
   } catch (error) {
     console.error("Error en getAllReservasActivos: ", error);
@@ -352,7 +355,7 @@ async function getAllReservasActivos() {
 // Servicio para obtener todas las reservas de un usuario
 async function getAllReservasByUser(userId) {
   try {
-    const reservas = await Reserva.find({ userId });
+    const reservas = await Reserva.find({ userId, estado: 'activo' });
     return [reservas, null];
   } catch (error) {
     console.error("Error en getAllReservasByUser: ", error);
@@ -420,7 +423,7 @@ async function getInstalacionesReservadas() {
 // implemento reservado por usuario
 async function getImplementosReservadosByUser(userId) {
   try {
-    const reservas = await Reserva.find({ userId, implementoId: { $exists: true } });
+    const reservas = await Reserva.find({ userId, implementoId: { $exists: true }, estado: 'activo' });
     const implementosIds = reservas.map(reserva => reserva.implementoId);
     const implementosReservados = await Implemento.find({ _id: { $in: implementosIds } });
     return implementosReservados;
@@ -432,7 +435,7 @@ async function getImplementosReservadosByUser(userId) {
 // obtener una instalación reservada por usuario
 async function getInstalacionesReservadasByUser(userId) {
   try {
-    const reservas = await Reserva.find({ userId, instalacionId: { $exists: true } });
+    const reservas = await Reserva.find({ userId, instalacionId: { $exists: true }, estado: 'activo' });
     const instalacionesIds = reservas.map(reserva => reserva.instalacionId);
     const instalacionesReservadas = await Instalacion.find({ _id: { $in: instalacionesIds } });
     return instalacionesReservadas;
