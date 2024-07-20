@@ -5,7 +5,7 @@ import Implemento from '../models/implementos.model.js';
 import mongoose from 'mongoose';
 import { endOfMinute, isFuture, differenceInMinutes, startOfDay, endOfDay, startOfHour, addMinutes, parseISO, format } from 'date-fns';
 import Instalacion from '../models/Instalacion.model.js';
-
+0
 const normalizarFechaHora = (fecha, hora) => {
   const [day, month, year] = fecha.split('-');
   const [hour, minute] = hora.split(':');
@@ -373,12 +373,39 @@ async function obtenerDatosGraficos() {
       reservasPorInstalacion: {},
     };
 
+    const implementoIds = reservas
+      .filter(reserva => reserva.implementoId)
+      .map(reserva => reserva.implementoId);
+
+    const instalacionIds = reservas
+      .filter(reserva => reserva.instalacionId)
+      .map(reserva => reserva.instalacionId);
+
+    const implementos = await Implemento.find({ _id: { $in: implementoIds } });
+    const instalaciones = await Instalacion.find({ _id: { $in: instalacionIds } });
+
+    const implementoMap = implementos.reduce((map, implemento) => {
+      map[implemento._id] = implemento.nombre;
+      return map;
+    }, {});
+
+    const instalacionMap = instalaciones.reduce((map, instalacion) => {
+      map[instalacion._id] = instalacion.nombre;
+      return map;
+    }, {});
+
     reservas.forEach((reserva) => {
       if (reserva.implementoId) {
-        data.reservasPorImplemento[reserva.implementoId] = (data.reservasPorImplemento[reserva.implementoId] || 0) + 1;
+        const nombre = implementoMap[reserva.implementoId];
+        if (nombre) {
+          data.reservasPorImplemento[nombre] = (data.reservasPorImplemento[nombre] || 0) + 1;
+        }
       }
       if (reserva.instalacionId) {
-        data.reservasPorInstalacion[reserva.instalacionId] = (data.reservasPorInstalacion[reserva.instalacionId] || 0) + 1;
+        const nombre = instalacionMap[reserva.instalacionId];
+        if (nombre) {
+          data.reservasPorInstalacion[nombre] = (data.reservasPorInstalacion[nombre] || 0) + 1;
+        }
       }
     });
 
