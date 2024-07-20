@@ -13,16 +13,19 @@ async function solicitarNotificacion(recursoId, recursoTipo, userId) {
     }
 
     let recurso;
+    let recursoNombre;
     if (recursoTipo === 'implemento') {
       recurso = await Implemento.findById(recursoId);
+      recursoNombre = recurso.nombre;
     } else if (recursoTipo === 'instalacion') {
       recurso = await Instalacion.findById(recursoId);
+      recursoNombre = recurso.nombre;
     }
 
     if (!recurso) {
       return { error: `Recurso no encontrado para el tipo ${recursoTipo}.` };
     }
-    
+
     const nuevaNotificacion = new Notificacion({
       recursoId,
       recursoTipo,
@@ -30,14 +33,20 @@ async function solicitarNotificacion(recursoId, recursoTipo, userId) {
     });
 
     await nuevaNotificacion.save();
-    return { message: 'Solicitud de notificación registrada con éxito.' };
+
+    const subject = 'Confirmación de solicitud de notificación';
+    const text = `Has solicitado una notificación para el recurso ${recursoTipo} con nombre ${recursoNombre}.`;
+
+    await sendEmail(alumno.email, subject, text);
+
+    return { message: `Solicitud de notificación registrada con éxito.` };
   } catch (error) {
     console.error('Error en solicitarNotificacion:', error);
     return { error: 'Error interno del servidor.' };
   }
 }
 
-//notificar disponibilidad de implemento
+// notificar disponibilidad de implemento
 async function notificarDisponibilidadImplemento(implementoId) {
   try {
     const implemento = await Implemento.findById(implementoId);
@@ -46,7 +55,11 @@ async function notificarDisponibilidadImplemento(implementoId) {
     }
 
     const notificaciones = await Notificacion.find({ recursoId: implementoId, recursoTipo: 'implemento' });
-    const alumnos = await Alumno.find({ _id: { $in: notificaciones.map(n => n.userId) } }).select('email');
+    const notificacionesValidas = notificaciones.filter(n => n.userId);
+
+    await Notificacion.deleteMany({ recursoId: implementoId, recursoTipo: 'implemento', userId: null });
+
+    const alumnos = await Alumno.find({ _id: { $in: notificacionesValidas.map(n => n.userId) } }).select('email');
 
     const subject = 'Disponibilidad de Implemento';
     const text = `El implemento ${implemento.nombre} está ahora disponible.`;
@@ -55,7 +68,7 @@ async function notificarDisponibilidadImplemento(implementoId) {
       await sendEmail(alumno.email, subject, text);
     }
 
-    await Notificacion.deleteMany({ recursoId: implementoId, recursoTipo: 'implemento' });
+    await Notificacion.deleteMany({ recursoId: implementoId, recursoTipo: 'implemento', userId: { $in: notificacionesValidas.map(n => n.userId) } });
 
     return { message: 'Notificaciones de disponibilidad de implemento enviadas con éxito.' };
   } catch (error) {
@@ -73,7 +86,11 @@ async function notificarDisponibilidadInstalacion(instalacionId) {
     }
 
     const notificaciones = await Notificacion.find({ recursoId: instalacionId, recursoTipo: 'instalacion' });
-    const alumnos = await Alumno.find({ _id: { $in: notificaciones.map(n => n.userId) } }).select('email');
+    const notificacionesValidas = notificaciones.filter(n => n.userId);
+
+    await Notificacion.deleteMany({ recursoId: instalacionId, recursoTipo: 'instalacion', userId: null });
+
+    const alumnos = await Alumno.find({ _id: { $in: notificacionesValidas.map(n => n.userId) } }).select('email');
 
     const subject = 'Disponibilidad de Instalación';
     const text = `La instalación ${instalacion.nombre} está ahora disponible.`;
@@ -81,8 +98,8 @@ async function notificarDisponibilidadInstalacion(instalacionId) {
     for (const alumno of alumnos) {
       await sendEmail(alumno.email, subject, text);
     }
-    
-    await Notificacion.deleteMany({ recursoId: instalacionId, recursoTipo: 'instalacion' });
+
+    await Notificacion.deleteMany({ recursoId: instalacionId, recursoTipo: 'instalacion', userId: { $in: notificacionesValidas.map(n => n.userId) } });
 
     return { message: 'Notificaciones de disponibilidad de instalación enviadas con éxito.' };
   } catch (error) {

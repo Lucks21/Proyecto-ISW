@@ -20,21 +20,23 @@ cron.schedule('* * * * *', async () => {
 });
 
 // Notificar disponibilidad de implementos cada 5 minutos
-cron.schedule('* * * * *', async () => {
+cron.schedule('*/5 * * * *', async () => {
   console.log('Cron job ejecutándose: Notificando disponibilidad de implementos...');
   try {
-    const implementosDisponibles = await Implemento.find({ estado: 'disponible' });
-    
-    for (const implemento of implementosDisponibles) {
-      await axios.post(`http://${HOST}:${PORT}/api/notificarImplemento`, 
-        { implementoId: implemento._id }, 
-        {
-          headers: {
-            'cron-secret': CRON_SECRET,
-            'Content-Type': 'application/json'
+    const solicitudesImplementos = await Notificacion.find({ recursoTipo: 'implemento' });
+    if (solicitudesImplementos.length > 0) {
+      const implementosDisponibles = await Implemento.find({ estado: 'disponible' });
+      for (const implemento of implementosDisponibles) {
+        await axios.post(`http://${HOST}:${PORT}/api/notificarimplemento`, 
+          { implementoId: implemento._id }, 
+          {
+            headers: {
+              'cron-secret': CRON_SECRET,
+              'Content-Type': 'application/json'
+            }
           }
-        }
-      );
+        );
+      }
     }
   } catch (error) {
     console.error('Error al notificar disponibilidad de implementos:', error.message);
@@ -42,21 +44,23 @@ cron.schedule('* * * * *', async () => {
 });
 
 // Notificar disponibilidad de instalaciones cada 5 minutos
-cron.schedule('* * * * *', async () => {
+cron.schedule('*/5 * * * *', async () => {
   console.log('Cron job ejecutándose: Notificando disponibilidad de instalaciones...');
   try {
-    const instalacionesDisponibles = await Instalacion.find({ estado: 'disponible' });
-
-    for (const instalacion of instalacionesDisponibles) {
-      await axios.post(`http://${HOST}:${PORT}/api/notificarInstalacion`, 
-        { instalacionId: instalacion._id }, 
-        {
-          headers: {
-            'cron-secret': CRON_SECRET,
-            'Content-Type': 'application/json'
+    const solicitudesInstalaciones = await Notificacion.find({ recursoTipo: 'instalacion' });
+    if (solicitudesInstalaciones.length > 0) {
+      const instalacionesDisponibles = await Instalacion.find({ estado: 'disponible' });
+      for (const instalacion of instalacionesDisponibles) {
+        await axios.post(`http://${HOST}:${PORT}/api/notificarinstalacion`, 
+          { instalacionId: instalacion._id }, 
+          {
+            headers: {
+              'cron-secret': CRON_SECRET,
+              'Content-Type': 'application/json'
+            }
           }
-        }
-      );
+        );
+      }
     }
   } catch (error) {
     console.error('Error al notificar disponibilidad de instalaciones:', error.message);
