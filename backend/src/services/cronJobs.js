@@ -18,7 +18,8 @@ cron.schedule('* * * * *', async () => {
     console.error('Error al ejecutar el cron job:', error.message);
   }
 });
-/* se ejecuta para notificar la disponibilidad cada 5 minutos
+
+// Notificar disponibilidad de implementos cada 5 minutos
 cron.schedule('* * * * *', async () => {
   console.log('Cron job ejecutándose: Notificando disponibilidad de implementos...');
   try {
@@ -39,7 +40,8 @@ cron.schedule('* * * * *', async () => {
     console.error('Error al notificar disponibilidad de implementos:', error.message);
   }
 });
-// se ejecuta para notificar la disponibilidad cada 5 minutos
+
+// Notificar disponibilidad de instalaciones cada 5 minutos
 cron.schedule('* * * * *', async () => {
   console.log('Cron job ejecutándose: Notificando disponibilidad de instalaciones...');
   try {
@@ -59,7 +61,4 @@ cron.schedule('* * * * *', async () => {
   } catch (error) {
     console.error('Error al notificar disponibilidad de instalaciones:', error.message);
   }
-});  
-
-
-*/
+});

@@ -55,6 +55,8 @@ async function notificarDisponibilidadImplemento(implementoId) {
       await sendEmail(alumno.email, subject, text);
     }
 
+    await Notificacion.deleteMany({ recursoId: implementoId, recursoTipo: 'implemento' });
+
     return { message: 'Notificaciones de disponibilidad de implemento enviadas con éxito.' };
   } catch (error) {
     console.error('Error en notificarDisponibilidadImplemento:', error);
@@ -62,7 +64,7 @@ async function notificarDisponibilidadImplemento(implementoId) {
   }
 }
 
-//notificar disponibilidad de instalación
+// notificar disponibilidad de instalación
 async function notificarDisponibilidadInstalacion(instalacionId) {
   try {
     const instalacion = await Instalacion.findById(instalacionId);
@@ -75,9 +77,13 @@ async function notificarDisponibilidadInstalacion(instalacionId) {
 
     const subject = 'Disponibilidad de Instalación';
     const text = `La instalación ${instalacion.nombre} está ahora disponible.`;
+
     for (const alumno of alumnos) {
       await sendEmail(alumno.email, subject, text);
     }
+    
+    await Notificacion.deleteMany({ recursoId: instalacionId, recursoTipo: 'instalacion' });
+
     return { message: 'Notificaciones de disponibilidad de instalación enviadas con éxito.' };
   } catch (error) {
     console.error('Error en notificarDisponibilidadInstalacion:', error);

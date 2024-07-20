@@ -1,82 +1,56 @@
 import { respondError, respondSuccess } from "../utils/resHandler.js";
-import NotificacionService from '../services/notificaciones.services.js';
-import sendEmail from '../services/email.services.js';
-import Alumno from '../models/alumno.model.js';
-import { notificacionSchema } from '../schema/notificacion.schema.js';
-import { CRON_SECRET } from "../config/configEnv.js";
-import notificacionesServices from "../services/notificaciones.services.js";
+import NotificacionServices from '../services/notificaciones.services.js';
 
-
-async function solicitarNotificacion(req, res) {
+const solicitarNotificacion = async (req, res) => {
+  const { recursoId, recursoTipo, userId } = req.body;
   try {
-    const { error } = notificacionSchema.validate(req.body);
+    const result = await NotificacionServices.solicitarNotificacion(recursoId, recursoTipo, userId);
+    if (result.error) {
+      return respondError(req, res, 400, result.error);
+    }
+    return respondSuccess(req, res, 201, result.message);
+  } catch (error) {
+    return respondError(req, res, 500, error.message);
+  }
+};
+
+const verSolicitudesNotificacion = async (req, res) => {
+  try {
+    const [solicitudes, error] = await NotificacionServices.verSolicitudesNotificacion();
     if (error) {
-      return respondError(req, res, 400, error.details[0].message);
+      return respondError(req, res, 500, error);
     }
+    return respondSuccess(req, res, 200, solicitudes);
+  } catch (error) {
+    return respondError(req, res, 500, error.message);
+  }
+};
 
-    const { recursoId, recursoTipo, userId } = req.body;
-
-    const alumno = await Alumno.findById(userId);
-    if (!alumno) {
-      return respondError(req, res, 404, 'Alumno no encontrado.');
-    }
-
-    const result = await NotificacionService.solicitarNotificacion(recursoId, recursoTipo, userId);
+const notificarDisponibilidadImplemento = async (req, res) => {
+  const { implementoId } = req.body;
+  try {
+    const result = await NotificacionServices.notificarDisponibilidadImplemento(implementoId);
     if (result.error) {
       return respondError(req, res, 400, result.error);
     }
-
-    const subject = 'Confirmación de solicitud de notificación';
-    const text = `Has solicitado una notificación para el recurso ${recursoTipo} con ID ${recursoId}.`;
-
-    await sendEmail(alumno.email, subject, text);
-
-    respondSuccess(req, res, 201, result.message);
+    return respondSuccess(req, res, 200, result.message);
   } catch (error) {
-    respondError(req, res, 500, "Error al solicitar notificación", error.message);
+    return respondError(req, res, 500, error.message);
   }
-}
+};
 
-async function notificarDisponibilidadImplemento(req, res) {
+const notificarDisponibilidadInstalacion = async (req, res) => {
+  const { instalacionId } = req.body;
   try {
-    const { implementoId } = req.body;
-    const result = await NotificacionService.notificarDisponibilidadImplemento(implementoId);
+    const result = await NotificacionServices.notificarDisponibilidadInstalacion(instalacionId);
     if (result.error) {
       return respondError(req, res, 400, result.error);
     }
-    respondSuccess(req, res, 200, result.message);
+    return respondSuccess(req, res, 200, result.message);
   } catch (error) {
-    respondError(req, res, 500, "Error al notificar disponibilidad de implemento", error.message);
+    return respondError(req, res, 500, error.message);
   }
-}
-
-async function notificarDisponibilidadInstalacion(req, res) {
-  try {
-    const { instalacionId } = req.body;
-    const result = await NotificacionService.notificarDisponibilidadInstalacion(instalacionId);
-    if (result.error) {
-      return respondError(req, res, 400, result.error);
-    }
-    respondSuccess(req, res, 200, result.message);
-  } catch (error) {
-    respondError(req, res, 500, "Error al notificar disponibilidad de instalación", error.message);
-  }
-}
-
-async function verSolicitudesNotificacion(req, res) {
-
-  try {
-    const [solicitudes, error] = await notificacionesServices.verSolicitudesNotificacion();
-
-    if (error) return respondError(req, res, 404, error);
-
-    solicitudes.length === 0
-      ? respondSuccess(req, res, 204)
-      : respondSuccess(req, res, 200, solicitudes);
-  } catch (error) {
-    respondError(req, res, 500, "Error interno del servidor solicitudes");
-  }
-}
+};
 
 export default {
   solicitarNotificacion,
