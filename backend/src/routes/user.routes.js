@@ -17,11 +17,11 @@ const router = Router();
 // Define el middleware de autenticación para todas las rutas
 router.use(authenticationMiddleware);
 // Define las rutas para los usuarios
-router.get("/ver", isAdmin, usuarioController.getUsers);
-router.post('/crearuser', isAdmin, usuarioController.createUser);
-router.get("/:id", isAdmin, usuarioController.getUserById);
-router.put("/:id", isAdmin, usuarioController.updateUser);
-router.delete("/:id", isAdmin, usuarioController.deleteUser);
+router.get("/obtener", isAdmin, usuarioController.getUsers);
+router.post('/crear', isAdmin, usuarioController.createUser);
+router.get("/obtener/:id", isAdmin, usuarioController.getUserById);
+router.put("/actualizar/:id", isAdmin, usuarioController.updateUser);
+router.delete("/eliminar/:id", isAdmin, usuarioController.deleteUser);
 
 // Exporta el enrutador
 export default router;
