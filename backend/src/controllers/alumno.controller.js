@@ -69,3 +69,15 @@ export const eliminarAlumnoController = async (req, res) => {
     res.status(500).json({ message: 'Error al eliminar el alumno', error });
   }
 };
+export const obtenerAlumnoPorEmailController = async (req, res) => {
+  const { email } = req.params;
+  try {
+    const alumno = await alumnoService.obtenerAlumnoPorEmail(email);
+    if (!alumno) {
+      return res.status(404).json({ message: 'Alumno no encontrado' });
+    }
+    res.status(200).json(alumno);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener el alumno', error });
+  }
+};

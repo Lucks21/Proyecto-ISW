@@ -94,10 +94,20 @@ const eliminarAlumno = async (id) => {
   return { message: 'Alumno eliminado con éxito.' };
 };
 
+// Servicio para obtener un alumno por email
+const obtenerAlumnoPorEmail = async (email) => {
+  const alumno = await Alumno.findOne({ email }).populate('roles');
+  if (!alumno) {
+    throw new Error('Alumno no encontrado.');
+  }
+  return { message: 'Alumno obtenido con éxito.', data: alumno };
+};
+  
 export default {
   crearAlumno,
   obtenerAlumnos,
   obtenerAlumnoPorId,
   actualizarAlumno,
   eliminarAlumno,
+  obtenerAlumnoPorEmail
 };
