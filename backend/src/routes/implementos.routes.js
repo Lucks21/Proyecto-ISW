@@ -18,7 +18,7 @@ const router = express.Router();
 
 // Rutas para implementos
 router.post('/crear', authenticationMiddleware, isEncargado, crearImplementoController);
-router.get('/obtener', authenticationMiddleware, isEncargado, obtenerImplementosController);
+router.get('/obtener', authenticationMiddleware, obtenerImplementosController);
 router.get('/obtener/:id', authenticationMiddleware, isEncargado, obtenerImplementoPorIdController);
 router.put('/actualizarTodo/:id', authenticationMiddleware, isEncargado, actualizarImplementoController);
 router.patch('/actualizarParcial/:id', authenticationMiddleware, isEncargado, actualizarImplementoParcialController);

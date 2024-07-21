@@ -6,7 +6,7 @@ import { isEncargado } from '../middlewares/authorization.middleware.js';
 const router = express.Router();
 
 router.post('/crear', authenticationMiddleware, isEncargado, crearInstalacionController);
-router.get('/obtener', authenticationMiddleware, isEncargado, obtenerInstalacionesController);
+router.get('/obtener', authenticationMiddleware, obtenerInstalacionesController);
 router.get('/obtener/:id', authenticationMiddleware, isEncargado, obtenerInstalacionPorIdController);
 router.put('/actualizar/:id', authenticationMiddleware, isEncargado, actualizarInstalacionController);
 router.delete('/eliminar/:id', authenticationMiddleware, isEncargado, eliminarInstalacionController);
