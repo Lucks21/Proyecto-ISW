@@ -7,7 +7,8 @@ import {
   actualizarImplemento,
   actualizarImplementoParcial,
   eliminarImplemento,
-  obtenerHistorialImplemento
+  obtenerHistorialImplemento,
+  obtenerImplementoPorNombre
 } from '../services/implementos.services.js';
 import { implementoSchema, actualizarImplementoSchema } from '../schema/implementos.schema.js';
 // Controlador para crear un implemento
@@ -101,3 +102,13 @@ export const obtenerHistorialImplementoController = async (req, res) => {
   }
 };
 
+export const obtenerImplementoPorNombreController = async (req, res) => {
+  try {
+    const { nombre } = req.params;
+    const resultado = await obtenerImplementoPorNombre(nombre);
+    res.status(200).json(resultado);
+  } catch (error) {
+    console.error(`Error al obtener implemento con nombre ${req.params.nombre}:`, error);
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
+  }
+};

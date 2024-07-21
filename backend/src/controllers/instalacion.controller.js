@@ -1,5 +1,5 @@
 import { respondSuccess, respondError } from "../utils/resHandler.js";
-import { crearInstalacion, obtenerInstalaciones, obtenerInstalacionPorId, actualizarInstalacion, eliminarInstalacion } from '../services/instalacion.services.js';
+import { obtenerInstalacionPorNombre,crearInstalacion, obtenerInstalaciones, obtenerInstalacionPorId, actualizarInstalacion, eliminarInstalacion } from '../services/instalacion.services.js';
 import { crearInstalacionSchema, actualizarInstalacionSchema, idSchema } from '../schema/instalacion.schema.js';
 
 
@@ -78,5 +78,15 @@ export const eliminarInstalacionController = async (req, res) => {
     res.status(200).json(resultado);
   } catch (error) {
     res.status(404).json({ message: error.message || 'Error al eliminar la instalación.' });
+  }
+};
+export const obtenerInstalacionPorNombreController = async (req, res) => {
+  try {
+    const { nombre } = req.params;
+    const resultado = await obtenerInstalacionPorNombre(nombre);
+    res.status(200).json(resultado);
+  } catch (error) {
+    console.error(`Error al obtener instalación con nombre ${req.params.nombre}:`, error);
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };

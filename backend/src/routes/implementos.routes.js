@@ -7,7 +7,8 @@ import {
   actualizarImplementoController,
   actualizarImplementoParcialController,
   eliminarImplementoController,
-  obtenerHistorialImplementoController
+  obtenerHistorialImplementoController,
+  obtenerImplementoPorNombreController
 } from '../controllers/implementos.controller.js';
 import authenticationMiddleware from '../middlewares/authentication.middleware.js';
 import { isEncargado } from '../middlewares/authorization.middleware.js';
@@ -23,6 +24,7 @@ router.put('/actualizarTodo/:id', authenticationMiddleware, isEncargado, actuali
 router.patch('/actualizarParcial/:id', authenticationMiddleware, isEncargado, actualizarImplementoParcialController);
 router.delete('/eliminar/:id', authenticationMiddleware, isEncargado, eliminarImplementoController);
 router.get('/historial/:id', authenticationMiddleware, isEncargado, obtenerHistorialImplementoController);
+router.get('/obtenerByNombre/:nombre', authenticationMiddleware, isEncargado, obtenerImplementoPorNombreController);
 
 export default router;
 

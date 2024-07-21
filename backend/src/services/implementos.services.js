@@ -275,6 +275,13 @@ export const obtenerHistorialImplemento = async (id) => {
 
   return { message: 'Historial obtenido con éxito.', data: historial };
 };
+export const obtenerImplementoPorNombre = async (nombre) => {
+  const implemento = await Implemento.findOne({ nombre });
+  if (!implemento) {
+    throw new Error('Implemento no encontrado.');
+  }
+  return { message: 'Implemento obtenido con éxito.', data: implemento };
+};
 
 export default {
   crearImplemento,
@@ -284,4 +291,5 @@ export default {
   actualizarImplementoParcial,
   eliminarImplemento,
   obtenerHistorialImplemento,
+  obtenerImplementoPorNombre
 };

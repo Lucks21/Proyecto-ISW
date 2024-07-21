@@ -250,7 +250,13 @@ export const obtenerHistorialInstalacion = async (id) => {
 
   return { message: 'Historial obtenido con éxito.', data: historial };
 };
-
+export const obtenerInstalacionPorNombre = async (nombre) => {
+  const instalacion = await Instalacion.findOne({ nombre });
+  if (!instalacion) {
+    throw new Error('Instalación no encontrada.');
+  }
+  return { message: 'Instalación obtenida con éxito.', data: instalacion };
+};
 export default {
   crearInstalacion,
   obtenerInstalaciones,
@@ -259,4 +265,5 @@ export default {
   actualizarInstalacionParcial,
   eliminarInstalacion,
   obtenerHistorialInstalacion,
+  obtenerInstalacionPorNombre
 };
