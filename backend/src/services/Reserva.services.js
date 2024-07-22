@@ -24,7 +24,7 @@ const normalizarDia = (dia) => {
 const normalizarFechaHoraLocal = (fecha, hora) => {
   const [day, month, year] = fecha.split('-');
   const [hour, minute] = hora.split(':');
-  const localDate = new Date(Date.UTC(year, month - 1, day, hour, minute, 0, 0));
+  const localDate = new Date(year, month - 1, day, hour, minute, 0, 0);
   return localDate;
 };
 
@@ -174,8 +174,8 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La instalación no está disponible para reservas.' };
     }
 
-    const fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
-    const fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
+    let fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
+    let fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
 
     if (!isFuture(fechaInicioNormalizada)) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
