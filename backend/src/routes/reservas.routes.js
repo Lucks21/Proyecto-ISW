@@ -10,12 +10,13 @@ router.get('/historialActivas', authenticationMiddleware,isEncargado, ReservaCon
 router.get('/historialNoActivas', authenticationMiddleware, isEncargado, ReservaController.getHistorialReservasNoActivas);
 router.get('/usuario/:id', authenticationMiddleware, isAlumno, ReservaController.getAllReservasByUser);
 router.get('/grafico', authenticationMiddleware, isEncargado, ReservaController.obtenerDatosGraficos);
+router.get('/graficoAlumno/:id', authenticationMiddleware, isAlumno, ReservaController.obtenerDatosGraficosAlumno);
 router.get('/obtenerImplementos', authenticationMiddleware, isEncargado ,ReservaController.getImplementosReservados);
 router.get('/obtenerInstalaciones', authenticationMiddleware, isEncargado ,ReservaController.getInstalacionesReservadas);
 router.get('/obtenerImplementosByUser', authenticationMiddleware, isAlumno ,ReservaController.getImplementosReservadosByUser);
 router.get('/obtenerInstalacionesByUser', authenticationMiddleware, isAlumno ,ReservaController.getInstalacionesReservadasByUser);
 router.get('/historial', authenticationMiddleware, isEncargado, ReservaController.getHistorialReservas);
-
+router.get('/grafico/alumno/:id', authenticationMiddleware, isAlumno, ReservaController.obtenerDatosGraficosAlumno);
 router.post('/registrarImplemento', authenticationMiddleware, isAlumno ,ReservaController.registrarReservaImplemento);
 router.post('/registrarInstalacion', authenticationMiddleware, isAlumno ,ReservaController.registrarReservaInstalacion);
 router.post('/cancelar', authenticationMiddleware, isAlumno, ReservaController.cancelarReserva);

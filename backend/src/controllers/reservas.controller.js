@@ -209,6 +209,18 @@ async function getHistorialReservasNoActivas(req, res) {
     return respondError(req, res, 500, error.message);
   }
 }
+async function obtenerDatosGraficosAlumno(req, res) {
+  try {
+    const userId = req.params.id;
+    const [data, error] = await ReservaServices.obtenerDatosGraficosAlumno(userId);
+    if (error) {
+      return respondError(req, res, 500, "Error al obtener datos para gráficos del alumno");
+    }
+    respondSuccess(req, res, 200, data);
+  } catch (error) {
+    respondError(req, res, 500, "Error al obtener datos para gráficos del alumno", error);
+  }
+}
 export default{
   getAllReservasByUser,
   getAllReservasActivos,
@@ -224,5 +236,6 @@ export default{
   getImplementosReservadosByUser,
   getInstalacionesReservadasByUser,
   getHistorialReservas,
-  getHistorialReservasNoActivas
+  getHistorialReservasNoActivas,
+  obtenerDatosGraficosAlumno
 };

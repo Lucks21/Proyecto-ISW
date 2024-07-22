@@ -486,7 +486,57 @@ async function getHistorialReservasNoActivas() {
     throw new Error('Error al obtener el historial de reservas no activas: ' + error.message);
   }
 }
+async function obtenerDatosGraficosAlumno(userId) {
+  try {
+    const reservas = await Reserva.find({ userId });
+    const data = {
+      totalReservas: reservas.length,
+      reservasPorImplemento: {},
+      reservasPorInstalacion: {},
+    };
 
+    const implementoIds = reservas
+      .filter(reserva => reserva.implementoId)
+      .map(reserva => reserva.implementoId);
+
+    const instalacionIds = reservas
+      .filter(reserva => reserva.instalacionId)
+      .map(reserva => reserva.instalacionId);
+
+    const implementos = await Implemento.find({ _id: { $in: implementoIds } });
+    const instalaciones = await Instalacion.find({ _id: { $in: instalacionIds } });
+
+    const implementoMap = implementos.reduce((map, implemento) => {
+      map[implemento._id] = implemento.nombre;
+      return map;
+    }, {});
+
+    const instalacionMap = instalaciones.reduce((map, instalacion) => {
+      map[instalacion._id] = instalacion.nombre;
+      return map;
+    }, {});
+
+    reservas.forEach((reserva) => {
+      if (reserva.implementoId) {
+        const nombre = implementoMap[reserva.implementoId];
+        if (nombre) {
+          data.reservasPorImplemento[nombre] = (data.reservasPorImplemento[nombre] || 0) + 1;
+        }
+      }
+      if (reserva.instalacionId) {
+        const nombre = instalacionMap[reserva.instalacionId];
+        if (nombre) {
+          data.reservasPorInstalacion[nombre] = (data.reservasPorInstalacion[nombre] || 0) + 1;
+        }
+      }
+    });
+
+    return [data, null];
+  } catch (error) {
+    console.error("Error en obtenerDatosGraficosAlumno: ", error);
+    return [null, "Error interno del servidor."];
+  }
+}
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
@@ -502,5 +552,6 @@ export default {
   getImplementosReservadosByUser,
   getInstalacionesReservadasByUser,
   getHistorialReservas,
-  getHistorialReservasNoActivas
+  getHistorialReservasNoActivas,
+  obtenerDatosGraficosAlumno
 };
