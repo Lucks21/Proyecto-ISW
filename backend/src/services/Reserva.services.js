@@ -3,22 +3,36 @@ import { obtenerDias } from './configuracion.services.js';
 import Alumno from '../models/alumno.model.js';
 import Implemento from '../models/implementos.model.js';
 import mongoose from 'mongoose';
-import { endOfMinute, isFuture, differenceInMinutes, startOfDay, endOfDay, startOfHour, addMinutes, parseISO, format } from 'date-fns';
+import { endOfMinute, isFuture, differenceInMinutes, startOfDay, endOfDay, startOfHour, addMinutes, format } from 'date-fns';
 import Instalacion from '../models/Instalacion.model.js';
-0
-const normalizarFechaHora = (fecha, hora) => {
+
+// Función para normalizar el día de la semana
+const normalizarDia = (dia) => {
+  const dias = {
+    'lunes': 'lunes',
+    'martes': 'martes',
+    'miércoles': 'miercoles',
+    'jueves': 'jueves',
+    'viernes': 'viernes',
+    'sábado': 'sabado',
+    'domingo': 'domingo'
+  };
+  return dias[dia.toLowerCase()] || dia.toLowerCase();
+};
+
+// Función para normalizar la fecha y hora local
+const normalizarFechaHoraLocal = (fecha, hora) => {
   const [day, month, year] = fecha.split('-');
   const [hour, minute] = hora.split(':');
-  return new Date(year, month - 1, day, hour, minute, 0, 0);
+  const localDate = new Date(Date.UTC(year, month - 1, day, hour, minute, 0, 0));
+  return localDate;
 };
 
-const normalizarFecha = (fecha) => {
+// Función para normalizar solo la fecha local
+const normalizarFechaLocal = (fecha) => {
   const date = new Date(fecha);
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-};
-
-const obtenerDiaSemana = (fecha) => {
-  return fecha.toLocaleString('es-ES', { weekday: 'long' }).toLowerCase();
+  const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return localDate;
 };
 
 // Servicio para registrar una reserva de implemento
@@ -52,29 +66,34 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'El implemento no está disponible para reservas porque no hay unidades disponibles.' };
     }
 
-    let fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
-    let fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
+    let fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
+    let fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
 
     if (!isFuture(fechaInicioNormalizada)) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
     const diasDeshabilitados = await obtenerDias();
-    const fechaReservaNormalizada = normalizarFecha(fechaInicioNormalizada);
-    if (diasDeshabilitados.some(dia => normalizarFecha(dia).getTime() === fechaReservaNormalizada.getTime())) {
+    const fechaReservaNormalizada = normalizarFechaLocal(fechaInicioNormalizada);
+    if (diasDeshabilitados.some(dia => normalizarFechaLocal(dia).getTime() === fechaReservaNormalizada.getTime())) {
       return { error: `La fecha ${fechaInicio.fecha} está deshabilitada para reservas.` };
     }
 
     // Verificar si el día de la semana está en horarioDisponibilidad
-    const diaSemana = obtenerDiaSemana(fechaInicioNormalizada);
-    const disponibilidadDia = implemento.horarioDisponibilidad.find(horario => horario.dia.toLowerCase() === diaSemana);
+    const diaSemana = normalizarDia(fechaInicioNormalizada.toLocaleString('es-ES', { weekday: 'long' }));
+    const disponibilidadDia = implemento.horarioDisponibilidad.find(horario => normalizarDia(horario.dia) === diaSemana);
     if (!disponibilidadDia) {
       return { error: `El implemento no está disponible para reservas el ${diaSemana}.` };
     }
 
-    // Ajustar fechas a la hora completa más cercana
-    fechaInicioNormalizada = startOfHour(fechaInicioNormalizada);
-    fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
+    // Convertir horarios a objetos Date
+    const inicioHoraDisponibilidad = normalizarFechaHoraLocal(fechaInicio.fecha, disponibilidadDia.inicio);
+    const finHoraDisponibilidad = normalizarFechaHoraLocal(fechaInicio.fecha, disponibilidadDia.fin);
+
+    // Verificar si la reserva está dentro del horario de disponibilidad
+    if (fechaInicioNormalizada < inicioHoraDisponibilidad || fechaFinNormalizada > finHoraDisponibilidad) {
+      return { error: 'La reserva debe estar dentro del horario de disponibilidad del implemento.' };
+    }
 
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
     if (duracionReserva <= 0 || duracionReserva > 60) {
@@ -111,13 +130,6 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
 
     if (totalHorasReservadas >= 2) {
       return { error: 'No puede reservar más de 2 horas por este implemento en un solo día.' };
-    }
-
-    // Permitir reservas que comiencen en horas completas
-    const horaActual = new Date();
-    if (fechaInicioNormalizada.getTime() < horaActual.getTime() && fechaInicioNormalizada.getHours() === horaActual.getHours()) {
-      fechaInicioNormalizada = startOfHour(addMinutes(horaActual, 60));
-      fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60);
     }
 
     const nuevaReserva = new Reserva({
@@ -162,24 +174,33 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La instalación no está disponible para reservas.' };
     }
 
-    const fechaInicioNormalizada = normalizarFechaHora(fechaInicio.fecha, fechaInicio.hora);
-    const fechaFinNormalizada = normalizarFechaHora(fechaFin.fecha, fechaFin.hora);
+    const fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
+    const fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
 
     if (!isFuture(fechaInicioNormalizada)) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
     const diasDeshabilitados = await obtenerDias();
-    const fechaReservaNormalizada = normalizarFecha(fechaInicioNormalizada);
-    if (diasDeshabilitados.some(dia => normalizarFecha(dia).getTime() === fechaReservaNormalizada.getTime())) {
+    const fechaReservaNormalizada = normalizarFechaLocal(fechaInicioNormalizada);
+    if (diasDeshabilitados.some(dia => normalizarFechaLocal(dia).getTime() === fechaReservaNormalizada.getTime())) {
       return { error: `La fecha ${fechaInicio.fecha} está deshabilitada para reservas.` };
     }
 
     // Verificar si el día de la semana está en horarioDisponibilidad
-    const diaSemana = fechaInicioNormalizada.toLocaleString('es-ES', { weekday: 'long' }).toLowerCase();
-    const disponibilidadDia = instalacion.horarioDisponibilidad.find(horario => horario.dia.toLowerCase() === diaSemana);
+    const diaSemana = normalizarDia(fechaInicioNormalizada.toLocaleString('es-ES', { weekday: 'long' }));
+    const disponibilidadDia = instalacion.horarioDisponibilidad.find(horario => normalizarDia(horario.dia) === diaSemana);
     if (!disponibilidadDia) {
       return { error: `La instalación no está disponible para reservas el ${diaSemana}.` };
+    }
+
+    // Convertir horarios a objetos Date
+    const inicioHoraDisponibilidad = normalizarFechaHoraLocal(fechaInicio.fecha, disponibilidadDia.inicio);
+    const finHoraDisponibilidad = normalizarFechaHoraLocal(fechaInicio.fecha, disponibilidadDia.fin);
+
+    // Verificar si la reserva está dentro del horario de disponibilidad
+    if (fechaInicioNormalizada < inicioHoraDisponibilidad || fechaFinNormalizada > finHoraDisponibilidad) {
+      return { error: 'La reserva debe estar dentro del horario de disponibilidad de la instalación.' };
     }
 
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
@@ -216,41 +237,16 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'No puede reservar más de 2 horas por esta instalación en un solo día.' };
     }
 
-    // Validar y permitir reservas en horas fraccionadas
-    const horaActual = new Date();
-    const minutosRestantes = differenceInMinutes(startOfHour(addMinutes(horaActual, 60)), horaActual);
+    const nuevaReserva = new Reserva({
+      userId,
+      instalacionId,
+      fechaInicio: fechaInicioNormalizada,
+      fechaFin: fechaFinNormalizada,
+      estado: 'activo'
+    });
 
-    const inicioHoraCompleta = startOfHour(fechaInicioNormalizada);
-    const finHoraCompleta = addMinutes(inicioHoraCompleta, 60);
-
-    if (fechaInicioNormalizada.getMinutes() !== 0 && fechaInicioNormalizada.getTime() >= horaActual.getTime() && fechaFinNormalizada.getTime() <= finHoraCompleta.getTime()) {
-      const nuevaReserva = new Reserva({
-        userId,
-        instalacionId,
-        fechaInicio: fechaInicioNormalizada,
-        fechaFin: fechaFinNormalizada,
-        estado: 'activo'
-      });
-
-      await nuevaReserva.save();
-      return { message: 'Reserva creada con éxito.', data: nuevaReserva };
-    }
-
-    // Permitir reservas que comiencen en horas completas
-    if (fechaInicioNormalizada.getMinutes() === 0) {
-      const nuevaReserva = new Reserva({
-        userId,
-        instalacionId,
-        fechaInicio: fechaInicioNormalizada,
-        fechaFin: fechaFinNormalizada,
-        estado: 'activo'
-      });
-
-      await nuevaReserva.save();
-      return { message: 'Reserva creada con éxito.', data: nuevaReserva };
-    }
-
-    return { error: 'No se pueden realizar reservas en horas fraccionadas. La siguiente reserva debe comenzar en la siguiente hora completa.' };
+    await nuevaReserva.save();
+    return { message: 'Reserva creada con éxito.', data: nuevaReserva };
   } catch (error) {
     console.error("Error en registrarReservaInstalacion: ", error);
     return { error: "Error interno del servidor." };
@@ -289,7 +285,7 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
       return { error: 'Reserva no encontrada.' };
     }
 
-    const fechaFinNormalizada = normalizarFechaHora(nuevaFechaFin.fecha, nuevaFechaFin.hora);
+    const fechaFinNormalizada = normalizarFechaHoraLocal(nuevaFechaFin.fecha, nuevaFechaFin.hora);
     if (differenceInMinutes(fechaFinNormalizada, reserva.fechaFin) < 60) {
       return { error: 'La extensión mínima de la reserva es de 1 hora.' };
     }

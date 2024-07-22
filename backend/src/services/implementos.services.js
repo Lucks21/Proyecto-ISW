@@ -29,6 +29,8 @@ const validarHorarios = (horarioDisponibilidad) => {
   const horariosPorDia = {};
 
   horarioDisponibilidad.forEach(item => {
+    item.dia = normalizarTexto(item.dia); // Normalizar el día a minúsculas
+
     if (!horariosPorDia[item.dia]) {
       horariosPorDia[item.dia] = [];
     }
