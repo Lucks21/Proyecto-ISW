@@ -35,6 +35,21 @@ const normalizarFechaLocal = (fecha) => {
   return localDate;
 };
 
+// Función para verificar si la reserva está dentro del horario de disponibilidad
+const verificarDisponibilidadHorario = (disponibilidad, fechaInicio, fechaFin) => {
+  const diaSemana = normalizarDia(fechaInicio.toLocaleString('es-ES', { weekday: 'long' }));
+  const horario = disponibilidad.find(h => normalizarDia(h.dia) === diaSemana);
+
+  if (!horario) {
+    return false;
+  }
+
+  const inicioDisponibilidad = normalizarFechaHoraLocal(format(fechaInicio, 'dd-MM-yyyy'), horario.inicio);
+  const finDisponibilidad = normalizarFechaHoraLocal(format(fechaInicio, 'dd-MM-yyyy'), horario.fin);
+
+  return fechaInicio >= inicioDisponibilidad && fechaFin <= finDisponibilidad;
+};
+
 // Servicio para registrar una reserva de implemento
 async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, userId) {
   try {
@@ -79,20 +94,16 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: `La fecha ${fechaInicio.fecha} está deshabilitada para reservas.` };
     }
 
-    // Verificar si el día de la semana está en horarioDisponibilidad
-    const diaSemana = normalizarDia(fechaInicioNormalizada.toLocaleString('es-ES', { weekday: 'long' }));
-    const disponibilidadDia = implemento.horarioDisponibilidad.find(horario => normalizarDia(horario.dia) === diaSemana);
-    if (!disponibilidadDia) {
-      return { error: `El implemento no está disponible para reservas el ${diaSemana}.` };
+    // Verificar si la reserva está dentro del horario de disponibilidad
+    if (!verificarDisponibilidadHorario(implemento.horarioDisponibilidad, fechaInicioNormalizada, fechaFinNormalizada)) {
+      return { error: 'La reserva está fuera del horario de disponibilidad del implemento.' };
     }
 
-    // Convertir horarios a objetos Date
-    const inicioHoraDisponibilidad = normalizarFechaHoraLocal(fechaInicio.fecha, disponibilidadDia.inicio);
-    const finHoraDisponibilidad = normalizarFechaHoraLocal(fechaInicio.fecha, disponibilidadDia.fin);
-
-    // Verificar si la reserva está dentro del horario de disponibilidad
-    if (fechaInicioNormalizada < inicioHoraDisponibilidad || fechaFinNormalizada > finHoraDisponibilidad) {
-      return { error: 'La reserva debe estar dentro del horario de disponibilidad del implemento.' };
+    // Ajustar fechas a la hora completa más cercana
+    const horaActual = new Date();
+    if (fechaInicioNormalizada.getTime() < horaActual.getTime() && fechaInicioNormalizada.getHours() === horaActual.getHours()) {
+      fechaInicioNormalizada = endOfMinute(horaActual);
+      fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60 - fechaInicioNormalizada.getMinutes());
     }
 
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
@@ -174,8 +185,8 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La instalación no está disponible para reservas.' };
     }
 
-    let fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
-    let fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
+    const fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
+    const fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
 
     if (!isFuture(fechaInicioNormalizada)) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
@@ -187,20 +198,9 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: `La fecha ${fechaInicio.fecha} está deshabilitada para reservas.` };
     }
 
-    // Verificar si el día de la semana está en horarioDisponibilidad
-    const diaSemana = normalizarDia(fechaInicioNormalizada.toLocaleString('es-ES', { weekday: 'long' }));
-    const disponibilidadDia = instalacion.horarioDisponibilidad.find(horario => normalizarDia(horario.dia) === diaSemana);
-    if (!disponibilidadDia) {
-      return { error: `La instalación no está disponible para reservas el ${diaSemana}.` };
-    }
-
-    // Convertir horarios a objetos Date
-    const inicioHoraDisponibilidad = normalizarFechaHoraLocal(fechaInicio.fecha, disponibilidadDia.inicio);
-    const finHoraDisponibilidad = normalizarFechaHoraLocal(fechaInicio.fecha, disponibilidadDia.fin);
-
     // Verificar si la reserva está dentro del horario de disponibilidad
-    if (fechaInicioNormalizada < inicioHoraDisponibilidad || fechaFinNormalizada > finHoraDisponibilidad) {
-      return { error: 'La reserva debe estar dentro del horario de disponibilidad de la instalación.' };
+    if (!verificarDisponibilidadHorario(instalacion.horarioDisponibilidad, fechaInicioNormalizada, fechaFinNormalizada)) {
+      return { error: 'La reserva está fuera del horario de disponibilidad de la instalación.' };
     }
 
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
