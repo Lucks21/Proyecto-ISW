@@ -3,7 +3,7 @@ import { obtenerDias } from './configuracion.services.js';
 import Alumno from '../models/alumno.model.js';
 import Implemento from '../models/implementos.model.js';
 import mongoose from 'mongoose';
-import { endOfMinute, isFuture, differenceInMinutes, startOfDay, endOfDay, startOfHour, addMinutes, format } from 'date-fns';
+import { endOfMinute, isFuture, differenceInMinutes, startOfDay, endOfDay, startOfHour, addMinutes, format, setHours, setMinutes } from 'date-fns';
 import Instalacion from '../models/Instalacion.model.js';
 
 // Función para normalizar el día de la semana
@@ -146,8 +146,8 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     const nuevaReserva = new Reserva({
       userId,
       implementoId,
-      fechaInicio: fechaInicioNormalizada,
-      fechaFin: fechaFinNormalizada,
+      fechaInicio: setHours(setMinutes(fechaInicioNormalizada, 0), fechaInicioNormalizada.getHours()),
+      fechaFin: setHours(setMinutes(fechaFinNormalizada, 0), fechaFinNormalizada.getHours() + 1),
       estado: 'activo'
     });
 
@@ -240,8 +240,8 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     const nuevaReserva = new Reserva({
       userId,
       instalacionId,
-      fechaInicio: fechaInicioNormalizada,
-      fechaFin: fechaFinNormalizada,
+      fechaInicio: setHours(setMinutes(fechaInicioNormalizada, 0), fechaInicioNormalizada.getHours()),
+      fechaFin: setHours(setMinutes(fechaFinNormalizada, 0), fechaFinNormalizada.getHours() + 1),
       estado: 'activo'
     });
 
@@ -302,7 +302,7 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
       return { error: 'La hora solicitada ya está reservada.' };
     }
 
-    reserva.fechaFin = fechaFinNormalizada;
+    reserva.fechaFin = setHours(setMinutes(fechaFinNormalizada, 0), fechaFinNormalizada.getHours());
     await reserva.save();
     return { message: 'Reserva extendida con éxito.' };
   } catch (error) {
