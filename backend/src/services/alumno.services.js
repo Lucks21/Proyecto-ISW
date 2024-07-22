@@ -102,12 +102,27 @@ const obtenerAlumnoPorEmail = async (email) => {
   }
   return { message: 'Alumno obtenido con éxito.', data: alumno };
 };
-  
+
+
+const obtenerPerfilAlumno = async (email) => {
+  try {
+    const alumno = await Alumno.findOne({ email }).populate('roles').select('-password');
+    if (!alumno) {
+      return [null, 'Alumno no encontrado.'];
+    }
+    return [alumno, null];
+  } catch (error) {
+    console.error("Error en obtenerAlumnoPorEmail: ", error);
+    return [null, 'Error interno del servidor'];
+  }
+};
+
 export default {
   crearAlumno,
   obtenerAlumnos,
   obtenerAlumnoPorId,
   actualizarAlumno,
   eliminarAlumno,
-  obtenerAlumnoPorEmail
+  obtenerAlumnoPorEmail,
+  obtenerPerfilAlumno,
 };

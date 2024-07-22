@@ -81,3 +81,24 @@ export const obtenerAlumnoPorEmailController = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener el alumno', error });
   }
 };
+export const obtenerPerfilAlumnoController = async (req, res) => {
+  try {
+    const email = req.email;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email no encontrado en el token de usuario.' });
+    }
+
+    console.log('Email del usuario:', email);
+
+    const [alumno, error] = await alumnoService.obtenerPerfilAlumno(email);
+    if (error) {
+      console.log('Error al obtener el alumno por email:', error); 
+      return res.status(404).json({ message: error });
+    }
+    res.status(200).json(alumno);
+  } catch (error) {
+    console.error('Error en el controlador:', error);
+    res.status(500).json({ message: 'Error al obtener el perfil del alumno', error });
+  }
+};

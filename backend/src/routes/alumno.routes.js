@@ -6,10 +6,11 @@ import {
   obtenerAlumnoPorIdController,
   actualizarAlumnoController,
   eliminarAlumnoController,
-  obtenerAlumnoPorEmailController
+  obtenerAlumnoPorEmailController,
+  obtenerPerfilAlumnoController
 } from '../controllers/alumno.controller.js';
 import authenticationMiddleware from '../middlewares/authentication.middleware.js';
-import { isEncargado} from '../middlewares/authorization.middleware.js';
+import { isEncargado, isAlumno} from '../middlewares/authorization.middleware.js';
 
 const router = express.Router();
 
@@ -19,5 +20,7 @@ router.get('/obtener/:id', authenticationMiddleware, isEncargado, obtenerAlumnoP
 router.put('/actualizar/:id', authenticationMiddleware, actualizarAlumnoController);
 router.delete('/eliminar/:id', authenticationMiddleware, isEncargado, eliminarAlumnoController);
 router.get('/obtenerByEmail/:email', authenticationMiddleware, obtenerAlumnoPorEmailController);
+router.get('/perfil', authenticationMiddleware, isAlumno, obtenerPerfilAlumnoController);
+
 
 export default router;
