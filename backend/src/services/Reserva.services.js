@@ -99,12 +99,13 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'La reserva está fuera del horario de disponibilidad del implemento.' };
     }
 
-    // Ajustar fechas a la hora completa más cercana
-    const horaActual = new Date();
-    if (fechaInicioNormalizada.getTime() < horaActual.getTime() && fechaInicioNormalizada.getHours() === horaActual.getHours()) {
-      fechaInicioNormalizada = endOfMinute(horaActual);
-      fechaFinNormalizada = addMinutes(fechaInicioNormalizada, 60 - fechaInicioNormalizada.getMinutes());
-    }
+    // Ajustar la hora de inicio a la hora completa más cercana
+    fechaInicioNormalizada = startOfHour(fechaInicioNormalizada);
+
+    // Ajustar la hora de fin a la hora completa
+    const [finHour] = fechaFin.hora.split(':');
+    fechaFinNormalizada.setHours(finHour);
+    fechaFinNormalizada.setMinutes(0);
 
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
     if (duracionReserva <= 0 || duracionReserva > 60) {
@@ -156,7 +157,8 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     });
 
     await nuevaReserva.save();
-    return { message: 'Reserva creada con éxito.', data: nuevaReserva };
+    return {
+      message: `Reserva creada con éxito.`,data: nuevaReserva};
   } catch (error) {
     console.error("Error en registrarReservaImplemento: ", error);
     return { error: "Error interno del servidor." };
@@ -207,6 +209,14 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La reserva está fuera del horario de disponibilidad de la instalación.' };
     }
 
+    // Ajustar la hora de inicio a la hora completa más cercana
+    fechaInicioNormalizada = startOfHour(fechaInicioNormalizada);
+
+    // Ajustar la hora de fin a la hora completa
+    const [finHour] = fechaFin.hora.split(':');
+    fechaFinNormalizada.setHours(finHour);
+    fechaFinNormalizada.setMinutes(0);
+
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
     if (duracionReserva <= 0 || duracionReserva > 60) {
       return { error: 'La duración de la reserva debe ser de hasta 1 hora.' };
@@ -254,7 +264,8 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     });
 
     await nuevaReserva.save();
-    return { message: 'Reserva creada con éxito.', data: nuevaReserva };
+    return {
+      message: `Reserva creada con éxito.`,data: nuevaReserva};
   } catch (error) {
     console.error("Error en registrarReservaInstalacion: ", error);
     return { error: "Error interno del servidor." };
@@ -545,7 +556,6 @@ async function obtenerDatosGraficosAlumno(userId) {
     return [null, "Error interno del servidor."];
   }
 }
-
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
