@@ -1,9 +1,9 @@
+import { subHours, endOfMinute, differenceInMinutes, startOfDay, endOfDay, startOfHour, format } from 'date-fns';
 import Reserva from '../models/reservas.model.js';
 import { obtenerDias } from './configuracion.services.js';
 import Alumno from '../models/alumno.model.js';
 import Implemento from '../models/implementos.model.js';
 import mongoose from 'mongoose';
-import { endOfMinute, isFuture, differenceInMinutes, startOfDay, endOfDay, startOfHour, addMinutes, format, subHours } from 'date-fns';
 import Instalacion from '../models/Instalacion.model.js';
 
 // Función para normalizar el día de la semana
@@ -331,15 +331,12 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
   }
 }
 
-
-import { subHours, endOfMinute } from 'date-fns';
-import Reserva from '../models/reservas.model.js';
-
+// Servicio para finalizar una reserva
 async function finalizarReservasExpiradas() {
   try {
     console.log("Buscando reservas expiradas...");
     let now = new Date();
-    now = subHours(now, 4);
+    now = subHours(now, 4); // Ajustar la hora actual restando 4 horas para coincidir con la hora local de Chile (UTC-4)
 
     console.log('Current Date and Time (adjusted to UTC-4):', now);
 
@@ -364,6 +361,16 @@ async function finalizarReservasExpiradas() {
   }
 }
 
+// Servicio para obtener todas las reservas activas
+async function getAllReservasActivos() {
+  try {
+    const reservas = await Reserva.find({ fechaFin: { $gt: new Date() }, estado: 'activo' });
+    return [reservas, null];
+  } catch (error) {
+    console.error("Error en getAllReservasActivos: ", error);
+    return [null, "Error interno del servidor."];
+  }
+}
 
 // Servicio para obtener todas las reservas de un usuario
 async function getAllReservasByUser(userId) {
