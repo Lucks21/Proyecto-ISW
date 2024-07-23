@@ -332,11 +332,16 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
 }
 
 
+import { subHours, endOfMinute } from 'date-fns';
+import Reserva from '../models/reservas.model.js';
+
 async function finalizarReservasExpiradas() {
   try {
     console.log("Buscando reservas expiradas...");
     let now = new Date();
-    now = subHours(now, 4); 
+    now = subHours(now, 4);
+
+    console.log('Current Date and Time (adjusted to UTC-4):', now);
 
     const reservasExpiradas = await Reserva.find({ fechaFin: { $lte: endOfMinute(now) }, estado: 'activo' });
 
@@ -359,16 +364,6 @@ async function finalizarReservasExpiradas() {
   }
 }
 
-// Servicio para obtener todas las reservas activas
-async function getAllReservasActivos() {
-  try {
-    const reservas = await Reserva.find({ fechaFin: { $gt: new Date() }, estado: 'activo' });
-    return [reservas, null];
-  } catch (error) {
-    console.error("Error en getAllReservasActivos: ", error);
-    return [null, "Error interno del servidor."];
-  }
-}
 
 // Servicio para obtener todas las reservas de un usuario
 async function getAllReservasByUser(userId) {
