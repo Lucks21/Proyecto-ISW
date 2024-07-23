@@ -7,7 +7,27 @@ const validarRut = (rut, helpers) => {
   if (!rutRegex.test(rut)) {
     return helpers.error('any.invalid', { message: 'El RUT no es válido' });
   }
-  // Aquí puedes añadir lógica adicional para validar el dígito verificador si es necesario
+
+  const [numero, digitoVerificador] = rut.split('-');
+  let cuerpo = numero;
+  const dv = digitoVerificador.toUpperCase();
+
+  let suma = 0;
+  let multiplo = 2;
+
+  // Recorrer el RUT de derecha a izquierda
+  for (let i = cuerpo.length - 1; i >= 0; i--) {
+    suma += multiplo * parseInt(cuerpo.charAt(i));
+    multiplo = multiplo < 7 ? multiplo + 1 : 2;
+  }
+
+  const dvEsperado = 11 - (suma % 11);
+  const dvFinal = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'K' : dvEsperado.toString();
+
+  if (dvFinal !== dv) {
+    return helpers.error('any.invalid', { message: 'El RUT no es válido' });
+  }
+
   return true;
 };
 

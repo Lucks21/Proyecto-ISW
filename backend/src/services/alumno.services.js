@@ -2,6 +2,7 @@
 import Alumno from '../models/alumno.model.js';
 import Role from '../models/role.model.js';
 import bcrypt from 'bcryptjs';
+import { crearAlumnoSchema, actualizarAlumnoSchema } from '../schema/alumno.schema.js'; 
 
 // Función para encriptar la password
 const encriptarPassword = async (password) => {
@@ -11,6 +12,11 @@ const encriptarPassword = async (password) => {
 
 // Servicio para crear un alumno
 const crearAlumno = async (datosAlumno) => {
+  const { error } = crearAlumnoSchema.validate(datosAlumno);
+  if (error) {
+    throw new Error(error.details[0].message);
+  }
+
   const { rut, password, nombre, email } = datosAlumno;
 
   // Verificar unicidad del RUT
@@ -45,6 +51,7 @@ const crearAlumno = async (datosAlumno) => {
   return { message: 'Alumno creado con éxito.', data: nuevoAlumno };
 };
 
+
 // Servicio para obtener todos los alumnos
 const obtenerAlumnos = async () => {
   const alumnos = await Alumno.find().populate('roles');
@@ -62,6 +69,11 @@ const obtenerAlumnoPorId = async (id) => {
 
 // Servicio para actualizar un alumno
 const actualizarAlumno = async (id, datosActualizados) => {
+  const { error } = actualizarAlumnoSchema.validate(datosActualizados); // Validar los datos actualizados
+  if (error) {
+    throw new Error(error.details[0].message);
+  }
+
   const { email, rut, password } = datosActualizados;
 
   // Verificar unicidad del correo por RUT si se está actualizando
@@ -78,13 +90,12 @@ const actualizarAlumno = async (id, datosActualizados) => {
     delete datosActualizados.password;
   }
 
-  const alumnoActualizado = await Alumno.findByIdAndUpdate(id, datosActualizados, { new: true }).populate('roles');
+  const alumnoActualizado = await Alumno.findByIdAndUpdate(id, datosActualizados, { new: true }).populate('roles').select('-password');
   if (!alumnoActualizado) {
     throw new Error('Alumno no encontrado.');
   }
   return { message: 'Alumno actualizado con éxito.', data: alumnoActualizado };
 };
-
 // Servicio para eliminar un alumno
 const eliminarAlumno = async (id) => {
   const alumnoEliminado = await Alumno.findByIdAndDelete(id);
