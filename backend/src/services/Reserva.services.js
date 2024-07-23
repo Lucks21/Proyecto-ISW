@@ -3,7 +3,7 @@ import { obtenerDias } from './configuracion.services.js';
 import Alumno from '../models/alumno.model.js';
 import Implemento from '../models/implementos.model.js';
 import mongoose from 'mongoose';
-import { endOfMinute, isFuture, differenceInMinutes, startOfDay, endOfDay, startOfHour, addMinutes, format, setHours, setMinutes } from 'date-fns';
+import { endOfMinute, isFuture, differenceInMinutes, startOfDay, endOfDay, startOfHour, addMinutes, format, subHours } from 'date-fns';
 import Instalacion from '../models/Instalacion.model.js';
 
 // Función para normalizar el día de la semana
@@ -143,11 +143,15 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
       return { error: 'No puede reservar más de 2 horas por este implemento en un solo día.' };
     }
 
+    // Ajustar las fechas restando las horas necesarias para coincidir con la hora local de Chile (UTC-4)
+    fechaInicioNormalizada = subHours(fechaInicioNormalizada, 4);
+    fechaFinNormalizada = subHours(fechaFinNormalizada, 4);
+
     const nuevaReserva = new Reserva({
       userId,
       implementoId,
-      fechaInicio: setHours(setMinutes(fechaInicioNormalizada, 0), fechaInicioNormalizada.getHours()),
-      fechaFin: setHours(setMinutes(fechaFinNormalizada, 0), fechaFinNormalizada.getHours() + 1),
+      fechaInicio: fechaInicioNormalizada,
+      fechaFin: fechaFinNormalizada,
       estado: 'activo'
     });
 
@@ -185,8 +189,8 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La instalación no está disponible para reservas.' };
     }
 
-    const fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
-    const fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
+    let fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
+    let fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
 
     if (!isFuture(fechaInicioNormalizada)) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
@@ -237,11 +241,15 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'No puede reservar más de 2 horas por esta instalación en un solo día.' };
     }
 
+    // Ajustar las fechas restando las horas necesarias para coincidir con la hora local de Chile (UTC-4)
+    fechaInicioNormalizada = subHours(fechaInicioNormalizada, 4);
+    fechaFinNormalizada = subHours(fechaFinNormalizada, 4);
+
     const nuevaReserva = new Reserva({
       userId,
       instalacionId,
-      fechaInicio: setHours(setMinutes(fechaInicioNormalizada, 0), fechaInicioNormalizada.getHours()),
-      fechaFin: setHours(setMinutes(fechaFinNormalizada, 0), fechaFinNormalizada.getHours() + 1),
+      fechaInicio: fechaInicioNormalizada,
+      fechaFin: fechaFinNormalizada,
       estado: 'activo'
     });
 
@@ -302,7 +310,7 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
       return { error: 'La hora solicitada ya está reservada.' };
     }
 
-    reserva.fechaFin = setHours(setMinutes(fechaFinNormalizada, 0), fechaFinNormalizada.getHours());
+    reserva.fechaFin = fechaFinNormalizada;
     await reserva.save();
     return { message: 'Reserva extendida con éxito.' };
   } catch (error) {
@@ -537,6 +545,7 @@ async function obtenerDatosGraficosAlumno(userId) {
     return [null, "Error interno del servidor."];
   }
 }
+
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
