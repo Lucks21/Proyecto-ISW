@@ -72,19 +72,14 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     }
 
     // Verificar el estado del implemento
-    if (implemento.estado === 'no disponible') {
+    if (implemento.estado === 'no disponible' || implemento.cantidad <= 0) {
       return { error: 'El implemento no está disponible para reservas.' };
-    }
-
-    // Verificar la cantidad de implementos disponibles
-    if (implemento.cantidad <= 0) {
-      return { error: 'El implemento no está disponible para reservas porque no hay unidades disponibles.' };
     }
 
     let fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
     let fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
 
-    if (!isFuture(fechaInicioNormalizada)) {
+    if (!isFuture(fechaInicioNormalizada) && startOfDay(fechaInicioNormalizada) > startOfDay(new Date())) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
@@ -103,8 +98,6 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     fechaInicioNormalizada = startOfHour(fechaInicioNormalizada);
 
     // Ajustar la hora de fin a la hora completa
-    const [finHour] = fechaFin.hora.split(':');
-    fechaFinNormalizada.setHours(finHour);
     fechaFinNormalizada.setMinutes(0);
 
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
@@ -158,7 +151,8 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
 
     await nuevaReserva.save();
     return {
-      message: `Reserva creada con éxito.`,data: nuevaReserva};
+      message: `Reserva creada con éxito.`, data: nuevaReserva
+    };
   } catch (error) {
     console.error("Error en registrarReservaImplemento: ", error);
     return { error: "Error interno del servidor." };
@@ -194,7 +188,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     let fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
     let fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
 
-    if (!isFuture(fechaInicioNormalizada)) {
+    if (!isFuture(fechaInicioNormalizada) && startOfDay(fechaInicioNormalizada) > startOfDay(new Date())) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
@@ -213,8 +207,6 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     fechaInicioNormalizada = startOfHour(fechaInicioNormalizada);
 
     // Ajustar la hora de fin a la hora completa
-    const [finHour] = fechaFin.hora.split(':');
-    fechaFinNormalizada.setHours(finHour);
     fechaFinNormalizada.setMinutes(0);
 
     const duracionReserva = differenceInMinutes(fechaFinNormalizada, fechaInicioNormalizada);
@@ -229,6 +221,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
         { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: fechaInicioNormalizada } }
       ]
     });
+
     if (reservasExistentes.length > 0) {
       return { error: 'La hora solicitada ya está reservada.' };
     }
@@ -265,7 +258,8 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
 
     await nuevaReserva.save();
     return {
-      message: `Reserva creada con éxito.`,data: nuevaReserva};
+      message: `Reserva creada con éxito.`, data: nuevaReserva
+    };
   } catch (error) {
     console.error("Error en registrarReservaInstalacion: ", error);
     return { error: "Error interno del servidor." };
@@ -280,7 +274,8 @@ async function cancelarReserva(reservaId) {
       return { error: 'Reserva no encontrada.' };
     }
 
-    const ahora = new Date();
+    let ahora = new Date();
+    ahora = subHours(ahora, 4); // Ajustar la hora actual restando 4 horas para coincidir con la hora local de Chile (UTC-4)
     const minutosParaInicio = differenceInMinutes(reserva.fechaInicio, ahora);
 
     if (minutosParaInicio < 30) {
@@ -304,8 +299,13 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
       return { error: 'Reserva no encontrada.' };
     }
 
+    let ahora = new Date();
+    ahora = subHours(ahora, 4); // Ajustar la hora actual restando 4 horas para coincidir con la hora local de Chile (UTC-4)
+
     const fechaFinNormalizada = normalizarFechaHoraLocal(nuevaFechaFin.fecha, nuevaFechaFin.hora);
-    if (differenceInMinutes(fechaFinNormalizada, reserva.fechaFin) < 60) {
+    const diferenciaMinutos = differenceInMinutes(fechaFinNormalizada, reserva.fechaFin);
+
+    if (diferenciaMinutos < 60) {
       return { error: 'La extensión mínima de la reserva es de 1 hora.' };
     }
 
@@ -317,6 +317,7 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
         { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: reserva.fechaFin } }
       ]
     });
+
     if (reservasExistentes.length > 0) {
       return { error: 'La hora solicitada ya está reservada.' };
     }
@@ -330,11 +331,13 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
   }
 }
 
-// Servicio para finalizar una reserva
+
 async function finalizarReservasExpiradas() {
   try {
     console.log("Buscando reservas expiradas...");
-    const now = new Date();
+    let now = new Date();
+    now = subHours(now, 4); 
+
     const reservasExpiradas = await Reserva.find({ fechaFin: { $lte: endOfMinute(now) }, estado: 'activo' });
 
     if (reservasExpiradas.length === 0) {
@@ -452,6 +455,7 @@ async function getImplementosReservados() {
     throw new Error('Error al obtener implementos reservados: ' + error.message);
   }
 }
+
 // obtener las instalaciones reservadas
 async function getInstalacionesReservadas() {
   try {
@@ -494,6 +498,7 @@ async function getHistorialReservas() {
     throw new Error('Error al obtener el historial de reservas: ' + error.message);
   }
 }
+
 async function getHistorialReservasNoActivas() {
   try {
     const reservas = await Reserva.find({ estado: "no activo" })
@@ -505,6 +510,7 @@ async function getHistorialReservasNoActivas() {
     throw new Error('Error al obtener el historial de reservas no activas: ' + error.message);
   }
 }
+
 async function obtenerDatosGraficosAlumno(userId) {
   try {
     const reservas = await Reserva.find({ userId });
@@ -556,6 +562,7 @@ async function obtenerDatosGraficosAlumno(userId) {
     return [null, "Error interno del servidor."];
   }
 }
+
 export default {
   registrarReservaImplemento,
   registrarReservaInstalacion,
