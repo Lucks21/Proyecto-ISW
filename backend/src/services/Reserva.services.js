@@ -1,4 +1,4 @@
-import { subHours, endOfMinute, differenceInMinutes, startOfDay, endOfDay, startOfHour, format } from 'date-fns';
+import { subHours, endOfMinute, differenceInMinutes, startOfDay, endOfDay, startOfHour, format, isFuture  } from 'date-fns';
 import Reserva from '../models/reservas.model.js';
 import { obtenerDias } from './configuracion.services.js';
 import Alumno from '../models/alumno.model.js';
