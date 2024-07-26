@@ -67,9 +67,8 @@ const normalizarFecha = (fecha) => {
 export const crearInstalacion = async (datosInstalacion) => {
   const { nombre, descripcion, fechaAdquisicion, horarioDisponibilidad, capacidad } = datosInstalacion;
 
-  // Normalizar el nombre y la descripción
-  const nombreNormalizado = normalizarTexto(nombre); // Normalización aquí
-  const descripcionNormalizada = normalizarTexto(descripcion);
+  const nombreNormalizado = normalizarTexto(nombre);
+  const descripcionNormalizada = descripcion ? normalizarTexto(descripcion) : '';
 
   // Normalizar la fecha
   const fechaNormalizada = normalizarFecha(fechaAdquisicion);
@@ -90,12 +89,15 @@ export const crearInstalacion = async (datosInstalacion) => {
   try {
     const nuevaInstalacion = new Instalacion({
       nombre: nombreNormalizado, // Guardar el nombre normalizado
-      descripcion: descripcionNormalizada,
       fechaAdquisicion: fechaNormalizada,
       capacidad,
       horarioDisponibilidad,
       estado: 'disponible' // Establecer estado predeterminado
     });
+
+    if (descripcionNormalizada) {
+      nuevaInstalacion.descripcion = descripcionNormalizada;
+    }
 
     await nuevaInstalacion.save();
     return { message: 'Instalación creada con éxito.', data: nuevaInstalacion };
@@ -107,6 +109,7 @@ export const crearInstalacion = async (datosInstalacion) => {
     throw error; // Lanzar otros errores no relacionados con clave duplicada
   }
 };
+
 
 // Servicio para obtener todas las instalaciones
 export const obtenerInstalaciones = async () => {
@@ -257,6 +260,7 @@ export const obtenerInstalacionPorNombre = async (nombre) => {
   }
   return { message: 'Instalación obtenida con éxito.', data: instalacion };
 };
+
 export default {
   crearInstalacion,
   obtenerInstalaciones,
