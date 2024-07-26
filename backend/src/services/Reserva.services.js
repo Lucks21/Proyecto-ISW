@@ -50,7 +50,6 @@ const verificarDisponibilidadHorario = (disponibilidad, fechaInicio, fechaFin) =
   return fechaInicio >= inicioDisponibilidad && fechaFin <= finDisponibilidad;
 };
 
-// Servicio para registrar una reserva de implemento
 async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, userId) {
   try {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -79,7 +78,7 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
     let fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
     let fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
 
-    if (!isFuture(fechaInicioNormalizada) && startOfDay(fechaInicioNormalizada) > startOfDay(new Date())) {
+    if (!isFuture(fechaInicioNormalizada)) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
@@ -159,7 +158,7 @@ async function registrarReservaImplemento(implementoId, fechaInicio, fechaFin, u
   }
 }
 
-// Servicio para registrar una reserva de instalación
+
 async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin, userId) {
   try {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -188,7 +187,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     let fechaInicioNormalizada = normalizarFechaHoraLocal(fechaInicio.fecha, fechaInicio.hora);
     let fechaFinNormalizada = normalizarFechaHoraLocal(fechaFin.fecha, fechaFin.hora);
 
-    if (!isFuture(fechaInicioNormalizada) && startOfDay(fechaInicioNormalizada) > startOfDay(new Date())) {
+    if (!isFuture(fechaInicioNormalizada)) {
       return { error: 'La fecha de inicio no puede ser en el pasado.' };
     }
 
@@ -265,6 +264,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     return { error: "Error interno del servidor." };
   }
 }
+
 
 // Servicio para cancelar una reserva
 async function cancelarReserva(reservaId) {
