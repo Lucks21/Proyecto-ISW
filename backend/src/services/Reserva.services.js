@@ -471,9 +471,12 @@ async function getInstalacionesReservadas() {
 // implemento reservado por usuario
 async function getImplementosReservadosByUser(userId) {
   try {
-    const reservas = await Reserva.find({ userId, implementoId: { $exists: true }, estado: 'activo' });
-    const implementosIds = reservas.map(reserva => reserva.implementoId);
-    const implementosReservados = await Implemento.find({ _id: { $in: implementosIds } });
+    const reservas = await Reserva.find({ userId, implementoId: { $exists: true }, estado: 'activo' }).populate('implementoId');
+    const implementosReservados = reservas.map(reserva => ({
+      implemento: reserva.implementoId.nombre,
+      fechaInicio: reserva.fechaInicio,
+      fechaFin: reserva.fechaFin
+    }));
     return implementosReservados;
   } catch (error) {
     throw new Error('Error al obtener implementos reservados por usuario: ' + error.message);
@@ -483,14 +486,18 @@ async function getImplementosReservadosByUser(userId) {
 // obtener una instalación reservada por usuario
 async function getInstalacionesReservadasByUser(userId) {
   try {
-    const reservas = await Reserva.find({ userId, instalacionId: { $exists: true }, estado: 'activo' });
-    const instalacionesIds = reservas.map(reserva => reserva.instalacionId);
-    const instalacionesReservadas = await Instalacion.find({ _id: { $in: instalacionesIds } });
+    const reservas = await Reserva.find({ userId, instalacionId: { $exists: true }, estado: 'activo' }).populate('instalacionId');
+    const instalacionesReservadas = reservas.map(reserva => ({
+      instalacion: reserva.instalacionId.nombre,
+      fechaInicio: reserva.fechaInicio,
+      fechaFin: reserva.fechaFin
+    }));
     return instalacionesReservadas;
   } catch (error) {
     throw new Error('Error al obtener instalaciones reservadas por usuario: ' + error.message);
   }
 }
+
 
 async function getHistorialReservas() {
   try {
