@@ -2,6 +2,8 @@
 
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import { handleError } from "../utils/errorHandler.js";
+import jwt from "jsonwebtoken";
+import { ACCESS_JWT_SECRET } from "../config/configEnv.js";
 
 /** Servicios de autenticación */
 import AuthService from "../services/auth.service.js";
@@ -84,8 +86,30 @@ async function refresh(req, res) {
   }
 }
 
+/**
+ * Verifica el token JWT para comprobar su contenido.
+ * @param {Object} req - Objeto de petición
+ * @param {Object} res - Objeto de respuesta
+ */
+function verificarToken(req, res) {
+  try {
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+    if (!authHeader?.startsWith("Bearer ")) {
+      return respondError(req, res, 401, "No autorizado", "No hay token válido");
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(token, ACCESS_JWT_SECRET);
+    return respondSuccess(req, res, 200, "Token válido", decoded);
+  } catch (error) {
+    return respondError(req, res, 403, "No autorizado", "Token inválido", error.message);
+  }
+}
+
 export default {
   login,
   logout,
   refresh,
+  verificarToken,
 };

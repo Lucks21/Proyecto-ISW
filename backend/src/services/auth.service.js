@@ -15,26 +15,24 @@ import { handleError } from "../utils/errorHandler.js";
  * @param {Object} user - Objeto de usuario
  */
 async function login(user) {
-
   try {
     const { email, password } = user;
 
     let userFound;
 
-    if(email.includes("@alumnos.ubiobio.cl")) {
-      userFound = await Alumno.findOne({email : email})
-      .populate("roles")
-      .exec();      
-    }else{
+    if (email.includes("@alumnos.ubiobio.cl")) {
+      userFound = await Alumno.findOne({ email: email })
+        .populate("roles")
+        .exec();      
+    } else {
       userFound = await User.findOne({ email: email })
-      .populate("roles")
-      .exec();
+        .populate("roles")
+        .exec();
     }
 
     if (!userFound) {
       return [null, null, "usuario"];
     }
-
 
     const matchPassword = await User.comparePassword(
       password,
@@ -51,8 +49,11 @@ async function login(user) {
     // Obtener los nombres de los roles
     const roles = userFound.roles.map(role => role.name);
 
+    // Verifica que userFound._id esté presente
+    console.log(`ID del usuario encontrado: ${userFound._id}`);
+
     const accessToken = jwt.sign(
-      { email: userFound.email, roles: roles },
+      { id: userFound._id.toString(), email: userFound.email, roles: roles },
       ACCESS_JWT_SECRET,
       {
         expiresIn: "1d",
@@ -60,7 +61,7 @@ async function login(user) {
     );
 
     const refreshToken = jwt.sign(
-      { email: userFound.email },
+      { id: userFound._id.toString(), email: userFound.email },
       REFRESH_JWT_SECRET,
       {
         expiresIn: "7d", // 7 días
@@ -69,7 +70,7 @@ async function login(user) {
 
     return [accessToken, refreshToken, null];
   } catch (error) {
-    console.log({error});
+    console.log({ error });
     handleError(error, "auth.service -> signIn");
     return [null, null, "Error en el servidor"];
   }
@@ -107,7 +108,7 @@ async function refresh(cookies) {
         const roles = userFound.roles.map(role => role.name);
 
         const newAccessToken = jwt.sign(
-          { email: userFound.email, roles: roles },
+          { id: userFound._id.toString(), email: userFound.email, roles: roles },
           ACCESS_JWT_SECRET,
           {
             expiresIn: "1d",
