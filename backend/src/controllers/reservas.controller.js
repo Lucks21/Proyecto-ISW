@@ -4,7 +4,9 @@ import { validarReservaImplemento,validarReservaInstalacion, validarCancelarRese
 import {CRON_SECRET} from "../config/configEnv.js"
 import User from "../models/user.model.js"
 import Alumno from "../models/alumno.model.js"
-
+import Implemento from "../models/implementos.model.js";
+import Instalacion from "../models/Instalacion.model.js";
+import sendEmail from '../services/email.services.js';
 async function registrarReservaImplemento(req, res) {
   const { error } = validarReservaImplemento.validate(req.body);
   if (error) {
@@ -16,6 +18,14 @@ async function registrarReservaImplemento(req, res) {
     const resultado = await ReservaServices.registrarReservaImplemento(implementoId, fechaInicio, fechaFin, userId);
     if (resultado.error) {
       return respondError(req, res, 400, resultado.error);
+    }
+
+    const implemento = await Implemento.findById(implementoId);
+    const alumno = await Alumno.findById(userId);
+    if (implemento && alumno) {
+      const subject = "Confirmación de Reserva de Implemento";
+      const text = `Estimado(a) ${alumno.nombre},\n\nSu reserva del implemento "${implemento.nombre}" ha sido confirmada.\n\nDetalles de la reserva:\n- Fecha de inicio: ${fechaInicio.fecha} ${fechaInicio.hora}\n- Fecha de fin: ${fechaFin.fecha} ${fechaFin.hora}\n\nGracias.`;
+      await sendEmail(alumno.email, subject, text);
     }
     respondSuccess(req, res, 200, resultado.message);
   } catch (error) {
@@ -34,6 +44,13 @@ async function registrarReservaInstalacion(req, res) {
     const resultado = await ReservaServices.registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin, userId);
     if (resultado.error) {
       return respondError(req, res, 400, resultado.error);
+    }
+    const instalacion = await Instalacion.findById(instalacionId);
+    const alumno = await Alumno.findById(userId);
+    if (instalacion && alumno) {
+      const subject = "Confirmación de Reserva de Instalación";
+      const text = `Estimado(a) ${alumno.nombre},\n\nSu reserva de la instalación "${instalacion.nombre}" ha sido confirmada.\n\nDetalles de la reserva:\n- Fecha de inicio: ${fechaInicio.fecha} ${fechaInicio.hora}\n- Fecha de fin: ${fechaFin.fecha} ${fechaFin.hora}\n\nGracias.`;
+      await sendEmail(alumno.email, subject, text);
     }
     respondSuccess(req, res, 200, resultado.message);
   } catch (error) {
