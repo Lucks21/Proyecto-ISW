@@ -4,7 +4,10 @@ import bcrypt from 'bcryptjs';
 const alumnoSchema = new mongoose.Schema({
   nombre: {
     type: String,
-    required: true
+    required: [true, 'El nombre es obligatorio'],
+    trim: true,// esto es para eliminar los espacios en blanco al principio y al final
+    minlength: [3, 'El nombre debe tener al menos 3 caracteres'],
+    maxlength: [50, 'El nombre no puede exceder los 50 caracteres']
   },
   rut: {
     type: String,
@@ -14,11 +17,13 @@ const alumnoSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    trim: true
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    minlength: [9, 'La contraseña debe tener al menos 9 caracteres']
   },
   roles: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -35,20 +40,6 @@ const alumnoSchema = new mongoose.Schema({
 alumnoSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
-
-// Middleware para hashear la password antes de guardar
-/*alumnoSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
-}); */
 
 const Alumno = mongoose.model('Alumno', alumnoSchema);
 export default Alumno;
