@@ -375,8 +375,37 @@ async function getAllReservasActivos() {
 // Servicio para obtener todas las reservas de un usuario
 async function getAllReservasByUser(userId) {
   try {
-    const reservas = await Reserva.find({ userId, estado: 'activo' });
-    return [reservas, null];
+    const reservas = await Reserva.find({ userId, estado: 'activo' })
+      .populate('implementoId')
+      .populate('instalacionId');
+
+    const resultados = reservas.map(reserva => {
+      const reservaObj = {
+        _id: reserva._id,
+        userId: reserva.userId,
+        fechaInicio: reserva.fechaInicio,
+        fechaFin: reserva.fechaFin,
+        estado: reserva.estado
+      };
+
+      if (reserva.implementoId) {
+        reservaObj.implemento = {
+          _id: reserva.implementoId._id,
+          nombre: reserva.implementoId.nombre
+        };
+      }
+
+      if (reserva.instalacionId) {
+        reservaObj.instalacion = {
+          _id: reserva.instalacionId._id,
+          nombre: reserva.instalacionId.nombre
+        };
+      }
+
+      return reservaObj;
+    });
+
+    return [resultados, null];
   } catch (error) {
     console.error("Error en getAllReservasByUser: ", error);
     return [null, "Error interno del servidor."];
