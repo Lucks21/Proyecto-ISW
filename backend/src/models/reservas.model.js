@@ -7,7 +7,7 @@ const reservaSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true, // esto indica que el campo es obligatorio
+      required: [true, 'El ID del usuario es obligatorio'],
     },
     implementoId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -21,7 +21,7 @@ const reservaSchema = new mongoose.Schema(
     },
     fechaInicio: {
       type: Date,
-      required: true,
+      required: [true, 'La fecha de inicio es obligatoria'],
     },
     fechaFin: {
       type: Date,
