@@ -17,7 +17,7 @@ const router = express.Router();
 router.post('/crear', authenticationMiddleware, isEncargado, crearInstalacionController);
 router.get('/obtener', authenticationMiddleware, obtenerInstalacionesController);
 router.get('/obtener/:id', authenticationMiddleware, isEncargado, obtenerInstalacionPorIdController);
-router.put('/actualizar/:id', authenticationMiddleware, isEncargado, actualizarInstalacionController);
+router.put('/actualizarTodo/:id', authenticationMiddleware, isEncargado, actualizarInstalacionController);
 router.patch('/actualizarParcial/:id', authenticationMiddleware, isEncargado, actualizarInstalacionParcialController); 
 router.delete('/eliminar/:id', authenticationMiddleware, isEncargado, eliminarInstalacionController);
 router.get('/obtenerByNombre/:nombre', authenticationMiddleware, isEncargado, obtenerInstalacionPorNombreController);
