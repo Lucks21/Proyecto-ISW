@@ -121,10 +121,14 @@ export const crearImplemento = async (datosImplemento) => {
   }
 };
 
-// Servicio para obtener todos los implementos
 export const obtenerImplementos = async () => {
-  const implementos = await Implemento.find();
-  return { message: 'Implementos obtenidos con éxito.', data: implementos };
+  try {
+    const implementos = await Implemento.find();
+    return implementos;
+  } catch (error) {
+    console.error('Error al obtener implementos:', error);
+    throw error;
+  }
 };
 
 // Servicio para obtener un implemento por ID
@@ -217,7 +221,7 @@ export const actualizarImplementoParcial = async (id, datosActualizados) => {
     }
   }
 
-  // Normalizar la fecha
+  // Normalizar la fecha si está presente
   if (datosActualizados.fechaAdquisicion) {
     datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
   }
@@ -245,7 +249,14 @@ export const actualizarImplementoParcial = async (id, datosActualizados) => {
     }
   }
 
-  Object.assign(implementoActual, datosActualizados);
+  // Actualizar solo los campos presentes en datosActualizados
+  Object.keys(datosActualizados).forEach((key) => {
+    if (datosActualizados[key] !== undefined) {
+      implementoActual[key] = datosActualizados[key];
+    }
+  });
+
+  // Agregar las modificaciones al historial
   implementoActual.historialModificaciones.push(...modificaciones);
 
   await implementoActual.save();
