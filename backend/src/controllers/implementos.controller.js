@@ -41,7 +41,7 @@ export const obtenerImplementosController = async (req, res) => {
   try {
     const resultado = await obtenerImplementos();
     const resultadoFormateado = resultado.map(implemento => ({
-      ...implemento,
+      ...implemento._doc,
       fechaAdquisicion: formatearFecha(implemento.fechaAdquisicion)
     }));
     res.status(200).json(resultadoFormateado);
@@ -89,9 +89,7 @@ export const actualizarImplementoParcialController = async (req, res) => {
     }
     
     const resultado = await actualizarImplementoParcial(id, req.body);
-    if (resultado.fechaAdquisicion) {
-      resultado.fechaAdquisicion = formatearFecha(resultado.fechaAdquisicion);
-    }
+    resultado.fechaAdquisicion = formatearFecha(resultado.fechaAdquisicion);
     res.status(200).json(resultado);
   } catch (error) {
     console.error(`Error al actualizar parcialmente el implemento con ID ${req.params.id}:`, error);
@@ -119,7 +117,7 @@ export const obtenerHistorialImplementoController = async (req, res) => {
   try {
     const resultado = await obtenerHistorialImplemento(req.params.id);
     const resultadoFormateado = resultado.map(historial => ({
-      ...historial,
+      ...historial._doc,
       fechaModificacion: formatearFecha(historial.fechaModificacion)
     }));
     res.status(200).json(resultadoFormateado);
