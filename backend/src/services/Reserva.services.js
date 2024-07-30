@@ -299,6 +299,11 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
       return { error: 'Reserva no encontrada.' };
     }
 
+    // Verificar si la reserva ya ha sido extendida
+    if (reserva.extendida) {
+      return { error: 'La reserva ya ha sido extendida una vez y no puede ser extendida nuevamente.' };
+    }
+
     let ahora = new Date();
     ahora = subHours(ahora, 4); // Ajustar la hora actual restando 4 horas para coincidir con la hora local de Chile (UTC-4)
 
@@ -310,19 +315,35 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
     }
 
     // Verificar disponibilidad de la nueva hora solicitada
-    const reservasExistentes = await Reserva.find({
-      implementoId: reserva.implementoId,
-      estado: 'activo',
-      $or: [
-        { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: reserva.fechaFin } }
-      ]
-    });
+    let reservasExistentes;
+    if (reserva.implementoId) {
+      reservasExistentes = await Reserva.find({
+        implementoId: reserva.implementoId,
+        estado: 'activo',
+        $or: [
+          { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: reserva.fechaFin } }
+        ]
+      });
+    } else if (reserva.instalacionId) {
+      reservasExistentes = await Reserva.find({
+        instalacionId: reserva.instalacionId,
+        estado: 'activo',
+        $or: [
+          { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: reserva.fechaFin } }
+        ]
+      });
+    }
 
-    if (reservasExistentes.length > 0) {
+    if (reservasExistentes && reservasExistentes.length > 0) {
       return { error: 'La hora solicitada ya está reservada.' };
     }
 
-    reserva.fechaFin = fechaFinNormalizada;
+    // Ajustar las fechas restando las horas necesarias para coincidir con la hora local de Chile (UTC-4)
+    const fechaInicioNormalizada = subHours(reserva.fechaInicio, 4);
+    const fechaFinNormalizadaAjustada = subHours(fechaFinNormalizada, 4);
+
+    reserva.fechaFin = fechaFinNormalizadaAjustada;
+    reserva.extendida = true; // Marcar la reserva como extendida
     await reserva.save();
     return { message: 'Reserva extendida con éxito.' };
   } catch (error) {
