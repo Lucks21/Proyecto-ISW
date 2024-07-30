@@ -6,15 +6,19 @@ const { Schema } = mongoose;
 const HistorialModificacionesSchema = new Schema({
   fecha: {
     type: String,
+    required: true,
   },
   campo: {
     type: String,
+    required: true,
   },
   valorAnterior: {
     type: mongoose.Schema.Types.Mixed,
+    required: true,
   },
   valorNuevo: {
     type: mongoose.Schema.Types.Mixed,
+    required: true,
   },
   motivo: {
     type: String,
@@ -28,32 +32,37 @@ const ImplementoSchema = new Schema({
     required: true,
     unique: true,
     trim: true,
+    minlength: [3, 'El nombre debe tener al menos 3 caracteres'],
+    maxlength: [50, 'El nombre no puede exceder los 50 caracteres']
   },
   descripcion: {
     type: String,
     trim: true,
+    maxlength: [100, 'La descripción no puede exceder los 100 caracteres']
   },
   cantidad: {
     type: Number,
     required: true,
+    min: [1, 'La cantidad debe ser al menos 1']
   },
   fechaAdquisicion: {
     type: Date,
-    required: function() {
-      return this.isNew || this.isModified('fechaAdquisicion');
-    },
+    required: [true, 'La fecha de adquisición es obligatoria'],
   },
   horarioDisponibilidad: {
     type: [{
       dia: {
         type: String,
-        trim: true,
+        required: [true, 'El día es obligatorio'],
+        trim: true
       },
       inicio: {
         type: String,
+        required: [true, 'La hora de inicio es obligatoria'],
       },
       fin: {
         type: String,
+        required: [true, 'La hora de fin es obligatoria'],
       }
     }],
     default: []
