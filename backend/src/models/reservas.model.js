@@ -34,10 +34,6 @@ const reservaSchema = new mongoose.Schema(
       enum: ["activo", "no activo"],
       default: "activo",
     },
-    extendida: {
-      type: Boolean,
-      default: false,
-    },
   },
   {
     timestamps: false,
