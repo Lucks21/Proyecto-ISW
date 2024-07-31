@@ -4,6 +4,7 @@ import { HiOutlinePuzzle, HiOutlineOfficeBuilding, HiOutlineCalendar, HiOutlineQ
 import { getAllImplementos } from '../services/implementos.services';
 import { getAllInstalaciones } from '../services/instalaciones.service';
 import { reservar } from '../services/reservas.service';
+import { solicitarNotificacion } from '../services/notificacion.services';
 import HoursCardImp from '../components/HoursCardImp';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -34,15 +35,27 @@ export default function Reservar() {
       await reservar(reservaData, item);
       toast.success("Reserva realizada con éxito");
     } catch (error) {
-      //toast.error("Hubo un error realizando la reserva");
+      toast.error("Hubo un error realizando la reserva");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSolicitud = (item) => {
-    toast.info(`Solicitud enviada para ${item.nombre}`);
-    // Aquí puedes agregar la lógica para manejar la solicitud, como enviar un correo o notificar al administrador.
+  const handleSolicitud = async (item, tipo) => {
+    setIsLoading(true);
+    try {
+      const solicitudData = {
+        recursoId: item._id,
+        recursoTipo: tipo,
+        userId: user.id
+      };
+      await solicitarNotificacion(solicitudData);
+      toast.success(`Solicitud enviada para ${item.nombre}`);
+    } catch (error) {
+      toast.error("Hubo un error realizando la solicitud");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const popOverContent = (
@@ -99,7 +112,7 @@ export default function Reservar() {
                               <HiOutlineCalendar />
                             </button>
                           ) : (
-                            <button className="bg-orange-200 rounded-full p-2 hover:bg-orange-400" title="solicitud" onClick={() => handleSolicitud(imp)}>
+                            <button className="bg-orange-200 rounded-full p-2 hover:bg-orange-400" title="solicitud" onClick={() => handleSolicitud(imp, 'implemento')}>
                               Solicitud
                             </button>
                           )}
@@ -143,7 +156,7 @@ export default function Reservar() {
                               <HiOutlineCalendar />
                             </button>
                           ) : (
-                            <button className="bg-orange-200 rounded-full p-2 hover:bg-orange-400" title="solicitud" onClick={() => handleSolicitud(ins)}>
+                            <button className="bg-orange-200 rounded-full p-2 hover:bg-orange-400" title="solicitud" onClick={() => handleSolicitud(ins, 'instalacion')}>
                               Solicitud
                             </button>
                           )}
