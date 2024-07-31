@@ -112,7 +112,7 @@ export default function Reservar() {
                               <HiOutlineCalendar />
                             </button>
                           ) : (
-                            <button className="bg-orange-200 rounded-full p-2 hover:bg-orange-400" title="solicitud" onClick={() => handleSolicitud(imp, 'implemento')}>
+                            <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2" title="solicitud" onClick={() => handleSolicitud(imp, 'implemento')}>
                               Solicitud
                             </button>
                           )}
@@ -156,7 +156,7 @@ export default function Reservar() {
                               <HiOutlineCalendar />
                             </button>
                           ) : (
-                            <button className="bg-orange-200 rounded-full p-2 hover:bg-orange-400" title="solicitud" onClick={() => handleSolicitud(ins, 'instalacion')}>
+                            <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2" title="solicitud" onClick={() => handleSolicitud(ins, 'instalacion')}>
                               Solicitud
                             </button>
                           )}
