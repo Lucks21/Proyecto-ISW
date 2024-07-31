@@ -97,25 +97,27 @@ export default function Reservar() {
                 <ul className="divide-y divide-gray-200">
                   {implementos.map((imp) => (
                     <li className={`py-3 sm:px-4 rounded-md ${imp._id === currentImp?._id ? 'bg-emerald-100' : ''}`} key={imp._id}>
-                      <div className="flex items-center gap-6">
-                        <div className="flex-1 min-w-0 ms-4">
-                          <p className="text-sm font-medium text-gray-900 truncate capitalize">{imp.nombre}</p>
-                          <p className="text-sm text-gray-500 truncate">{imp.descripcion}</p>
-                        </div>
-                        <div className="flex flex-col gap-2 items-center text-base font-semibold text-gray-900 ">
-                          <span className="text-sm font-medium text-gray-900 truncate capitalize">Cantidad: {imp.cantidad}</span>
-                          <span className={`text-xs font-medium me-2 px-2.5 py-0.5 rounded ${imp.estado === 'disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{imp.estado}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {imp.estado === 'disponible' ? (
-                            <button className="bg-blue-200 rounded-full p-2 hover:bg-blue-400" title="reservar" onClick={() => setCurrentImpl(imp)}>
-                              <HiOutlineCalendar />
-                            </button>
-                          ) : (
-                            <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2" title="solicitud" onClick={() => handleSolicitud(imp, 'implemento')}>
-                              Solicitud
-                            </button>
-                          )}
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate capitalize">{imp.nombre}</p>
+                            <p className="text-sm text-gray-500 whitespace-normal">{imp.descripcion}</p>
+                          </div>
+                          <div className="flex flex-col gap-2 items-center text-base font-semibold text-gray-900">
+                            <span className="text-sm font-medium text-gray-900 truncate capitalize">Cantidad: {imp.cantidad}</span>
+                            <span className={`text-xs font-medium me-2 px-2.5 py-0.5 rounded ${imp.estado === 'disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{imp.estado}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {imp.estado === 'disponible' ? (
+                              <button className="bg-blue-200 rounded-full p-2 hover:bg-blue-400" title="reservar" onClick={() => setCurrentImpl(imp)}>
+                                <HiOutlineCalendar />
+                              </button>
+                            ) : (
+                              <button className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-800" title="solicitud" onClick={() => handleSolicitud(imp, 'implemento')}>
+                                Solicitud
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </li>
@@ -141,25 +143,27 @@ export default function Reservar() {
                 <ul className="divide-y divide-gray-200">
                   {instalaciones.map((ins) => (
                     <li className={`py-3 sm:px-4 rounded-md ${ins._id === currentInst?._id ? 'bg-emerald-100' : ''}`} key={ins._id}>
-                      <div className="flex items-center gap-6">
-                        <div className="flex-1 min-w-0 ms-4">
-                          <p className="text-sm font-medium text-gray-900 truncate capitalize">{ins.nombre}</p>
-                          <p className="text-sm text-gray-500 truncate">{ins.descripcion}</p>
-                        </div>
-                        <div className="flex flex-col gap-2 items-center text-base font-semibold text-gray-900 ">
-                          <span className="text-sm font-medium text-gray-900 truncate capitalize">Capacidad: {ins.capacidad}</span>
-                          <span className={`text-xs font-medium me-2 px-2.5 py-0.5 rounded ${ins.estado === 'disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{ins.estado}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {ins.estado === 'disponible' ? (
-                            <button className="bg-blue-200 rounded-full p-2 hover:bg-blue-400" title="reservar" onClick={() => setCurrentInst(ins)}>
-                              <HiOutlineCalendar />
-                            </button>
-                          ) : (
-                            <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2" title="solicitud" onClick={() => handleSolicitud(ins, 'instalacion')}>
-                              Solicitud
-                            </button>
-                          )}
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate capitalize">{ins.nombre}</p>
+                            <p className="text-sm text-gray-500 whitespace-normal">{ins.descripcion}</p>
+                          </div>
+                          <div className="flex flex-col gap-2 items-center text-base font-semibold text-gray-900">
+                            <span className="text-sm font-medium text-gray-900 truncate capitalize">Capacidad: {ins.capacidad}</span>
+                            <span className={`text-xs font-medium me-2 px-2.5 py-0.5 rounded ${ins.estado === 'disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{ins.estado}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {ins.estado === 'disponible' ? (
+                              <button className="bg-blue-200 rounded-full p-2 hover:bg-blue-400" title="reservar" onClick={() => setCurrentInst(ins)}>
+                                <HiOutlineCalendar />
+                              </button>
+                            ) : (
+                              <button className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-800" title="solicitud" onClick={() => handleSolicitud(ins, 'instalacion')}>
+                                Solicitud
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </li>
