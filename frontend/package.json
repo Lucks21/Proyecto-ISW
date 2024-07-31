@@ -10,22 +10,45 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.0",
+    "@emotion/styled": "^11.13.0",
+    "@heroicons/react": "^1.0.6",
+    "@hookform/resolvers": "^3.9.0",
+    "@mui/material": "^5.16.5",
     "axios": "^1.5.1",
+    "date-fns": "^3.6.0",
+    "flowbite-react": "^0.10.1",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^3.1.2",
+    "moment": "^2.30.1",
     "react": "^18.2.0",
+    "react-calendar": "^5.0.0",
+    "react-clock": "^5.0.0",
+    "react-datepicker": "^7.3.0",
+    "react-datetime-picker": "^6.0.1",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.47.0",
-    "react-router-dom": "^6.17.0"
+    "react-hook-form": "^7.52.1",
+    "react-icons": "^5.2.1",
+    "react-loader-spinner": "^6.1.6",
+    "react-router-dom": "^6.17.0",
+    "react-time-picker": "^7.0.0",
+    "react-toastify": "^10.0.5",
+    "react-top-loading-bar": "^2.3.1",
+    "recharts": "^2.12.7",
+    "sweetalert2": "^11.12.3",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.19",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6",
     "vite": "^4.4.5"
   }
 }

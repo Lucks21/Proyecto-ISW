@@ -1,13 +1,19 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api';
+const API_URL = 'http://localhost:3200/api';
 
 const instance = axios.create({
   baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
+});
+
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token'); // Asegúrate de que la clave coincida con la utilizada en auth.service.js
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 export default instance;

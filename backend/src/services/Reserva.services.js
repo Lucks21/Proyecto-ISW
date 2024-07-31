@@ -303,16 +303,18 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
       reservasExistentes = await Reserva.find({
         implementoId: reserva.implementoId,
         estado: 'activo',
-        $or: [
-          { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: reserva.fechaFin } }
+        $and: [
+          { fechaInicio: { $lt: fechaFinNormalizada } },
+          { fechaFin: { $gt: reserva.fechaInicio } }
         ]
       });
     } else if (reserva.instalacionId) {
       reservasExistentes = await Reserva.find({
         instalacionId: reserva.instalacionId,
         estado: 'activo',
-        $or: [
-          { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: reserva.fechaFin } }
+        $and: [
+          { fechaInicio: { $lt: fechaFinNormalizada } },
+          { fechaFin: { $gt: reserva.fechaInicio } }
         ]
       });
     }

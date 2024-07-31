@@ -1,0 +1,16 @@
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+const AlumnoRoute = ({ children }) => {
+  const { user, isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" />;
+  }
+  if (user.roles.every((role) => role !== "alumno")) {
+    return <Navigate to="/" />;
+  }
+  return children;
+};
+
+export default AlumnoRoute;
