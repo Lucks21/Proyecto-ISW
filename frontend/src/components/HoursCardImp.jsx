@@ -1,4 +1,4 @@
-import { generateHourlyIntervals } from "../utils/hoursIntervals";
+import React from 'react';
 import { useEffect, useState } from "react";
 import { Datepicker, Toast } from "flowbite-react";
 import { reservar, getReservasActivas } from "../services/reservas.service";
@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { TailSpin } from "react-loader-spinner";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { generateHourlyIntervals } from "../utils/hoursIntervals";
 
 export default function HoursCard({ imp }) {
   const [hoursIntervalsDays, setHoursIntervalsDays] = useState([]);

@@ -40,6 +40,11 @@ export default function Reservar() {
     }
   };
 
+  const handleSolicitud = (item) => {
+    toast.info(`Solicitud enviada para ${item.nombre}`);
+    // Aquí puedes agregar la lógica para manejar la solicitud, como enviar un correo o notificar al administrador.
+  };
+
   const popOverContent = (
     <div className="w-64 text-sm text-gray-500 dark:text-gray-400">
       <div className="border-b border-gray-200 bg-gray-100 px-3 py-2 dark:border-gray-600 dark:bg-gray-700">
@@ -78,7 +83,7 @@ export default function Reservar() {
               <div className="flow-root">
                 <ul className="divide-y divide-gray-200">
                   {implementos.map((imp) => (
-                    <li className={`py-3 sm:px-4 rounded-md ${imp._id === currentImp._id ? 'bg-emerald-100' : ''}`} key={imp._id}>
+                    <li className={`py-3 sm:px-4 rounded-md ${imp._id === currentImp?._id ? 'bg-emerald-100' : ''}`} key={imp._id}>
                       <div className="flex items-center gap-6">
                         <div className="flex-1 min-w-0 ms-4">
                           <p className="text-sm font-medium text-gray-900 truncate capitalize">{imp.nombre}</p>
@@ -88,10 +93,14 @@ export default function Reservar() {
                           <span className="text-sm font-medium text-gray-900 truncate capitalize">Cantidad: {imp.cantidad}</span>
                           <span className={`text-xs font-medium me-2 px-2.5 py-0.5 rounded ${imp.estado === 'disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{imp.estado}</span>
                         </div>
-                        <div>
-                          {imp.estado === 'disponible' && (
+                        <div className="flex items-center gap-2">
+                          {imp.estado === 'disponible' ? (
                             <button className="bg-blue-200 rounded-full p-2 hover:bg-blue-400" title="reservar" onClick={() => setCurrentImpl(imp)}>
                               <HiOutlineCalendar />
+                            </button>
+                          ) : (
+                            <button className="bg-orange-200 rounded-full p-2 hover:bg-orange-400" title="solicitud" onClick={() => handleSolicitud(imp)}>
+                              Solicitud
                             </button>
                           )}
                         </div>
@@ -118,7 +127,7 @@ export default function Reservar() {
               <div className="flow-root">
                 <ul className="divide-y divide-gray-200">
                   {instalaciones.map((ins) => (
-                    <li className={`py-3 sm:px-4 rounded-md ${ins._id === currentInst._id ? 'bg-emerald-100' : ''}`} key={ins._id}>
+                    <li className={`py-3 sm:px-4 rounded-md ${ins._id === currentInst?._id ? 'bg-emerald-100' : ''}`} key={ins._id}>
                       <div className="flex items-center gap-6">
                         <div className="flex-1 min-w-0 ms-4">
                           <p className="text-sm font-medium text-gray-900 truncate capitalize">{ins.nombre}</p>
@@ -128,10 +137,14 @@ export default function Reservar() {
                           <span className="text-sm font-medium text-gray-900 truncate capitalize">Capacidad: {ins.capacidad}</span>
                           <span className={`text-xs font-medium me-2 px-2.5 py-0.5 rounded ${ins.estado === 'disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{ins.estado}</span>
                         </div>
-                        <div>
-                          {ins.estado === 'disponible' && (
+                        <div className="flex items-center gap-2">
+                          {ins.estado === 'disponible' ? (
                             <button className="bg-blue-200 rounded-full p-2 hover:bg-blue-400" title="reservar" onClick={() => setCurrentInst(ins)}>
                               <HiOutlineCalendar />
+                            </button>
+                          ) : (
+                            <button className="bg-orange-200 rounded-full p-2 hover:bg-orange-400" title="solicitud" onClick={() => handleSolicitud(ins)}>
+                              Solicitud
                             </button>
                           )}
                         </div>
