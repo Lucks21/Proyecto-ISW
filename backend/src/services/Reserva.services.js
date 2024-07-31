@@ -551,34 +551,15 @@ async function getImplementosReservados() {
   }
 }
 
-
 // obtener las instalaciones reservadas
 async function getInstalacionesReservadas() {
   try {
-    const reservas = await Reserva.find({ instalacionId: { $exists: true }, estado: 'activo' })
-      .populate({
-        path: 'userId',
-        select: 'nombre',
-        model: 'Alumno'
-      })
-      .populate('instalacionId', 'nombre');
-
-    const instalacionesReservadas = reservas.map(reserva => ({
-      _id: reserva._id,
-      usuario: reserva.userId ? reserva.userId.nombre : null,
-      instalacion: reserva.instalacionId ? reserva.instalacionId.nombre : null,
-      fechaInicio: reserva.fechaInicio,
-      fechaFin: reserva.fechaFin,
-      estado: reserva.estado,
-      extendida: reserva.extendida
-    }));
-
+    const instalacionesReservadas = await Instalacion.find({ estado: 'no disponible' });
     return instalacionesReservadas;
   } catch (error) {
     throw new Error('Error al obtener instalaciones reservadas: ' + error.message);
   }
 }
-
 
 // implemento reservado por usuario
 async function getImplementosReservadosByUser(userId) {
@@ -587,16 +568,26 @@ async function getImplementosReservadosByUser(userId) {
       .populate('implementoId')
       .sort({ fechaInicio: 1 });
 
-    const implementosReservados = reservas.map(reserva => ({
-      implemento: reserva.implementoId.nombre,
-      fechaInicio: reserva.fechaInicio,
-      fechaFin: reserva.fechaFin
-    }));
+    const implementosReservados = reservas.map(reserva => {
+      // Verificar si implementoId no es null antes de acceder a su nombre
+      if (reserva.implementoId) {
+        return {
+          implemento: reserva.implementoId.nombre,
+          fechaInicio: reserva.fechaInicio,
+          fechaFin: reserva.fechaFin
+        };
+      } else {
+        console.warn(`La reserva con ID ${reserva._id} no tiene un implemento asociado.`);
+        return null;
+      }
+    }).filter(reserva => reserva !== null); // Filtrar cualquier reserva que sea null
+
     return implementosReservados;
   } catch (error) {
     throw new Error('Error al obtener implementos reservados por usuario: ' + error.message);
   }
 }
+
 
 
 // obtener una instalación reservada por usuario
@@ -606,11 +597,19 @@ async function getInstalacionesReservadasByUser(userId) {
       .populate('instalacionId')
       .sort({ fechaInicio: 1 });
 
-    const instalacionesReservadas = reservas.map(reserva => ({
-      instalacion: reserva.instalacionId.nombre,
-      fechaInicio: reserva.fechaInicio,
-      fechaFin: reserva.fechaFin
-    }));
+    const instalacionesReservadas = reservas.map(reserva => {
+      if (reserva.instalacionId) {
+        return {
+          instalacion: reserva.instalacionId.nombre,
+          fechaInicio: reserva.fechaInicio,
+          fechaFin: reserva.fechaFin
+        };
+      } else {
+        console.warn(`La reserva con ID ${reserva._id} no tiene una instalación asociada.`);
+        return null;
+      }
+    }).filter(reserva => reserva !== null);
+
     return instalacionesReservadas;
   } catch (error) {
     throw new Error('Error al obtener instalaciones reservadas por usuario: ' + error.message);
