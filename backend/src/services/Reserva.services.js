@@ -213,6 +213,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
       return { error: 'La duración de la reserva debe ser de hasta 1 hora.' };
     }
 
+    // Verificar si ya existe una reserva en el mismo horario para la misma instalación
     const reservasExistentes = await Reserva.find({
       instalacionId,
       estado: 'activo',
@@ -222,25 +223,7 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
     });
 
     if (reservasExistentes.length > 0) {
-      return { error: 'La hora solicitada ya está reservada.' };
-    }
-
-    const reservasUsuario = await Reserva.find({
-      userId,
-      instalacionId,
-      estado: 'activo',
-      fechaInicio: {
-        $gte: startOfDay(fechaInicioNormalizada),
-        $lte: endOfDay(fechaInicioNormalizada)
-      }
-    });
-
-    const totalHorasReservadas = reservasUsuario.reduce((total, reserva) => {
-      return total + differenceInMinutes(reserva.fechaFin, reserva.fechaInicio) / 60;
-    }, 0);
-
-    if (totalHorasReservadas >= 2) {
-      return { error: 'No puede reservar más de 2 horas por esta instalación en un solo día.' };
+      return { error: 'La hora solicitada ya está reservada para esta instalación.' };
     }
 
     // Ajustar las fechas restando las horas necesarias para coincidir con la hora local de Chile (UTC-4)
@@ -257,14 +240,14 @@ async function registrarReservaInstalacion(instalacionId, fechaInicio, fechaFin,
 
     await nuevaReserva.save();
     return {
-      message: `Reserva creada con éxito.`, data: nuevaReserva
+      message: `Reserva creada con éxito.`,
+      data: nuevaReserva
     };
   } catch (error) {
     console.error("Error en registrarReservaInstalacion: ", error);
     return { error: "Error interno del servidor." };
   }
 }
-
 
 // Servicio para cancelar una reserva
 async function cancelarReserva(reservaId) {
@@ -320,16 +303,18 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
       reservasExistentes = await Reserva.find({
         implementoId: reserva.implementoId,
         estado: 'activo',
-        $or: [
-          { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: reserva.fechaFin } }
+        $and: [
+          { fechaInicio: { $lt: fechaFinNormalizada } },
+          { fechaFin: { $gt: reserva.fechaInicio } }
         ]
       });
     } else if (reserva.instalacionId) {
       reservasExistentes = await Reserva.find({
         instalacionId: reserva.instalacionId,
         estado: 'activo',
-        $or: [
-          { fechaInicio: { $lt: fechaFinNormalizada }, fechaFin: { $gt: reserva.fechaFin } }
+        $and: [
+          { fechaInicio: { $lt: fechaFinNormalizada } },
+          { fechaFin: { $gt: reserva.fechaInicio } }
         ]
       });
     }
