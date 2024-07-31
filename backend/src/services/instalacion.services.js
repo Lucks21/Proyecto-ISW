@@ -178,7 +178,6 @@ export const actualizarInstalacion = async (id, datosActualizados) => {
   return { message: 'Instalación actualizada con éxito.', data: instalacionActual };
 };
 
-// Servicio para actualizar una instalación parcialmente
 export const actualizarInstalacionParcial = async (id, datosActualizados) => {
   const instalacionActual = await Instalacion.findById(id);
   if (!instalacionActual) {
@@ -217,10 +216,13 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
         campo: clave,
         valorAnterior: instalacionActual[clave] !== undefined ? instalacionActual[clave] : 'N/A',
         valorNuevo: datosActualizados[clave],
-        fecha: format(new Date(), 'dd-MM-yyyy')
+        fecha: moment().format('DD-MM-YYYY')
       });
     }
   }
+
+  // Log para verificar los datos antes de asignar
+  console.log('Datos actualizados antes de asignar:', datosActualizados);
 
   Object.assign(instalacionActual, datosActualizados);
   instalacionActual.historialModificaciones.push(...modificaciones);

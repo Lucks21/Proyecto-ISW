@@ -1,4 +1,3 @@
-
 import { 
   obtenerInstalacionPorNombre,
   crearInstalacion, 
@@ -77,7 +76,6 @@ export const actualizarInstalacionController = async (req, res) => {
   }
 };
 
-// Controlador para actualizar una instalación parcialmente
 export const actualizarInstalacionParcialController = async (req, res) => {
   const { id } = req.params;
   const { error: idError } = idSchema.validate(id);
@@ -91,7 +89,9 @@ export const actualizarInstalacionParcialController = async (req, res) => {
   }
 
   try {
+    console.log('Recibiendo datos en el backend:', req.body);
     const resultado = await actualizarInstalacionParcial(id, req.body);
+    console.log('Datos después de la actualización:', resultado.data);
     res.status(200).json(resultado);
   } catch (error) {
     res.status(404).json({ message: error.message || 'Error al actualizar parcialmente la instalación.' });
