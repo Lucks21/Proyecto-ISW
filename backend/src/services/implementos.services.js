@@ -27,9 +27,14 @@ const actualizarEstadoImplemento = async (id) => {
 // Función para validar horarios de disponibilidad
 const validarHorarios = (horarioDisponibilidad) => {
   const horariosPorDia = {};
+  const diasValidos = ['lunes', 'martes', 'miércoles', 'miercoles', 'jueves', 'viernes'];
 
   horarioDisponibilidad.forEach(item => {
     item.dia = normalizarTexto(item.dia); // Normalizar el día a minúsculas
+
+    if (!diasValidos.includes(item.dia)) {
+      throw new Error(`El día debe ser uno de los siguientes: ${diasValidos.join(', ')}.`);
+    }
 
     if (!horariosPorDia[item.dia]) {
       horariosPorDia[item.dia] = [];
@@ -63,6 +68,7 @@ const validarHorarios = (horarioDisponibilidad) => {
     }
   }
 };
+
 
 // Función para normalizar la fecha
 const normalizarFecha = (fecha) => {
@@ -195,63 +201,45 @@ export const actualizarImplemento = async (id, datosActualizados) => {
   return { message: 'Implemento actualizado con éxito.', data: implementoActual };
 };
 
-// Servicio para actualizar parcialmente un implemento
-export const actualizarImplementoParcial = async (id, datosActualizados) => {
-  const implementoActual = await Implemento.findById(id);
-  if (!implementoActual) {
-    throw new Error('Implemento no encontrado.');
-  }
-
-  // Eliminar cualquier intento de modificar el historial de modificaciones
-  delete datosActualizados.historialModificaciones;
-
-  // Verificar si el nombre está siendo actualizado, normalizar y verificar unicidad
-  if (datosActualizados.nombre) {
-    datosActualizados.nombre = normalizarTexto(datosActualizados.nombre);
-
-    const implementosExistentes = await Implemento.find();
-    for (let implemento of implementosExistentes) {
-      if (esNombreSimilar(datosActualizados.nombre, implemento.nombre) && implemento._id.toString() !== id) {
-        throw new Error('El nombre del implemento es muy similar a uno existente.');
-      }
+// Servicio para actualizar un implemento parcialmente
+export const actualizarImplementoParcial = async (id, camposActualizados) => {
+  try {
+    console.log("Campos recibidos para actualizar:", camposActualizados);
+    
+    // Validar los horarios, si se proporcionan
+    if (camposActualizados.horarioDisponibilidad) {
+      validarHorarios(camposActualizados.horarioDisponibilidad);
     }
-  }
 
-  // Normalizar la fecha
-  if (datosActualizados.fechaAdquisicion) {
-    datosActualizados.fechaAdquisicion = normalizarFecha(datosActualizados.fechaAdquisicion);
-  }
+    // Obtener el implemento existente
+    const implementoExistente = await Implemento.findById(id);
 
-  // Normalizar la descripción si está presente
-  if (datosActualizados.descripcion) {
-    datosActualizados.descripcion = normalizarTexto(datosActualizados.descripcion);
-  }
-
-  // Validar que no haya días duplicados ni horarios solapados en el horario de disponibilidad
-  if (datosActualizados.horarioDisponibilidad) {
-    validarHorarios(datosActualizados.horarioDisponibilidad);
-  }
-
-  // Registrar todas las modificaciones en el historial
-  const modificaciones = [];
-  for (let clave in datosActualizados) {
-    if (datosActualizados[clave] !== implementoActual[clave]) {
-      modificaciones.push({
-        campo: clave,
-        valorAnterior: implementoActual[clave],
-        valorNuevo: datosActualizados[clave],
-        fecha: format(new Date(), 'dd-MM-yyyy'),
-      });
+    if (!implementoExistente) {
+      throw new Error('Implemento no encontrado');
     }
+
+    console.log("Implemento existente antes de la actualización:", implementoExistente);
+
+    // Actualizar solo los campos proporcionados
+    Object.keys(camposActualizados).forEach((campo) => {
+      implementoExistente[campo] = camposActualizados[campo];
+    });
+
+    console.log("Implemento después de actualizar campos:", implementoExistente);
+
+    // Guardar el implemento actualizado
+    const implementoActualizado = await implementoExistente.save();
+
+    console.log("Implemento guardado en la base de datos:", implementoActualizado);
+
+    return {
+      message: 'Implemento actualizado con éxito.',
+      data: implementoActualizado,
+    };
+  } catch (error) {
+    console.error(`Error al actualizar parcialmente el implemento con ID ${id}:`, error);
+    throw new Error(error.message || 'Error interno del servidor');
   }
-
-  Object.assign(implementoActual, datosActualizados);
-  implementoActual.historialModificaciones.push(...modificaciones);
-
-  await implementoActual.save();
-  await actualizarEstadoImplemento(implementoActual._id); // Actualizar estado después de actualizar
-
-  return { message: 'Implemento actualizado con éxito.', data: implementoActual };
 };
 
 // Servicio para eliminar un implemento
