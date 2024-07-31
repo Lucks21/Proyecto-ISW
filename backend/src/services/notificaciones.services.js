@@ -16,15 +16,15 @@ async function solicitarNotificacion(recursoId, recursoTipo, userId) {
     let recursoNombre;
     if (recursoTipo === 'implemento') {
       recurso = await Implemento.findById(recursoId);
-      recursoNombre = recurso.nombre;
     } else if (recursoTipo === 'instalacion') {
       recurso = await Instalacion.findById(recursoId);
-      recursoNombre = recurso.nombre;
     }
 
     if (!recurso) {
       return { error: `Recurso no encontrado para el tipo ${recursoTipo}.` };
     }
+    console.log(recurso)
+    recursoNombre = recurso.nombre;
 
     const nuevaNotificacion = new Notificacion({
       recursoId,

@@ -1,6 +1,7 @@
 import axios from 'axios';
 const API_URL = 'http://localhost:3200/api';
-export const solicitarNotificacion = async (recursoId, recursoTipo, userId) => {
+
+export const solicitarNotificacion = async ({recursoId, recursoTipo, userId}) => {
   try {
     const token = localStorage.getItem("accestkn");
     if (!token) return;
