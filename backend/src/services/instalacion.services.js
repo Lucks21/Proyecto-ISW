@@ -236,7 +236,11 @@ export const eliminarInstalacion = async (id) => {
   if (!instalacionEliminada) {
     throw new Error('Instalación no encontrada.');
   }
-  return { message: 'Instalación eliminada con éxito.' };
+
+  // Eliminar todas las reservas asociadas a esta instalación
+  await Reserva.deleteMany({ instalacionId: id });
+
+  return { message: 'Instalación y todas sus reservas asociadas eliminados con éxito.' };
 };
 
 // Servicio para obtener el historial de modificaciones de una instalación
