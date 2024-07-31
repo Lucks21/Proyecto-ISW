@@ -6,19 +6,19 @@ const { Schema } = mongoose;
 const HistorialModificacionesSchema = new Schema({
   fecha: {
     type: String,
-    required: true,
+
   },
   campo: {
     type: String,
-    required: true,
+    
   },
   valorAnterior: {
     type: mongoose.Schema.Types.Mixed,
-    required: true,
+    
   },
   valorNuevo: {
     type: mongoose.Schema.Types.Mixed,
-    required: true,
+    
   },
   motivo: {
     type: String,
@@ -69,8 +69,6 @@ const ImplementoSchema = new Schema({
   },
   estado: {
     type: String,
-    enum: ['disponible', 'no disponible'],
-    default: 'disponible',
   },
   historialModificaciones: {
     type: [HistorialModificacionesSchema],
