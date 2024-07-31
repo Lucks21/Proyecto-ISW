@@ -338,6 +338,20 @@ async function extenderReserva(reservaId, nuevaFechaFin) {
       return { error: 'La hora solicitada ya está reservada.' };
     }
 
+    // Verificar si la nueva fecha fin está dentro del horario de disponibilidad
+    let disponible = true;
+    if (reserva.implementoId) {
+      const implemento = await Implemento.findById(reserva.implementoId);
+      disponible = verificarDisponibilidadHorario(implemento.horarioDisponibilidad, reserva.fechaInicio, fechaFinNormalizada);
+    } else if (reserva.instalacionId) {
+      const instalacion = await Instalacion.findById(reserva.instalacionId);
+      disponible = verificarDisponibilidadHorario(instalacion.horarioDisponibilidad, reserva.fechaInicio, fechaFinNormalizada);
+    }
+
+    if (!disponible) {
+      return { error: 'La nueva hora solicitada está fuera del horario de disponibilidad.' };
+    }
+
     // Ajustar las fechas restando las horas necesarias para coincidir con la hora local de Chile (UTC-4)
     const fechaInicioNormalizada = subHours(reserva.fechaInicio, 4);
     const fechaFinNormalizadaAjustada = subHours(fechaFinNormalizada, 4);
@@ -385,7 +399,8 @@ async function finalizarReservasExpiradas() {
 // Servicio para obtener todas las reservas activas
 async function getAllReservasActivos() {
   try {
-    const reservas = await Reserva.find({ fechaFin: { $gt: new Date() }, estado: 'activo' });
+    const reservas = await Reserva.find({ fechaFin: { $gt: new Date() }, estado: 'activo' })
+      .sort({ fechaInicio: 1 });
     return [reservas, null];
   } catch (error) {
     console.error("Error en getAllReservasActivos: ", error);
@@ -521,7 +536,10 @@ async function getInstalacionesReservadas() {
 // implemento reservado por usuario
 async function getImplementosReservadosByUser(userId) {
   try {
-    const reservas = await Reserva.find({ userId, implementoId: { $exists: true }, estado: 'activo' }).populate('implementoId');
+    const reservas = await Reserva.find({ userId, implementoId: { $exists: true }, estado: 'activo' })
+      .populate('implementoId')
+      .sort({ fechaInicio: 1 });
+
     const implementosReservados = reservas.map(reserva => ({
       implemento: reserva.implementoId.nombre,
       fechaInicio: reserva.fechaInicio,
@@ -533,10 +551,14 @@ async function getImplementosReservadosByUser(userId) {
   }
 }
 
+
 // obtener una instalación reservada por usuario
 async function getInstalacionesReservadasByUser(userId) {
   try {
-    const reservas = await Reserva.find({ userId, instalacionId: { $exists: true }, estado: 'activo' }).populate('instalacionId');
+    const reservas = await Reserva.find({ userId, instalacionId: { $exists: true }, estado: 'activo' })
+      .populate('instalacionId')
+      .sort({ fechaInicio: 1 });
+
     const instalacionesReservadas = reservas.map(reserva => ({
       instalacion: reserva.instalacionId.nombre,
       fechaInicio: reserva.fechaInicio,
