@@ -216,7 +216,11 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
         campo: clave,
         valorAnterior: instalacionActual[clave] !== undefined ? instalacionActual[clave] : 'N/A',
         valorNuevo: datosActualizados[clave],
-        fecha: moment().format('DD-MM-YYYY')
+        fecha: new Date().toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        })
       });
     }
   }
