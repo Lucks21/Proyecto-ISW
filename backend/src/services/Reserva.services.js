@@ -551,15 +551,34 @@ async function getImplementosReservados() {
   }
 }
 
+
 // obtener las instalaciones reservadas
 async function getInstalacionesReservadas() {
   try {
-    const instalacionesReservadas = await Instalacion.find({ estado: 'no disponible' });
+    const reservas = await Reserva.find({ instalacionId: { $exists: true }, estado: 'activo' })
+      .populate({
+        path: 'userId',
+        select: 'nombre',
+        model: 'Alumno'
+      })
+      .populate('instalacionId', 'nombre');
+
+    const instalacionesReservadas = reservas.map(reserva => ({
+      _id: reserva._id,
+      usuario: reserva.userId ? reserva.userId.nombre : null,
+      instalacion: reserva.instalacionId ? reserva.instalacionId.nombre : null,
+      fechaInicio: reserva.fechaInicio,
+      fechaFin: reserva.fechaFin,
+      estado: reserva.estado,
+      extendida: reserva.extendida
+    }));
+
     return instalacionesReservadas;
   } catch (error) {
     throw new Error('Error al obtener instalaciones reservadas: ' + error.message);
   }
 }
+
 
 // implemento reservado por usuario
 async function getImplementosReservadosByUser(userId) {
@@ -601,24 +620,77 @@ async function getInstalacionesReservadasByUser(userId) {
 
 async function getHistorialReservas() {
   try {
-    const reservas = await Reserva.find().populate('userId').populate('implementoId').populate('instalacionId');
-    return reservas;
+    const reservas = await Reserva.find()
+      .populate({
+        path: 'userId',
+        select: 'nombre',
+        model: 'Alumno'
+      })
+      .populate('implementoId', 'nombre')
+      .populate('instalacionId', 'nombre');
+
+    const reservasFormateadas = reservas.map(reserva => {
+      const reservaObj = {
+        _id: reserva._id,
+        usuario: reserva.userId ? reserva.userId.nombre : null,
+        fechaInicio: reserva.fechaInicio,
+        fechaFin: reserva.fechaFin,
+        estado: reserva.estado,
+        extendida: reserva.extendida
+      };
+
+      if (reserva.implementoId) {
+        reservaObj.implemento = reserva.implementoId.nombre;
+      } else if (reserva.instalacionId) {
+        reservaObj.instalacion = reserva.instalacionId.nombre;
+      }
+
+      return reservaObj;
+    });
+
+    return reservasFormateadas;
   } catch (error) {
     throw new Error('Error al obtener el historial de reservas: ' + error.message);
   }
 }
 
+
 async function getHistorialReservasNoActivas() {
   try {
     const reservas = await Reserva.find({ estado: "no activo" })
-      .populate('userId')
-      .populate('implementoId')
-      .populate('instalacionId');
-    return reservas;
+      .populate({
+        path: 'userId',
+        select: 'nombre',
+        model: 'Alumno'
+      })
+      .populate('implementoId', 'nombre')
+      .populate('instalacionId', 'nombre');
+
+    const reservasFormateadas = reservas.map(reserva => {
+      const reservaObj = {
+        _id: reserva._id,
+        usuario: reserva.userId ? reserva.userId.nombre : null,
+        fechaInicio: reserva.fechaInicio,
+        fechaFin: reserva.fechaFin,
+        estado: reserva.estado,
+        extendida: reserva.extendida
+      };
+
+      if (reserva.implementoId) {
+        reservaObj.implemento = reserva.implementoId.nombre;
+      } else if (reserva.instalacionId) {
+        reservaObj.instalacion = reserva.instalacionId.nombre;
+      }
+
+      return reservaObj;
+    });
+
+    return reservasFormateadas;
   } catch (error) {
     throw new Error('Error al obtener el historial de reservas no activas: ' + error.message);
   }
 }
+
 
 async function obtenerDatosGraficosAlumno(userId) {
   try {
