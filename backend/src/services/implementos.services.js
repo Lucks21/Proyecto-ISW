@@ -247,7 +247,11 @@ export const eliminarImplemento = async (id) => {
   if (!implementoEliminado) {
     throw new Error('Implemento no encontrado.');
   }
-  return { message: 'Implemento eliminado con éxito.' };
+
+  // Eliminar todas las reservas asociadas a este implemento
+  await Reserva.deleteMany({ implementoId: id });
+
+  return { message: 'Implemento y todas sus reservas asociadas eliminados con éxito.' };
 };
 
 // Servicio para obtener el historial de modificaciones de un implemento

@@ -400,13 +400,41 @@ async function finalizarReservasExpiradas() {
 async function getAllReservasActivos() {
   try {
     const reservas = await Reserva.find({ fechaFin: { $gt: new Date() }, estado: 'activo' })
+      .populate({
+        path: 'userId',
+        select: 'nombre',
+        model: 'Alumno' 
+      })
+      .populate('implementoId', 'nombre')
+      .populate('instalacionId', 'nombre')
       .sort({ fechaInicio: 1 });
-    return [reservas, null];
+
+    const reservasFormateadas = reservas.map(reserva => {
+      const reservaObj = {
+        _id: reserva._id,
+        usuario: reserva.userId ? reserva.userId.nombre : null,
+        fechaInicio: reserva.fechaInicio,
+        fechaFin: reserva.fechaFin,
+        estado: reserva.estado,
+        extendida: reserva.extendida
+      };
+
+      if (reserva.implementoId) {
+        reservaObj.implemento = reserva.implementoId.nombre;
+      } else if (reserva.instalacionId) {
+        reservaObj.instalacion = reserva.instalacionId.nombre;
+      }
+
+      return reservaObj;
+    });
+
+    return [reservasFormateadas, null];
   } catch (error) {
     console.error("Error en getAllReservasActivos: ", error);
     return [null, "Error interno del servidor."];
   }
 }
+
 
 // Servicio para obtener todas las reservas de un usuario
 async function getAllReservasByUser(userId) {
@@ -540,16 +568,26 @@ async function getImplementosReservadosByUser(userId) {
       .populate('implementoId')
       .sort({ fechaInicio: 1 });
 
-    const implementosReservados = reservas.map(reserva => ({
-      implemento: reserva.implementoId.nombre,
-      fechaInicio: reserva.fechaInicio,
-      fechaFin: reserva.fechaFin
-    }));
+    const implementosReservados = reservas.map(reserva => {
+      // Verificar si implementoId no es null antes de acceder a su nombre
+      if (reserva.implementoId) {
+        return {
+          implemento: reserva.implementoId.nombre,
+          fechaInicio: reserva.fechaInicio,
+          fechaFin: reserva.fechaFin
+        };
+      } else {
+        console.warn(`La reserva con ID ${reserva._id} no tiene un implemento asociado.`);
+        return null;
+      }
+    }).filter(reserva => reserva !== null); // Filtrar cualquier reserva que sea null
+
     return implementosReservados;
   } catch (error) {
     throw new Error('Error al obtener implementos reservados por usuario: ' + error.message);
   }
 }
+
 
 
 // obtener una instalación reservada por usuario
@@ -559,11 +597,19 @@ async function getInstalacionesReservadasByUser(userId) {
       .populate('instalacionId')
       .sort({ fechaInicio: 1 });
 
-    const instalacionesReservadas = reservas.map(reserva => ({
-      instalacion: reserva.instalacionId.nombre,
-      fechaInicio: reserva.fechaInicio,
-      fechaFin: reserva.fechaFin
-    }));
+    const instalacionesReservadas = reservas.map(reserva => {
+      if (reserva.instalacionId) {
+        return {
+          instalacion: reserva.instalacionId.nombre,
+          fechaInicio: reserva.fechaInicio,
+          fechaFin: reserva.fechaFin
+        };
+      } else {
+        console.warn(`La reserva con ID ${reserva._id} no tiene una instalación asociada.`);
+        return null;
+      }
+    }).filter(reserva => reserva !== null);
+
     return instalacionesReservadas;
   } catch (error) {
     throw new Error('Error al obtener instalaciones reservadas por usuario: ' + error.message);
@@ -573,24 +619,77 @@ async function getInstalacionesReservadasByUser(userId) {
 
 async function getHistorialReservas() {
   try {
-    const reservas = await Reserva.find().populate('userId').populate('implementoId').populate('instalacionId');
-    return reservas;
+    const reservas = await Reserva.find()
+      .populate({
+        path: 'userId',
+        select: 'nombre',
+        model: 'Alumno'
+      })
+      .populate('implementoId', 'nombre')
+      .populate('instalacionId', 'nombre');
+
+    const reservasFormateadas = reservas.map(reserva => {
+      const reservaObj = {
+        _id: reserva._id,
+        usuario: reserva.userId ? reserva.userId.nombre : null,
+        fechaInicio: reserva.fechaInicio,
+        fechaFin: reserva.fechaFin,
+        estado: reserva.estado,
+        extendida: reserva.extendida
+      };
+
+      if (reserva.implementoId) {
+        reservaObj.implemento = reserva.implementoId.nombre;
+      } else if (reserva.instalacionId) {
+        reservaObj.instalacion = reserva.instalacionId.nombre;
+      }
+
+      return reservaObj;
+    });
+
+    return reservasFormateadas;
   } catch (error) {
     throw new Error('Error al obtener el historial de reservas: ' + error.message);
   }
 }
 
+
 async function getHistorialReservasNoActivas() {
   try {
     const reservas = await Reserva.find({ estado: "no activo" })
-      .populate('userId')
-      .populate('implementoId')
-      .populate('instalacionId');
-    return reservas;
+      .populate({
+        path: 'userId',
+        select: 'nombre',
+        model: 'Alumno'
+      })
+      .populate('implementoId', 'nombre')
+      .populate('instalacionId', 'nombre');
+
+    const reservasFormateadas = reservas.map(reserva => {
+      const reservaObj = {
+        _id: reserva._id,
+        usuario: reserva.userId ? reserva.userId.nombre : null,
+        fechaInicio: reserva.fechaInicio,
+        fechaFin: reserva.fechaFin,
+        estado: reserva.estado,
+        extendida: reserva.extendida
+      };
+
+      if (reserva.implementoId) {
+        reservaObj.implemento = reserva.implementoId.nombre;
+      } else if (reserva.instalacionId) {
+        reservaObj.instalacion = reserva.instalacionId.nombre;
+      }
+
+      return reservaObj;
+    });
+
+    return reservasFormateadas;
   } catch (error) {
     throw new Error('Error al obtener el historial de reservas no activas: ' + error.message);
   }
 }
+
 
 async function obtenerDatosGraficosAlumno(userId) {
   try {
