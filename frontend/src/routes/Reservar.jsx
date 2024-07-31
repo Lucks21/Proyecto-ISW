@@ -84,7 +84,7 @@ export default function Reservar() {
       <Tabs aria-label="Tabs with underline" variant="underline" className="max-w-screen-xl mx-auto">
         <Tabs.Item active title="Implemento" icon={HiOutlinePuzzle}>
           <div className="flex justify-around">
-            <div className="m-4 w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 overflow-y-scroll h-[42rem] custom-scrollbar">
+            <div className="m-4 w-full max-w-2xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 overflow-y-scroll h-[42rem] custom-scrollbar">
               <div className="flex items-center justify-between mb-4">
                 <h5 className="text-xl font-bold leading-none text-gray-900">Implementos</h5>
                 <Popover content={popOverContent} trigger="click">
@@ -128,7 +128,7 @@ export default function Reservar() {
         </Tabs.Item>
         <Tabs.Item title="Instalación" icon={HiOutlineOfficeBuilding}>
           <div className="flex justify-around">
-            <div className="m-4 w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 overflow-y-scroll h-[42rem] custom-scrollbar">
+            <div className="m-4 w-full max-w-2xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 overflow-y-scroll h-[42rem] custom-scrollbar">
               <div className="flex items-center justify-between mb-4">
                 <h5 className="text-xl font-bold leading-none text-gray-900">Instalaciones</h5>
                 <Popover content={popOverContent} trigger="click">
