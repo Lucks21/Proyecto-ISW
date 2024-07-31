@@ -400,13 +400,41 @@ async function finalizarReservasExpiradas() {
 async function getAllReservasActivos() {
   try {
     const reservas = await Reserva.find({ fechaFin: { $gt: new Date() }, estado: 'activo' })
+      .populate({
+        path: 'userId',
+        select: 'nombre',
+        model: 'Alumno' 
+      })
+      .populate('implementoId', 'nombre')
+      .populate('instalacionId', 'nombre')
       .sort({ fechaInicio: 1 });
-    return [reservas, null];
+
+    const reservasFormateadas = reservas.map(reserva => {
+      const reservaObj = {
+        _id: reserva._id,
+        usuario: reserva.userId ? reserva.userId.nombre : null,
+        fechaInicio: reserva.fechaInicio,
+        fechaFin: reserva.fechaFin,
+        estado: reserva.estado,
+        extendida: reserva.extendida
+      };
+
+      if (reserva.implementoId) {
+        reservaObj.implemento = reserva.implementoId.nombre;
+      } else if (reserva.instalacionId) {
+        reservaObj.instalacion = reserva.instalacionId.nombre;
+      }
+
+      return reservaObj;
+    });
+
+    return [reservasFormateadas, null];
   } catch (error) {
     console.error("Error en getAllReservasActivos: ", error);
     return [null, "Error interno del servidor."];
   }
 }
+
 
 // Servicio para obtener todas las reservas de un usuario
 async function getAllReservasByUser(userId) {
