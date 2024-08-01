@@ -65,7 +65,7 @@ export default function Reservas() {
                     <div className="flex items-center gap-6">
                       <div className="flex-1 min-w-0 ms-4 space-y-2">
                         <p className="text-sm font-medium text-gray-900 capitalize flex items-center">
-                          <FaUser className="text-blue-800 me-2" />
+                          <FaUser className="text-blue-800 me-2" /> {}
                           <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">Alumno:</span> {reserva.usuario || 'No especificado'}
                         </p>
                         <p className="text-sm text-gray-500">
