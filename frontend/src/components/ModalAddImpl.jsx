@@ -4,10 +4,12 @@ import { addImplemento, getAllImplementos } from '../services/implementos.servic
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
+import moment from 'moment';
 
 const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
+  const [cantidad, setCantidad] = useState('');
   const [cantidad, setCantidad] = useState('');
   const [estado, setEstado] = useState('disponible');
   const [fechaAdquisicion, setFechaAdquisicion] = useState(new Date());
@@ -51,6 +53,8 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
       }
     }
   };
+
+  const horasCompletas = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
 
   const horasCompletas = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
 
@@ -106,6 +110,7 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Fecha de Adquisición</label>
+          <label className="block text-sm font-medium text-gray-700">Fecha de Adquisición</label>
           <DatePicker
             selected={fechaAdquisicion}
             onChange={(date) => setFechaAdquisicion(date)}
@@ -130,8 +135,16 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
                 }}
               >
                 <option value="">Seleccione un día</option>
+                onChange={(e) => {
+                  const newHorarioDisponibilidad = [...horarioDisponibilidad];
+                  newHorarioDisponibilidad[index].dia = e.target.value;
+                  setHorarioDisponibilidad(newHorarioDisponibilidad);
+                }}
+              >
+                <option value="">Seleccione un día</option>
                 <option value="lunes">Lunes</option>
                 <option value="martes">Martes</option>
+                <option value="miercoles">Miércoles</option>
                 <option value="miercoles">Miércoles</option>
                 <option value="jueves">Jueves</option>
                 <option value="viernes">Viernes</option>
@@ -174,6 +187,12 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
                   const newHorarioDisponibilidad = horarioDisponibilidad.filter((_, i) => i !== index);
                   setHorarioDisponibilidad(newHorarioDisponibilidad);
                 }}
+                type="button"
+                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2.5 py-1.5"
+                onClick={() => {
+                  const newHorarioDisponibilidad = horarioDisponibilidad.filter((_, i) => i !== index);
+                  setHorarioDisponibilidad(newHorarioDisponibilidad);
+                }}
               >
                 Eliminar
               </button>
@@ -182,7 +201,12 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
           <button
             type="button"
             className="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 mt-2"
+            type="button"
+            className="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 mt-2"
             onClick={() =>
+              setHorarioDisponibilidad([
+                ...horarioDisponibilidad,
+                { dia: '', inicio: '', fin: '' },
               setHorarioDisponibilidad([
                 ...horarioDisponibilidad,
                 { dia: '', inicio: '', fin: '' },
@@ -190,8 +214,10 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
             }
           >
             Añadir Horario
+            Añadir Horario
           </button>
         </div>
+        <div className="flex justify-end mt-4">
         <div className="flex justify-end mt-4">
           <button
             className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
@@ -201,12 +227,59 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
           </button>
           <button
             className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
-            onClick={() => setShowModalAgregar(false)}
+            onClick={() => setShowConfirmCancel(true)}
           >
             Cancelar
           </button>
         </div>
       </div>
+
+      {showConfirmSave && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 transition-opacity duration-700 ease-out">
+          <div className="bg-white p-6 rounded-lg">
+            <p className="mb-4">¿Está seguro que desea guardar los cambios?</p>
+            <div className="flex justify-end">
+              <button
+                className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+                onClick={() => {
+                  handleAddImplemento();
+                  setShowConfirmSave(false);
+                }}
+              >
+                Sí
+              </button>
+              <button
+                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
+                onClick={() => setShowConfirmSave(false)}
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showConfirmCancel && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 transition-opacity duration-700 ease-out">
+          <div className="bg-white p-6 rounded-lg">
+            <p className="mb-4">¿Está seguro que desea cancelar los cambios?</p>
+            <div className="flex justify-end">
+              <button
+                className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+                onClick={() => setShowModalAgregar(false)}
+              >
+                Sí
+              </button>
+              <button
+                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
+                onClick={() => setShowConfirmCancel(false)}
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
