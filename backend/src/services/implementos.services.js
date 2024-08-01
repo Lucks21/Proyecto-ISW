@@ -69,6 +69,7 @@ const validarHorarios = (horarioDisponibilidad) => {
   }
 };
 
+
 // Función para normalizar la fecha
 const normalizarFecha = (fecha) => {
   let parsedDate = parse(fecha, 'dd-MM-yyyy', new Date());
@@ -240,7 +241,6 @@ export const actualizarImplementoParcial = async (id, camposActualizados) => {
     throw new Error(error.message || 'Error interno del servidor');
   }
 };
-
 // Servicio para eliminar un implemento
 export const eliminarImplemento = async (id) => {
   const implementoEliminado = await Implemento.findByIdAndDelete(id);
@@ -268,7 +268,6 @@ export const obtenerHistorialImplemento = async (id) => {
 
   return { message: 'Historial obtenido con éxito.', data: historial };
 };
-
 export const obtenerImplementoPorNombre = async (nombre) => {
   const implemento = await Implemento.findOne({ nombre });
   if (!implemento) {
