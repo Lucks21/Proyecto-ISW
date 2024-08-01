@@ -88,16 +88,18 @@ export const actualizarImplementoParcialController = async (req, res) => {
 
 // Controlador para eliminar un implemento
 export const eliminarImplementoController = async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: 'El ID es inválido. Por favor intente con un ID válido.' });
+  const { id } = req.params;
+  const { error } = idSchema.validate(id);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
   }
 
   try {
     const resultado = await eliminarImplemento(req.params.id);
-    return res.status(200).json(respondSuccess(resultado));
+    return res.status(200).json(respondSuccess(req, res, 200, resultado));
   } catch (error) {
     console.error(`Error al eliminar implemento con ID ${req.params.id}:`, error);
-    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
+    return res.status(500).json(respondError(req, res, 500, error.message || 'Error interno del servidor'));
   }
 };
 
