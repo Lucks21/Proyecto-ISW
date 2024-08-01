@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { partialUpdateImplemento } from '../services/implementos.services';
+import { partialUpdateImplemento, getAllImplementos } from '../services/implementos.services';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 
-const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => {
+const ModalEditImpl = ({ implemento, setShowModalEditar, setImplementos }) => {
   const [nombre, setNombre] = useState(implemento.nombre || '');
   const [descripcion, setDescripcion] = useState(implemento.descripcion || '');
   const [cantidad, setCantidad] = useState(implemento.cantidad || '');
   const [estado, setEstado] = useState(implemento.estado || '');
   const [diasDisponibilidad, setDiasDisponibilidad] = useState(implemento.horarioDisponibilidad.map(h => h.dia.toLowerCase()));
   const [horario, setHorario] = useState(implemento.horarioDisponibilidad);
-  const [showConfirmSave, setShowConfirmSave] = useState(false);
-  const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     setHorario(implemento.horarioDisponibilidad);
@@ -72,15 +71,18 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
     }
 
     try {
-      console.log('Actualizando implemento con los siguientes campos:', updatedFields);
       const response = await partialUpdateImplemento(implemento._id, updatedFields);
-      console.log('Respuesta del servidor:', response.data);
-      fetchImplementos();
+      const implementos = await getAllImplementos();
+      setImplementos(implementos); // Actualiza la lista de implementos en el estado
       setShowModalEditar(false);
       toast.success('Implemento actualizado con éxito');
     } catch (error) {
-      console.error('Error al actualizar implemento:', error.response?.data?.message || error.message);
-      toast.error(`Error al actualizar implemento: ${error.response?.data?.message || error.message}`);
+      if (error.response && error.response.data) {
+        setErrors(error.response.data.errors || {});
+        toast.error(`Error al actualizar implemento: ${error.response.data.message}`);
+      } else {
+        toast.error('Error al actualizar implemento');
+      }
     }
   };
 
@@ -90,6 +92,7 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
       <div className="bg-[#EFF396] p-6 rounded-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Editar Implemento</h2>
+        {errors.general && <div className="text-red-500 mb-4">{errors.general}</div>}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Nombre</label>
           <input
@@ -99,6 +102,7 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
           />
+          {errors.nombre && <div className="text-red-500">{errors.nombre}</div>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Descripción</label>
@@ -109,6 +113,7 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
           />
+          {errors.descripcion && <div className="text-red-500">{errors.descripcion}</div>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Cantidad</label>
@@ -119,6 +124,7 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
             value={cantidad}
             onChange={(e) => setCantidad(e.target.value)}
           />
+          {errors.cantidad && <div className="text-red-500">{errors.cantidad}</div>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Estado</label>
@@ -130,6 +136,7 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
             <option value="disponible">Disponible</option>
             <option value="no disponible">No disponible</option>
           </select>
+          {errors.estado && <div className="text-red-500">{errors.estado}</div>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Días de Disponibilidad:</label>
@@ -147,6 +154,7 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
                 <option value="jueves">Jueves</option>
                 <option value="viernes">Viernes</option>
               </select>
+              {errors[`horarioDisponibilidad.${index}.dia`] && <div className="text-red-500">{errors[`horarioDisponibilidad.${index}.dia`]}</div>}
               <select
                 className="mt-1 block w-1/3 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 value={horario[index]?.inicio || ''}
@@ -157,6 +165,7 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
                   <option key={hora} value={hora}>{hora}</option>
                 ))}
               </select>
+              {errors[`horarioDisponibilidad.${index}.inicio`] && <div className="text-red-500">{errors[`horarioDisponibilidad.${index}.inicio`]}</div>}
               <select
                 className="mt-1 block w-1/3 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 value={horario[index]?.fin || ''}
@@ -167,6 +176,7 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
                   <option key={hora} value={hora}>{hora}</option>
                 ))}
               </select>
+              {errors[`horarioDisponibilidad.${index}.fin`] && <div className="text-red-500">{errors[`horarioDisponibilidad.${index}.fin`]}</div>}
               <button
                 type="button"
                 className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2.5 py-1.5"
@@ -193,65 +203,18 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
         <div className="flex justify-end mt-4">
           <button
             className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
-            onClick={() => setShowConfirmSave(true)}
+            onClick={handleSubmit}
           >
             Guardar
           </button>
           <button
             className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
-            onClick={() => setShowConfirmCancel(true)}
+            onClick={() => setShowModalEditar(false)}
           >
             Cancelar
           </button>
         </div>
       </div>
-
-      {showConfirmSave && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg">
-            <p className="mb-4">¿Está seguro que desea guardar los cambios?</p>
-            <div className="flex justify-end">
-              <button
-                className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
-                onClick={() => {
-                  handleSubmit();
-                  setShowConfirmSave(false);
-                }}
-              >
-                Sí
-              </button>
-              <button
-                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
-                onClick={() => setShowConfirmSave(false)}
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showConfirmCancel && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg">
-            <p className="mb-4">¿Está seguro que desea cancelar los cambios?</p>
-            <div className="flex justify-end">
-              <button
-                className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
-                onClick={() => setShowModalEditar(false)}
-              >
-                Sí
-              </button>
-              <button
-                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
-                onClick={() => setShowConfirmCancel(false)}
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

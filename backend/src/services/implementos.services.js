@@ -1,6 +1,8 @@
 import { format, parse, isValid } from 'date-fns';
 import Implemento from '../models/implementos.model.js';
 import levenshtein from 'js-levenshtein';
+import Implemento from '../models/implementos.model.js';
+import Reserva from '../models/reservas.model.js'; 
 
 // Función para normalizar el texto
 const normalizarTexto = (texto) => {
@@ -68,7 +70,6 @@ const validarHorarios = (horarioDisponibilidad) => {
     }
   }
 };
-
 
 // Función para normalizar la fecha
 const normalizarFecha = (fecha) => {
@@ -241,6 +242,7 @@ export const actualizarImplementoParcial = async (id, camposActualizados) => {
     throw new Error(error.message || 'Error interno del servidor');
   }
 };
+
 // Servicio para eliminar un implemento
 export const eliminarImplemento = async (id) => {
   const implementoEliminado = await Implemento.findByIdAndDelete(id);
@@ -268,6 +270,7 @@ export const obtenerHistorialImplemento = async (id) => {
 
   return { message: 'Historial obtenido con éxito.', data: historial };
 };
+
 export const obtenerImplementoPorNombre = async (nombre) => {
   const implemento = await Implemento.findOne({ nombre });
   if (!implemento) {
