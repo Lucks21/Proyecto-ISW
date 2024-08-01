@@ -16,41 +16,43 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
   const [horarioDisponibilidad, setHorarioDisponibilidad] = useState([{ dia: '', inicio: '', fin: '' }]);
   const [errors, setErrors] = useState({});
 
-  const handleAddImplemento = async () => {
-    const today = new Date();
-    if (fechaAdquisicion > today) {
-      toast.error('La fecha de adquisición no puede ser futura.');
-      return;
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-    const formattedFechaAdquisicion = moment(fechaAdquisicion).format('YYYY-MM-DD');
+  const handleHorarioChange = (index, field, value) => {
+    const newHorarios = [...formData.horarioDisponibilidad];
+    newHorarios[index][field] = value;
+    setFormData({ ...formData, horarioDisponibilidad: newHorarios });
+  };
 
-    const implemento = {
-      nombre,
-      descripcion,
-      cantidad,
-      estado,
-      fechaAdquisicion: formattedFechaAdquisicion,
-      horarioDisponibilidad,
-    };
+  const addHorario = () => {
+    setFormData({
+      ...formData,
+      horarioDisponibilidad: [...formData.horarioDisponibilidad, { dia: 'Lunes', inicio: '00:00', fin: '00:00' }],
+    });
+  };
 
+  const removeHorario = (index) => {
+    const newHorarios = formData.horarioDisponibilidad.filter((_, i) => i !== index);
+    setFormData({ ...formData, horarioDisponibilidad: newHorarios });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const newImplemento = await addImplemento(implemento);
-      if (newImplemento) {
-        toast.success('Implemento agregado con éxito');
-        const implementos = await getAllImplementos();
-        setImplementos(implementos); // Actualiza la lista de implementos en el estado
-        setShowModalAgregar(false);
-      } else {
-        throw new Error('Error al agregar implemento');
-      }
+      const token = localStorage.getItem('accestkn');
+      const response = await axios.post('/implementos/crear', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      onClose();
     } catch (error) {
-      if (error.response && error.response.data) {
-        setErrors(error.response.data.errors || {});
-        toast.error(`Error al agregar implemento: ${error.response.data.message}`);
-      } else {
-        toast.error('Error al agregar implemento');
-      }
+      console.error('Error al agregar implemento:', error);
+      setError('Error al conectar con el servidor');
     }
   };
 

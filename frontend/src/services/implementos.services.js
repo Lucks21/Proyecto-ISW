@@ -1,54 +1,33 @@
-import axios from "../services/root.service";
+import axios from "../services/root.service"; 
+
+const API_URL = 'http://146.83.198.35:1229/api';
 
 export const getAllImplementos = async () => {
   try {
     const token = localStorage.getItem("accestkn");
-    if (!token) return;
+    if (!token) return [];
 
-    const response = await axios.get("/implementos/obtener", {
+    const response = await axios.get(`${API_URL}/Implementos/obtener`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const { status, data } = response;
-
-    if (status === 200) {
-      return data.data;
+    if (response.status === 200) {
+      return response.data.data; 
+    } else {
+      return [];
     }
   } catch (error) {
-    console.log(error);
-    return {
-      message: error.response.data.message,
-      error: error.response.data.error,
-    };
-  }
-};
-
-export const partialUpdateImplemento = async (implementoId, data) => {
-  try {
-    const token = localStorage.getItem("accestkn");
-    if (!token) return;
-
-    const URL = `/implementos/actualizarParcial/${implementoId}`;
-
-    const response = await axios.patch(URL, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
+    console.error('Error al obtener implementos:', error);
+    return [];
   }
 };
 
 export const addImplemento = async (implemento) => {
   try {
     const token = localStorage.getItem("accestkn");
-    if (!token) return;
+    if (!token) return null;
 
     const response = await axios.post("/implementos/crear", implemento, {
       headers: {
@@ -62,37 +41,63 @@ export const addImplemento = async (implemento) => {
       return data.data;
     }
   } catch (error) {
-    console.log(error);
+    console.error('Error al agregar implemento:', error);
     return {
-      message: error.response.data.message,
-      error: error.response.data.error,
+      message: error.response ? error.response.data.message : 'Error al conectar con el servidor',
+      error: error.response ? error.response.data.error : error.message,
     };
   }
 };
 
-export const deleteImplementoById = async (implementoId) => {
+export const deleteImplementoById = async (id) => {
   try {
     const token = localStorage.getItem("accestkn");
-    if (!token) return;
+    if (!token) return null;
 
-    const URL = `/implementos/eliminar/${implementoId}`;
-
-    const response = await axios.delete(URL, {
+    const response = await axios.delete(`${API_URL}/Implementos/eliminar/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const { status, data } = response;
-
-    if (status === 200) {
-      return data.data;
-    }
+    return response.data;
   } catch (error) {
-    console.log(error);
-    return {
-      message: error.response.data.message,
-      error: error.response.data.error,
-    };
+    console.error('Error al eliminar implemento:', error);
+    throw error;
+  }
+};
+
+export const updateImplementoById = async (id, implemento) => {
+  try {
+    const token = localStorage.getItem("accestkn");
+    if (!token) return null;
+
+    const response = await axios.put(`${API_URL}/Implementos/actualizarTodo/${id}`, implemento, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar implemento:', error);
+    throw error;
+  }
+};
+
+export const partialUpdateImplemento = async (id, updatedFields) => {
+  try {
+    const token = localStorage.getItem("accestkn");
+    if (!token) return null;
+
+    const response = await axios.patch(`${API_URL}/Implementos/actualizarParcial/${id}`, updatedFields, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar implemento parcialmente:', error);
+    throw error;
   }
 };
