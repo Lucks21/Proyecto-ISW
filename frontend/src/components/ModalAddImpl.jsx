@@ -26,29 +26,35 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
       return;
     }
 
-    const formattedFechaAdquisicion = moment(fechaAdquisicion).format('DD-MM-YYYY');
-
-    const implemento = {
-      nombre,
-      descripcion,
-      cantidad,
-      estado,
-      fechaAdquisicion: formattedFechaAdquisicion,
-      horarioDisponibilidad,
-    };
-
     try {
-      await addImplemento(implemento);
-      toast.success('Implemento agregado con éxito');
-      fetchImplementos();
-      setShowModalAgregar(false);
-    } catch (error) {
-      if (error.response && error.response.data) {
-        setErrors(error.response.data.errors || {});
-        toast.error(`Error al agregar implemento: ${error.response.data.message}`);
+      const response = await fetch('/api/implementos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombre,
+          descripcion,
+          cantidad,
+          estado,
+          fechaAdquisicion,
+          horarioDisponibilidad,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        setError(result.message || 'Error al añadir implemento');
+        toast.error(result.message || 'Error al añadir implemento');
       } else {
-        toast.error('Error al agregar implemento');
+        setError('');
+        setShowModalAgregar(false);
+        toast.success('Implemento añadido con éxito');
+        // Maneja el éxito (e.g., cerrar modal, actualizar datos)
       }
+    } catch (err) {
+      setError('Error al conectar con el servidor');
+      toast.error('Error al conectar con el servidor');
     }
   };
 

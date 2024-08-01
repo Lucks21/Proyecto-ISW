@@ -7,11 +7,11 @@ const fechaSchema = Joi.string().custom((value, helpers) => {
   if (!isValid(parsedDate)) {
     parsedDate = parse(value, 'dd/MM/yyyy', new Date());
     if (!isValid(parsedDate)) {
-      return helpers.error('any.invalid', { message: 'Fecha no válida' });
+      return helpers.error('any.invalid');
     }
   }
   if (parsedDate > new Date() || parsedDate.getFullYear() < 1947) {
-    return helpers.error('any.invalid', { message: 'Fecha fuera del rango permitido (1947-presente)' });
+    return helpers.error('any.invalid');
   }
   return format(parsedDate, 'dd-MM-yyyy');
 }, 'validación de fecha').required().messages({
