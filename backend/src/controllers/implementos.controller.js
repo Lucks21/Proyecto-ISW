@@ -18,10 +18,7 @@ export const crearImplementoController = async (req, res) => {
   try {
     const { error } = implementoSchema.validate(req.body);
     if (error) {
-      return res.status(400).json({ errors: error.details.reduce((acc, curr) => {
-        acc[curr.path[0]] = curr.message;
-        return acc;
-      }, {}), message: 'Error de validación' });
+      return res.status(400).json({ message: error.details[0].message });
     }
 
     const resultado = await crearImplemento(req.body);
@@ -31,7 +28,6 @@ export const crearImplementoController = async (req, res) => {
     res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
-
 
 // Controlador para obtener todos los implementos
 export const obtenerImplementosController = async (req, res) => {
