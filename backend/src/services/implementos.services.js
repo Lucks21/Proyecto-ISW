@@ -1,6 +1,8 @@
 import { format, parse, isValid } from 'date-fns';
 import Implemento from '../models/implementos.model.js';
 import levenshtein from 'js-levenshtein';
+import Implemento from '../models/implementos.model.js';
+import Reserva from '../models/reservas.model.js'; 
 
 // Función para normalizar el texto
 const normalizarTexto = (texto) => {
