@@ -20,8 +20,6 @@ export default function Reservas() {
   const [reservasActivas, setReservasActivas] = useState([]);
   const [reservasNoActivas, setReservasNoActivas] = useState([]);
   const [historicoTodasReservas, setHistoricoTodasReservas] = useState([]);
-  const [implementosReservados, setImplementosReservados] = useState([]);
-  const [instalacionesReservadas, setInstalacionesReservadas] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -38,11 +36,6 @@ export default function Reservas() {
       setHistoricoTodasReservas(historicoTodasReservas);
       console.log(historicoTodasReservas);
 
-      const { data: implementosReservados } = await getImplementosReservados();
-      setImplementosReservados(implementosReservados);
-
-      const { data: instalacionesReservadas } = await getInstalacionesReservadas();
-      setInstalacionesReservadas(instalacionesReservadas);
     })();
   }, []);
 
