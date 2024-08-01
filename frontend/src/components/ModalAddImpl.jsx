@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { toast } from 'react-toastify';
 
 const ModalAddImpl = ({ setShowModalAgregar }) => {
   const [nombre, setNombre] = useState('');
@@ -11,7 +12,32 @@ const ModalAddImpl = ({ setShowModalAgregar }) => {
   const [horarioDisponibilidad, setHorarioDisponibilidad] = useState([]);
   const [error, setError] = useState('');
 
+  const validateFields = () => {
+    if (!nombre.trim()) {
+      setError('El nombre es obligatorio');
+      return false;
+    }
+    if (!cantidad || cantidad <= 0) {
+      setError('La cantidad debe ser mayor que 0');
+      return false;
+    }
+    if (!fechaAdquisicion) {
+      setError('La fecha de adquisición es obligatoria');
+      return false;
+    }
+    if (horarioDisponibilidad.some(horario => !horario.inicio || !horario.fin)) {
+      setError('Todos los horarios deben tener horas de inicio y fin válidas');
+      return false;
+    }
+    setError('');
+    return true;
+  };
+
   const handleSubmit = async () => {
+    if (!validateFields()) {
+      return;
+    }
+
     try {
       const response = await fetch('/api/implementos', {
         method: 'POST',
@@ -31,13 +57,16 @@ const ModalAddImpl = ({ setShowModalAgregar }) => {
       const result = await response.json();
       if (!response.ok) {
         setError(result.message || 'Error al añadir implemento');
+        toast.error(result.message || 'Error al añadir implemento');
       } else {
         setError('');
         setShowModalAgregar(false);
+        toast.success('Implemento añadido con éxito');
         // Maneja el éxito (e.g., cerrar modal, actualizar datos)
       }
     } catch (err) {
       setError('Error al conectar con el servidor');
+      toast.error('Error al conectar con el servidor');
     }
   };
 
@@ -88,7 +117,7 @@ const ModalAddImpl = ({ setShowModalAgregar }) => {
           </select>
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Fecha de Adquisicion</label>
+          <label className="block text-sm font-medium text-gray-700">Fecha de Adquisición</label>
           <DatePicker
             selected={fechaAdquisicion}
             onChange={(date) => setFechaAdquisicion(date)}
