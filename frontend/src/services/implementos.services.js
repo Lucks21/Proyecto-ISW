@@ -29,23 +29,16 @@ export const addImplemento = async (implemento) => {
     const token = localStorage.getItem("accestkn");
     if (!token) return null;
 
-    const response = await axios.post("/implementos/crear", implemento, {
+    const response = await axios.post(`${API_URL}/Implementos/crear`, implemento, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const { status, data } = response;
-
-    if (status === 201) {
-      return data.data;
-    }
+    return response.data;
   } catch (error) {
     console.error('Error al agregar implemento:', error);
-    return {
-      message: error.response ? error.response.data.message : 'Error al conectar con el servidor',
-      error: error.response ? error.response.data.error : error.message,
-    };
+    throw error;
   }
 };
 
