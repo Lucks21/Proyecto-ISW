@@ -13,16 +13,17 @@ import { FaUser } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
 export default function Reservas() {
-  const [historicoGrafico, setHistoricoGrafico] = useState([]);
+  const [ReservasGraficoEncargado, setReservasGraficoEncargado] = useState([]);
   const [reservasActivas, setReservasActivas] = useState([]);
   const [reservasNoActivas, setReservasNoActivas] = useState([]);
-  const [historicoTodasReservas, setHistoricoTodasReservas] = useState([]);
+  const [hisorialTodasReservas, setHistoricoTodasReservas] = useState([]);
 
   useEffect(() => {
     (async () => {
       try {
         const { data: graficoData } = await getReservasGraficoEncargado();
-        setHistoricoGrafico(graficoData || []);
+        console.log("Datos del gráfico:", graficoData); // Depuración
+        setReservasGraficoEncargado(graficoData || []);
       } catch (error) {
         console.error("Error al obtener los datos del gráfico:", error);
       }
@@ -42,8 +43,8 @@ export default function Reservas() {
       }
 
       try {
-        const { data: historicoData } = await getHisorialTodasReservas();
-        setHistoricoTodasReservas(historicoData || []);
+        const { data: hisorialTodasReservas } = await getHisorialTodasReservas();
+        setHistoricoTodasReservas(hisorialTodasReservas || []);
       } catch (error) {
         console.error("Error al obtener el historial de reservas:", error);
       }
@@ -105,8 +106,8 @@ export default function Reservas() {
         <div className="w-full">
           <div className="w-full p-4 text-center sm:p-8">
             <h5 className="mb-16 text-3xl font-bold text-gray-900">Historico de Reservas</h5>
-            {historicoGrafico.length > 0 ? (
-              <Grafico historico={historicoGrafico} />
+            {ReservasGraficoEncargado.length > 0 ? (
+              <Grafico historico={ReservasGraficoEncargado} />
             ) : (
               <p className="text-center text-gray-500">No hay datos históricos disponibles.</p>
             )}
@@ -125,6 +126,7 @@ export default function Reservas() {
                 reservasNoActivas.map((reserva) => (
                   <li className="py-3 sm:px-4 rounded-md" key={reserva._id}>
                     <div className="flex items-center gap-6">
+                      <FaUser className="text-blue-800 me-2" />
                       <div className="flex-1 min-w-0 ms-4 space-y-2">
                         <p className="text-sm font-medium text-gray-900 capitalize flex items-center">
                           <FaUser className="text-blue-800 me-2" /> {}
@@ -164,10 +166,11 @@ export default function Reservas() {
           </div>
           <div className="flow-root">
             <ul className="divide-y divide-gray-200">
-              {historicoTodasReservas.length > 0 ? (
-                historicoTodasReservas.map((reserva) => (
+              {hisorialTodasReservas.length > 0 ? (
+                hisorialTodasReservas.map((reserva) => (
                   <li className="py-3 sm:px-4 rounded-md" key={reserva._id}>
                     <div className="flex items-center gap-6">
+                      <FaUser className="text-blue-800 me-2" />
                       <div className="flex-1 min-w-0 ms-4 space-y-2">
                         <p className="text-sm font-medium text-gray-900 capitalize flex items-center">
                           <FaUser className="text-blue-800 me-2" /> {}

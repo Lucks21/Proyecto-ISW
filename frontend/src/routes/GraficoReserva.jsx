@@ -10,7 +10,7 @@ export default function GraficoReserva() {
   useEffect(() => {
     (async () => {
       const data = await getHistorico(user.id);
-      //console.log(data, user);
+      console.log(data, user);
       setHistorico(data);
     })();
   }, []);
