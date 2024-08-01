@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
-import UserDropdown from "./UserDropDown";
+import UserDropdown from "./UserDropdown.jsx";
 
-export default function header({
+export default function Header({
   user,
   handleLogout,
   setIsOpenModalUserInfo,
@@ -11,7 +11,7 @@ export default function header({
 }) {
   const { pathname } = useLocation();
   const headerAlumnoLinks = (
-    <ul className="font-medium flex p-0  space-x-8 rtl:space-x-reverse">
+    <ul className="font-medium flex p-0 space-x-8 rtl:space-x-reverse">
       <li>
         <a
           href="/"
@@ -78,7 +78,7 @@ export default function header({
   );
 
   const headerEncargadoLisnks = (
-    <ul className="font-medium flex p-0  space-x-8 rtl:space-x-reverse">
+    <ul className="font-medium flex p-0 space-x-8 rtl:space-x-reverse">
       <li>
         <a
           href="/"
