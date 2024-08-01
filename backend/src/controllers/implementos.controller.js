@@ -1,5 +1,7 @@
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import mongoose from 'mongoose';
+import { respondSuccess, respondError } from "../utils/resHandler.js";
+import mongoose from 'mongoose';
 import {
   crearImplemento,
   obtenerImplementos,
@@ -23,7 +25,7 @@ export const crearImplementoController = async (req, res) => {
     }
 
     const resultado = await crearImplemento(req.body);
-    res.status(201).json(resultado);
+    return res.status(201).json(respondSuccess(req, res, 201, resultado));
   } catch (error) {
     console.error('Error al crear implemento:', error);
     res.status(500).json({ message: error.message || 'Error interno del servidor' });
@@ -82,10 +84,8 @@ export const actualizarImplementoParcialController = async (req, res) => {
 
 // Controlador para eliminar un implemento
 export const eliminarImplementoController = async (req, res) => {
-  const { id } = req.params;
-  const { error } = idSchema.validate(id);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ message: 'El ID es inválido. Por favor intente con un ID válido.' });
   }
 
   try {
@@ -112,9 +112,9 @@ export const obtenerImplementoPorNombreController = async (req, res) => {
   try {
     const { nombre } = req.params;
     const resultado = await obtenerImplementoPorNombre(nombre);
-    res.status(200).json(resultado);
+    return res.status(200).json(respondSuccess(resultado));
   } catch (error) {
     console.error(`Error al obtener implemento con nombre ${req.params.nombre}:`, error);
-    res.status(500).json({ message: error.message || 'Error interno del servidor' });
+    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
   }
 };
