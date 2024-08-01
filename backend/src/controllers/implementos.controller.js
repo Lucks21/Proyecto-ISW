@@ -22,7 +22,7 @@ export const crearImplementoController = async (req, res) => {
     }
 
     const resultado = await crearImplemento(req.body);
-    return res.status(201).json(respondSuccess(resultado));
+    res.status(201).json(resultado);
   } catch (error) {
     console.error('Error al crear implemento:', error);
     res.status(500).json({ message: error.message || 'Error interno del servidor' });
@@ -33,10 +33,10 @@ export const crearImplementoController = async (req, res) => {
 export const obtenerImplementosController = async (req, res) => {
   try {
     const resultado = await obtenerImplementos();
-    return res.status(200).json(respondSuccess(resultado));
+    res.status(200).json(resultado);
   } catch (error) {
     console.error('Error al obtener implementos:', error);
-    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
 
@@ -108,9 +108,9 @@ export const obtenerImplementoPorNombreController = async (req, res) => {
   try {
     const { nombre } = req.params;
     const resultado = await obtenerImplementoPorNombre(nombre);
-    return res.status(200).json(respondSuccess(resultado));
+    res.status(200).json(resultado);
   } catch (error) {
     console.error(`Error al obtener implemento con nombre ${req.params.nombre}:`, error);
-    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
