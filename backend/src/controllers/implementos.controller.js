@@ -11,7 +11,6 @@ import {
   obtenerImplementoPorNombre
 } from '../services/implementos.services.js';
 import { implementoSchema, actualizarImplementoSchema } from '../schema/implementos.schema.js';
-
 // Controlador para crear un implemento
 export const crearImplementoController = async (req, res) => {
   try {
@@ -24,10 +23,10 @@ export const crearImplementoController = async (req, res) => {
     }
 
     const resultado = await crearImplemento(req.body);
-    return res.status(201).json(respondSuccess(req, res, 201, resultado));
+    res.status(201).json(resultado);
   } catch (error) {
     console.error('Error al crear implemento:', error);
-    return res.status(500).json(respondError(req, res, 500, error.message || 'Error interno del servidor'));
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
 
@@ -47,10 +46,10 @@ export const obtenerImplementosController = async (req, res) => {
 export const obtenerImplementoPorIdController = async (req, res) => {
   try {
     const resultado = await obtenerImplementoPorId(req.params.id);
-    return res.status(200).json(respondSuccess(resultado));
+    res.status(200).json(resultado);
   } catch (error) {
     console.error(`Error al obtener implemento con ID ${req.params.id}:`, error);
-    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
 
@@ -63,26 +62,21 @@ export const actualizarImplementoController = async (req, res) => {
     }
 
     const resultado = await actualizarImplemento(req.params.id, req.body);
-    return res.status(200).json(respondSuccess(resultado));
+    res.status(200).json(resultado);
   } catch (error) {
     console.error(`Error al actualizar implemento con ID ${req.params.id}:`, error);
-    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
 
-// Controlador para actualizar parcialmente un implemento
+// Controlador para actualizar un implemento parcialmente
 export const actualizarImplementoParcialController = async (req, res) => {
   try {
-    const { error } = actualizarImplementoSchema.validate(req.body, { allowUnknown: true, stripUnknown: true });
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
-
     const resultado = await actualizarImplementoParcial(req.params.id, req.body);
-    return res.status(200).json(respondSuccess(resultado));
+    res.status(200).json(resultado);
   } catch (error) {
     console.error(`Error al actualizar parcialmente el implemento con ID ${req.params.id}:`, error);
-    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
 
@@ -95,10 +89,11 @@ export const eliminarImplementoController = async (req, res) => {
   }
 
   try {
-    const resultado = await eliminarImplemento(id);
+    const resultado = await eliminarImplemento(req.params.id);
     res.status(200).json(resultado);
   } catch (error) {
-    res.status(404).json({ message: error.message || 'Error al eliminar el implemento.' });
+    console.error(`Error al eliminar implemento con ID ${req.params.id}:`, error);
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
 
@@ -106,21 +101,20 @@ export const eliminarImplementoController = async (req, res) => {
 export const obtenerHistorialImplementoController = async (req, res) => {
   try {
     const resultado = await obtenerHistorialImplemento(req.params.id);
-    return res.status(200).json(respondSuccess(resultado));
+    res.status(200).json(resultado);
   } catch (error) {
     console.error(`Error al obtener el historial de implemento con ID ${req.params.id}:`, error);
-    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
 
-// Controlador para obtener un implemento por nombre
 export const obtenerImplementoPorNombreController = async (req, res) => {
   try {
     const { nombre } = req.params;
     const resultado = await obtenerImplementoPorNombre(nombre);
-    return res.status(200).json(respondSuccess(resultado));
+    res.status(200).json(resultado);
   } catch (error) {
     console.error(`Error al obtener implemento con nombre ${req.params.nombre}:`, error);
-    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
+    res.status(500).json({ message: error.message || 'Error interno del servidor' });
   }
 };
