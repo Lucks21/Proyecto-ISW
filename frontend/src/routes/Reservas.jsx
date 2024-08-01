@@ -25,6 +25,7 @@ export default function Reservas() {
         setHistoricoGrafico(graficoData || []);
       } catch (error) {
         console.error("Error al obtener los datos del gráfico:", error);
+        setHistoricoGrafico([]);
       }
 
       try {
@@ -32,6 +33,7 @@ export default function Reservas() {
         setReservasActivas(activasData || []);
       } catch (error) {
         console.error("Error al obtener las reservas activas:", error);
+        setReservasActivas([]);
       }
 
       try {
@@ -39,6 +41,7 @@ export default function Reservas() {
         setReservasNoActivas(noActivasData || []);
       } catch (error) {
         console.error("Error al obtener las reservas no activas:", error);
+        setReservasNoActivas([]);
       }
 
       try {
@@ -46,6 +49,7 @@ export default function Reservas() {
         setHistoricoTodasReservas(historicoData || []);
       } catch (error) {
         console.error("Error al obtener el historial de reservas:", error);
+        setHistoricoTodasReservas([]);
       }
     })();
   }, []);
@@ -59,7 +63,7 @@ export default function Reservas() {
           </div>
           <div className="flow-root">
             <ul className="divide-y divide-gray-200">
-              {reservasActivas.length > 0 ? (
+              {Array.isArray(reservasActivas) && reservasActivas.length > 0 ? (
                 reservasActivas.map((reserva) => (
                   <li className="py-3 sm:px-4 rounded-md" key={reserva._id}>
                     <div className="flex items-center gap-6">
@@ -105,7 +109,7 @@ export default function Reservas() {
         <div className="w-full">
           <div className="w-full p-4 text-center sm:p-8">
             <h5 className="mb-16 text-3xl font-bold text-gray-900">Historico de Reservas</h5>
-            {historicoGrafico.length > 0 ? (
+            {Array.isArray(historicoGrafico) && historicoGrafico.length > 0 ? (
               <Grafico historico={historicoGrafico} />
             ) : (
               <p className="text-center text-gray-500">No hay datos históricos disponibles.</p>
@@ -121,7 +125,7 @@ export default function Reservas() {
           </div>
           <div className="flow-root">
             <ul className="divide-y divide-gray-200">
-              {reservasNoActivas.length > 0 ? (
+              {Array.isArray(reservasNoActivas) && reservasNoActivas.length > 0 ? (
                 reservasNoActivas.map((reserva) => (
                   <li className="py-3 sm:px-4 rounded-md" key={reserva._id}>
                     <div className="flex items-center gap-6">
@@ -164,7 +168,7 @@ export default function Reservas() {
           </div>
           <div className="flow-root">
             <ul className="divide-y divide-gray-200">
-              {historicoTodasReservas.length > 0 ? (
+              {Array.isArray(historicoTodasReservas) && historicoTodasReservas.length > 0 ? (
                 historicoTodasReservas.map((reserva) => (
                   <li className="py-3 sm:px-4 rounded-md" key={reserva._id}>
                     <div className="flex items-center gap-6">
