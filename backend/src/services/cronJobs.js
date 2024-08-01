@@ -27,7 +27,7 @@ cron.schedule('* * * * *', async () => {
     if (solicitudesImplementos.length > 0) {
       const implementosDisponibles = await Implemento.find({ estado: 'disponible' });
       for (const implemento of implementosDisponibles) {
-        await axios.post(`http://${HOST}:${PORT}/api/notificarimplemento`, 
+        await axios.post(`http://${HOST}:${PORT}/api/notificarImplemento`, 
           { implementoId: implemento._id }, 
           {
             headers: {
@@ -51,7 +51,7 @@ cron.schedule('* * * * *', async () => {
     if (solicitudesInstalaciones.length > 0) {
       const instalacionesDisponibles = await Instalacion.find({ estado: 'disponible' });
       for (const instalacion of instalacionesDisponibles) {
-        await axios.post(`http://${HOST}:${PORT}/api/notificarinstalacion`, 
+        await axios.post(`http://${HOST}:${PORT}/api/notificarInstalacion`, 
           { instalacionId: instalacion._id }, 
           {
             headers: {
