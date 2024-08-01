@@ -25,7 +25,7 @@ export const crearImplementoController = async (req, res) => {
     }
 
     const resultado = await crearImplemento(req.body);
-    return res.status(201).json(respondSuccess(req, res, 201, resultado));
+    return res.status(201).json(respondSuccess(resultado));
   } catch (error) {
     console.error('Error al crear implemento:', error);
     res.status(500).json({ message: error.message || 'Error interno del servidor' });
