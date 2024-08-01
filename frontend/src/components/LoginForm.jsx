@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { login } from "../services/auth.service";
-import { useState } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function LoginForm() {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
 
   const {
     register,
@@ -13,36 +13,24 @@ function LoginForm() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    login(data)
-      .then(() => {
+  const onSubmit = async (data) => {
+    try {
+      const res = await login(data);
+      if (res.error) {
+        toast.error(res.message);
+      } else {
+        toast.success("Inicio de sesión exitoso");
+        localStorage.setItem('user', res.token); // Ajusta según la estructura de tu respuesta
         navigate("/");
-      })
-      .catch((error) => {
-        setError(error.response?.data?.message || "Error al iniciar sesión");
-      });
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error al iniciar sesión");
+    }
   };
 
   return (
     <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 relative">
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-          <strong className="font-bold">Error!</strong>
-          <span className="block sm:inline"> {error}</span>
-          <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
-            <svg
-              className="fill-current h-6 w-6 text-red-500"
-              role="button"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              onClick={() => setError("")}
-            >
-              <title>Close</title>
-              <path d="M14.348 5.652a1 1 0 10-1.414-1.414L10 7.586 7.066 4.652A1 1 0 105.652 6.066L8.586 9l-2.934 2.934a1 1 0 101.414 1.414L10 10.414l2.934 2.934a1 1 0 001.414-1.414L11.414 9l2.934-2.934z" />
-            </svg>
-          </span>
-        </div>
-      )}
+      <ToastContainer />
       <form className="space-y-6 mt-6" onSubmit={handleSubmit(onSubmit)}>
         <h5 className="text-xl font-medium text-gray-900">Inicia sesión</h5>
         <div>
