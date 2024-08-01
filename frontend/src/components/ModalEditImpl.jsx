@@ -12,7 +12,6 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
   const [horario, setHorario] = useState(implemento.horarioDisponibilidad);
   const [showConfirmSave, setShowConfirmSave] = useState(false);
   const [showConfirmCancel, setShowConfirmCancel] = useState(false);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     setHorario(implemento.horarioDisponibilidad);
@@ -81,7 +80,6 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
       toast.success('Implemento actualizado con éxito');
     } catch (error) {
       console.error('Error al actualizar implemento:', error.response?.data?.message || error.message);
-      setError(error.response?.data?.message || error.message);
       toast.error(`Error al actualizar implemento: ${error.response?.data?.message || error.message}`);
     }
   };
@@ -92,7 +90,6 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
       <div className="bg-[#EFF396] p-6 rounded-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Editar Implemento</h2>
-        {error && <div className="text-red-500 mb-4">{error}</div>}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Nombre</label>
           <input
