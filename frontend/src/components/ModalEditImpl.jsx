@@ -18,23 +18,6 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
     setHorario(implemento.horarioDisponibilidad);
   }, [implemento]);
 
-  const validateFields = () => {
-    if (!nombre.trim()) {
-      setError('El nombre es obligatorio');
-      return false;
-    }
-    if (!cantidad || cantidad <= 0) {
-      setError('La cantidad debe ser mayor que 0');
-      return false;
-    }
-    if (horario.some(horario => !horario.inicio || !horario.fin)) {
-      setError('Todos los horarios deben tener horas de inicio y fin válidas');
-      return false;
-    }
-    setError('');
-    return true;
-  };
-
   const handleDiaChange = (e) => {
     const { value, checked } = e.target;
     setDiasDisponibilidad(prevState =>
@@ -55,10 +38,6 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
   };
 
   const handleSubmit = async () => {
-    if (!validateFields()) {
-      return;
-    }
-
     const updatedFields = {};
 
     updatedFields.nombre = nombre || implemento.nombre;

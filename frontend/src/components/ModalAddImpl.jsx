@@ -45,16 +45,13 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
       const result = await response.json();
       if (!response.ok) {
         setError(result.message || 'Error al añadir implemento');
-        toast.error(result.message || 'Error al añadir implemento');
       } else {
         setError('');
         setShowModalAgregar(false);
-        toast.success('Implemento añadido con éxito');
         // Maneja el éxito (e.g., cerrar modal, actualizar datos)
       }
     } catch (err) {
       setError('Error al conectar con el servidor');
-      toast.error('Error al conectar con el servidor');
     }
   };
 
