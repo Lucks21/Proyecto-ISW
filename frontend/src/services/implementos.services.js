@@ -12,8 +12,10 @@ export const getAllImplementos = async () => {
       },
     });
 
-    if (response.status === 200) {
-      return response.data.data; 
+    const { status, data } = response;
+
+    if (status === 200) {
+      return data.data; 
     } else {
       return [];
     }
