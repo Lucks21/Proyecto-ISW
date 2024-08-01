@@ -1,28 +1,26 @@
-import React, { useState, } from 'react';
-import { toast } from 'react-toastify';
-import { addImplemento } from '../services/implementos.services';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import moment from 'moment';
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import { addImplemento } from "../services/implementos.services";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import moment from "moment";
 
 const ModalAddImpl = ({ setShowModalAgregar, fetchImplementos }) => {
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [cantidad, setCantidad] = useState('');
-  const [estado, setEstado] = useState('disponible');
+  const [nombre, setNombre] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [cantidad, setCantidad] = useState("");
+  const [estado, setEstado] = useState("disponible");
   const [fechaAdquisicion, setFechaAdquisicion] = useState(new Date());
-  const [horarioDisponibilidad, setHorarioDisponibilidad] = useState([{ dia: '', inicio: '', fin: '' }]);
-  const [showConfirmSave, setShowConfirmSave] = useState(false);
-  const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+  const [horarioDisponibilidad, setHorarioDisponibilidad] = useState([{ dia: "", inicio: "", fin: "" }]);
 
   const handleAddImplemento = async () => {
     const today = new Date();
     if (fechaAdquisicion > today) {
-      toast.error('La fecha de adquisición no puede ser futura.');
+      toast.error("La fecha de adquisición no puede ser futura.");
       return;
     }
 
-    const formattedFechaAdquisicion = moment(fechaAdquisicion).format('DD-MM-YYYY');
+    const formattedFechaAdquisicion = moment(fechaAdquisicion).format("DD-MM-YYYY");
 
     const implemento = {
       nombre,
@@ -35,7 +33,7 @@ const ModalAddImpl = ({ setShowModalAgregar, fetchImplementos }) => {
 
     try {
       await addImplemento(implemento);
-      toast.success('Implemento agregado con éxito');
+      toast.success("Implemento agregado con éxito");
       fetchImplementos();
       setShowModalAgregar(false);
     } catch (error) {
@@ -46,8 +44,8 @@ const ModalAddImpl = ({ setShowModalAgregar, fetchImplementos }) => {
   const horasCompletas = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 transition-opacity duration-700 ease-out">
-      <div className="bg-[#EFF396] p-6 rounded-lg w-full max-w-md transform transition-transform duration-700 ease-out scale-90">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div className="bg-[#EFF396] p-6 rounded-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Agregar Implemento</h2>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Nombre</label>
@@ -167,7 +165,7 @@ const ModalAddImpl = ({ setShowModalAgregar, fetchImplementos }) => {
             onClick={() =>
               setHorarioDisponibilidad([
                 ...horarioDisponibilidad,
-                { dia: '', inicio: '', fin: '' },
+                { dia: "", inicio: "", fin: "" },
               ])
             }
           >
@@ -177,65 +175,18 @@ const ModalAddImpl = ({ setShowModalAgregar, fetchImplementos }) => {
         <div className="flex justify-end mt-4">
           <button
             className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
-            onClick={() => setShowConfirmSave(true)}
+            onClick={handleAddImplemento}
           >
             Guardar
           </button>
           <button
             className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
-            onClick={() => setShowConfirmCancel(true)}
+            onClick={() => setShowModalAgregar(false)}
           >
             Cancelar
           </button>
         </div>
       </div>
-
-      {showConfirmSave && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 transition-opacity duration-700 ease-out">
-          <div className="bg-white p-6 rounded-lg">
-            <p className="mb-4">¿Está seguro que desea guardar los cambios?</p>
-            <div className="flex justify-end">
-              <button
-                className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
-                onClick={() => {
-                  handleAddImplemento();
-                  setShowConfirmSave(false);
-                }}
-              >
-                Sí
-              </button>
-              <button
-                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
-                onClick={() => setShowConfirmSave(false)}
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showConfirmCancel && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 transition-opacity duration-700 ease-out">
-          <div className="bg-white p-6 rounded-lg">
-            <p className="mb-4">¿Está seguro que desea cancelar los cambios?</p>
-            <div className="flex justify-end">
-              <button
-                className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
-                onClick={() => setShowModalAgregar(false)}
-              >
-                Sí
-              </button>
-              <button
-                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
-                onClick={() => setShowConfirmCancel(false)}
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

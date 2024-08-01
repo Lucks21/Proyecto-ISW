@@ -1,6 +1,8 @@
-import axios from "../services/root.service"; 
+import axios from "../services/root.service"; // Usar el mismo servicio base que `instalaciones.service.js`
 
-const API_URL = 'http://146.83.198.35:1229/api';
+const API_URL = 'http://localhost:3200/api'; // Asegúrate de que esta URL sea correcta
+
+// Obtener todos los implementos
 export const getAllImplementos = async () => {
   try {
     const token = localStorage.getItem("accestkn");
@@ -15,7 +17,7 @@ export const getAllImplementos = async () => {
     const { status, data } = response;
 
     if (status === 200) {
-      return data.data; 
+      return data.data; // Asegúrate de que esta sea la estructura correcta
     } else {
       return [];
     }
@@ -25,6 +27,7 @@ export const getAllImplementos = async () => {
   }
 };
 
+// Añadir un nuevo implemento
 export const addImplemento = async (implemento) => {
   try {
     const token = localStorage.getItem("accestkn");
@@ -43,6 +46,7 @@ export const addImplemento = async (implemento) => {
   }
 };
 
+// Eliminar un implemento por ID
 export const deleteImplementoById = async (id) => {
   try {
     const token = localStorage.getItem("accestkn");
@@ -61,6 +65,7 @@ export const deleteImplementoById = async (id) => {
   }
 };
 
+// Actualizar un implemento por ID
 export const updateImplementoById = async (id, implemento) => {
   try {
     const token = localStorage.getItem("accestkn");
@@ -79,16 +84,18 @@ export const updateImplementoById = async (id, implemento) => {
   }
 };
 
-export const partialUpdateImplemento = async (id, updatedFields) => {
+// Actualizar parcialmente un implemento
+export const partialUpdateImplemento = async (id, fields) => {
   try {
     const token = localStorage.getItem("accestkn");
     if (!token) return null;
 
-    const response = await axios.patch(`${API_URL}/Implementos/actualizarParcial/${id}`, updatedFields, {
+    const response = await axios.patch(`${API_URL}/Implementos/actualizarParcial/${id}`, fields, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
     return response.data;
   } catch (error) {
     console.error('Error al actualizar implemento parcialmente:', error);

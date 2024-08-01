@@ -1,7 +1,5 @@
 import { respondSuccess, respondError } from "../utils/resHandler.js";
 import mongoose from 'mongoose';
-import { respondSuccess, respondError } from "../utils/resHandler.js";
-import mongoose from 'mongoose';
 import {
   crearImplemento,
   obtenerImplementos,
@@ -13,6 +11,7 @@ import {
   obtenerImplementoPorNombre
 } from '../services/implementos.services.js';
 import { implementoSchema, actualizarImplementoSchema } from '../schema/implementos.schema.js';
+
 // Controlador para crear un implemento
 export const crearImplementoController = async (req, res) => {
   try {
@@ -104,6 +103,7 @@ export const obtenerHistorialImplementoController = async (req, res) => {
   }
 };
 
+// Controlador para obtener un implemento por nombre
 export const obtenerImplementoPorNombreController = async (req, res) => {
   try {
     const { nombre } = req.params;

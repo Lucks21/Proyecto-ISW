@@ -201,7 +201,6 @@ export const actualizarImplemento = async (id, datosActualizados) => {
   return { message: 'Implemento actualizado con éxito.', data: implementoActual };
 };
 
-// Servicio para actualizar un implemento parcialmente
 export const actualizarImplementoParcial = async (id, camposActualizados) => {
   try {
     console.log("Campos recibidos para actualizar:", camposActualizados);

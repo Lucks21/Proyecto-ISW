@@ -1,6 +1,6 @@
-import React from 'react';
+import { generateHourlyIntervals } from "../utils/hoursIntervals";
 import { useEffect, useState } from "react";
-import { Datepicker, Toast } from "flowbite-react";
+import { Toast } from "flowbite-react";
 import { reservar, getReservasActivas } from "../services/reservas.service";
 import { getUserByEmail } from "../services/user.service";
 import { HiFire } from "react-icons/hi";
@@ -8,7 +8,6 @@ import { format } from "date-fns";
 import { TailSpin } from "react-loader-spinner";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { generateHourlyIntervals } from "../utils/hoursIntervals";
 
 export default function HoursCard({ imp }) {
   const [hoursIntervalsDays, setHoursIntervalsDays] = useState([]);
@@ -72,6 +71,12 @@ export default function HoursCard({ imp }) {
     setTimeout(() => {
       setShowToast(false);
     }, 5000);
+
+    // Actualiza las reservas activas después de realizar una reserva
+    if (data) {
+      const { data: newReservasActivas } = await getReservasActivas();
+      setReservasActivas(newReservasActivas);
+    }
   };
 
   useEffect(() => {
@@ -94,7 +99,7 @@ export default function HoursCard({ imp }) {
     });
 
     setHoursIntervalsDays(hoursIntervals);
-  }, [imp, selectedDate]);
+  }, [imp, selectedDate, reservasActivas]);
 
   return (
     <>
@@ -120,13 +125,16 @@ export default function HoursCard({ imp }) {
           </h5>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <DatePicker
-            selected={selectedDate}
-            onChange={handleDateChange}
-            minDate={new Date()}
-            dateFormat="dd-MM-yyyy"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-          />
+          <div className="flex items-center gap-2">
+            <DatePicker
+              selected={selectedDate}
+              onChange={handleDateChange}
+              minDate={new Date()}
+              dateFormat="dd-MM-yyyy"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            />
+            <HiFire className="w-6 h-6 text-gray-500" onClick={() => setShowDatePicker(true)} />
+          </div>
           <div className="flex gap-4">
             <div>
               <label
@@ -175,7 +183,7 @@ export default function HoursCard({ imp }) {
                       {horario.hours.map((hour, index) => (
                         <label
                           className={`flex items-center gap-3 border rounded-lg px-1.5 py-0.5 cursor-pointer ${
-                            !hour.disponible ? "bg-red-200" : "bg-green-200"
+                            !hour.disponible ? "bg-red-600 text-white" : "bg-green-200"
                           }`}
                           key={index}
                           onClick={() => handleHourClick(hour.hour)}
