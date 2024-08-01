@@ -1,11 +1,11 @@
 import React, { useState, } from 'react';
 import { toast } from 'react-toastify';
-import { addImplemento } from '../services/implementos.services';
+import { addImplemento, getAllImplementos } from '../services/implementos.services';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
 
-const ModalAddImpl = ({ setShowModalAgregar, fetchImplementos }) => {
+const ModalAddImpl = ({ setShowModalAgregar }) => {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [cantidad, setCantidad] = useState('');
@@ -37,7 +37,8 @@ const ModalAddImpl = ({ setShowModalAgregar, fetchImplementos }) => {
     try {
       await addImplemento(implemento);
       toast.success('Implemento agregado con éxito');
-      fetchImplementos();
+      const implementos = await getAllImplementos();
+      // Aquí deberías actualizar el estado del componente que muestra la lista de implementos con la nueva lista obtenida
       setShowModalAgregar(false);
     } catch (error) {
       if (error.response && error.response.data) {
