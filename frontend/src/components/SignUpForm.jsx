@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { signup } from "../services/auth.service";
+import { signup } from "../services/auth.service"; //MUST HAVE SIGNUP
+import { Button } from "flowbite-react";
 
-function SignUp({ showAlert }) {
+function SignUp() {
   const navigate = useNavigate();
 
   const {
@@ -12,17 +13,12 @@ function SignUp({ showAlert }) {
   } = useForm();
 
   const onSubmit = async (data) => {
-    try {
-      const res = await signup(data);
-      if (res.error) {
-        showAlert("error", res.message);
-      } else {
-        showAlert("success", res.message);
+    signup(data).then((res) => {
+      alert(res.message);
+      if (!res.error) {
         navigate("/");
       }
-    } catch (error) {
-      showAlert("error", "Hubo un error en el registro.");
-    }
+    });
   };
 
   return (

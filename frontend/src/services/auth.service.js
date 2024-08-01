@@ -18,8 +18,10 @@ export const signup = async ({ nombre, rut, email, password }) => {
     }
   } catch (error) {
     console.error(error.response.data);
-    return { error: true, message: error.response.data.error };
-
+    return {
+      message: error.response.data.message,
+      error: error.response.data.error,
+    };
   }
 };
 
