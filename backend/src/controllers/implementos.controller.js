@@ -93,7 +93,7 @@ export const eliminarImplementoController = async (req, res) => {
     return res.status(200).json(respondSuccess(resultado));
   } catch (error) {
     console.error(`Error al eliminar implemento con ID ${req.params.id}:`, error);
-    return res.status500.json(respondError(error.message || 'Error interno del servidor'));
+    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
   }
 };
 
