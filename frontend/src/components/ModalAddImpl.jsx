@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { addImplemento, getAllImplementos } from '../services/implementos.services';
+import { toast } from 'react-toastify';
+import { addImplemento, getAllImplementos } from '../services/implementos.services';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
 import moment from 'moment';
 
+const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
 const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -16,33 +19,37 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
   const [horarioDisponibilidad, setHorarioDisponibilidad] = useState([{ dia: '', inicio: '', fin: '' }]);
   const [errors, setErrors] = useState({});
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch('/api/implementos', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nombre,
-          descripcion,
-          cantidad,
-          estado,
-          fechaAdquisicion,
-          horarioDisponibilidad,
-        }),
-      });
+  const handleAddImplemento = async () => {
+    const today = new Date();
+    if (fechaAdquisicion > today) {
+      toast.error('La fecha de adquisición no puede ser futura.');
+      return;
+    }
 
-      const result = await response.json();
-      if (!response.ok) {
-        setError(result.message || 'Error al añadir implemento');
+    const formattedFechaAdquisicion = moment(fechaAdquisicion).format('DD-MM-YYYY');
+
+    const implemento = {
+      nombre,
+      descripcion,
+      cantidad,
+      estado,
+      fechaAdquisicion: formattedFechaAdquisicion,
+      horarioDisponibilidad,
+    };
+
+    try {
+      await addImplemento(implemento);
+      toast.success('Implemento agregado con éxito');
+      const implementos = await getAllImplementos();
+      setImplementos(implementos); // Actualiza la lista de implementos en el estado
+      setShowModalAgregar(false);
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setErrors(error.response.data.errors || {});
+        toast.error(`Error al agregar implemento: ${error.response.data.message}`);
       } else {
-        setError('');
-        setShowModalAgregar(false);
-        // Maneja el éxito (e.g., cerrar modal, actualizar datos)
+        toast.error('Error al agregar implemento');
       }
-    } catch (err) {
-      setError('Error al conectar con el servidor');
     }
   };
 
@@ -65,6 +72,7 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
             onChange={(e) => setNombre(e.target.value)}
           />
           {errors.nombre && <div className="text-red-500">{errors.nombre}</div>}
+          {errors.nombre && <div className="text-red-500">{errors.nombre}</div>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Descripción</label>
@@ -76,6 +84,7 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
             onChange={(e) => setDescripcion(e.target.value)}
           />
           {errors.descripcion && <div className="text-red-500">{errors.descripcion}</div>}
+          {errors.descripcion && <div className="text-red-500">{errors.descripcion}</div>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Cantidad</label>
@@ -86,6 +95,7 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
             value={cantidad}
             onChange={(e) => setCantidad(e.target.value)}
           />
+          {errors.cantidad && <div className="text-red-500">{errors.cantidad}</div>}
           {errors.cantidad && <div className="text-red-500">{errors.cantidad}</div>}
         </div>
         <div className="mb-4">
@@ -99,6 +109,7 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
             <option value="no disponible">No disponible</option>
           </select>
           {errors.estado && <div className="text-red-500">{errors.estado}</div>}
+          {errors.estado && <div className="text-red-500">{errors.estado}</div>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Fecha de Adquisición</label>
@@ -111,6 +122,7 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
             dateFormat="dd-MM-yyyy"
             className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
           />
+          {errors.fechaAdquisicion && <div className="text-red-500">{errors.fechaAdquisicion}</div>}
           {errors.fechaAdquisicion && <div className="text-red-500">{errors.fechaAdquisicion}</div>}
         </div>
         <div className="mb-4">
@@ -143,6 +155,8 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
               </select>
               {errors[`horarioDisponibilidad.${index}.dia`] && <div className="text-red-500">{errors[`horarioDisponibilidad.${index}.dia`]}</div>}
               <select
+              {errors[`horarioDisponibilidad.${index}.dia`] && <div className="text-red-500">{errors[`horarioDisponibilidad.${index}.dia`]}</div>}
+              <select
                 className="mt-1 block w-1/3 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 value={horario.inicio}
                 onChange={(e) => {
@@ -158,8 +172,33 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
               </select>
               {errors[`horarioDisponibilidad.${index}.inicio`] && <div className="text-red-500">{errors[`horarioDisponibilidad.${index}.inicio`]}</div>}
               <select
+                onChange={(e) => {
+                  const newHorarioDisponibilidad = [...horarioDisponibilidad];
+                  newHorarioDisponibilidad[index].inicio = e.target.value;
+                  setHorarioDisponibilidad(newHorarioDisponibilidad);
+                }}
+              >
+                <option value="">Inicio</option>
+                {horasCompletas.map(hora => (
+                  <option key={hora} value={hora}>{hora}</option>
+                ))}
+              </select>
+              {errors[`horarioDisponibilidad.${index}.inicio`] && <div className="text-red-500">{errors[`horarioDisponibilidad.${index}.inicio`]}</div>}
+              <select
                 className="mt-1 block w-1/3 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 value={horario.fin}
+                onChange={(e) => {
+                  const newHorarioDisponibilidad = [...horarioDisponibilidad];
+                  newHorarioDisponibilidad[index].fin = e.target.value;
+                  setHorarioDisponibilidad(newHorarioDisponibilidad);
+                }}
+              >
+                <option value="">Fin</option>
+                {horasCompletas.map(hora => (
+                  <option key={hora} value={hora}>{hora}</option>
+                ))}
+              </select>
+              {errors[`horarioDisponibilidad.${index}.fin`] && <div className="text-red-500">{errors[`horarioDisponibilidad.${index}.fin`]}</div>}
                 onChange={(e) => {
                   const newHorarioDisponibilidad = [...horarioDisponibilidad];
                   newHorarioDisponibilidad[index].fin = e.target.value;
@@ -220,11 +259,59 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
           <button
             className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
             onClick={() => setShowConfirmCancel(true)}
+            onClick={() => setShowConfirmCancel(true)}
           >
             Cancelar
           </button>
         </div>
       </div>
+
+      {showConfirmSave && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 transition-opacity duration-700 ease-out">
+          <div className="bg-white p-6 rounded-lg">
+            <p className="mb-4">¿Está seguro que desea guardar los cambios?</p>
+            <div className="flex justify-end">
+              <button
+                className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+                onClick={() => {
+                  handleAddImplemento();
+                  setShowConfirmSave(false);
+                }}
+              >
+                Sí
+              </button>
+              <button
+                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
+                onClick={() => setShowConfirmSave(false)}
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showConfirmCancel && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 transition-opacity duration-700 ease-out">
+          <div className="bg-white p-6 rounded-lg">
+            <p className="mb-4">¿Está seguro que desea cancelar los cambios?</p>
+            <div className="flex justify-end">
+              <button
+                className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+                onClick={() => setShowModalAgregar(false)}
+              >
+                Sí
+              </button>
+              <button
+                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
+                onClick={() => setShowConfirmCancel(false)}
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showConfirmSave && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 transition-opacity duration-700 ease-out">
