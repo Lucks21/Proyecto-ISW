@@ -16,42 +16,32 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
   const [horarioDisponibilidad, setHorarioDisponibilidad] = useState([{ dia: '', inicio: '', fin: '' }]);
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleHorarioChange = (index, field, value) => {
-    const newHorarios = [...formData.horarioDisponibilidad];
-    newHorarios[index][field] = value;
-    setFormData({ ...formData, horarioDisponibilidad: newHorarios });
-  };
-
-  const addHorario = () => {
-    setFormData({
-      ...formData,
-      horarioDisponibilidad: [...formData.horarioDisponibilidad, { dia: 'Lunes', inicio: '00:00', fin: '00:00' }],
-    });
-  };
-
-  const removeHorario = (index) => {
-    const newHorarios = formData.horarioDisponibilidad.filter((_, i) => i !== index);
-    setFormData({ ...formData, horarioDisponibilidad: newHorarios });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
-      const token = localStorage.getItem('accestkn');
-      const response = await axios.post('/implementos/crear', formData, {
+      const response = await fetch('/api/implementos', {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          nombre,
+          descripcion,
+          cantidad,
+          estado,
+          fechaAdquisicion,
+          horarioDisponibilidad,
+        }),
       });
-      console.log(response.data);
-      onClose();
-    } catch (error) {
-      console.error('Error al agregar implemento:', error);
+
+      const result = await response.json();
+      if (!response.ok) {
+        setError(result.message || 'Error al añadir implemento');
+      } else {
+        setError('');
+        setShowModalAgregar(false);
+        // Maneja el éxito (e.g., cerrar modal, actualizar datos)
+      }
+    } catch (err) {
       setError('Error al conectar con el servidor');
     }
   };
