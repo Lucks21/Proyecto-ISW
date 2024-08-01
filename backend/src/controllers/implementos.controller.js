@@ -24,10 +24,10 @@ export const crearImplementoController = async (req, res) => {
     }
 
     const resultado = await crearImplemento(req.body);
-    return res.status(201).json(respondSuccess(resultado));
+    return res.status(201).json(respondSuccess(req, res, 201, resultado));
   } catch (error) {
     console.error('Error al crear implemento:', error);
-    return res.status(500).json(respondError(error.message || 'Error interno del servidor'));
+    return res.status(500).json(respondError(req, res, 500, error.message || 'Error interno del servidor'));
   }
 };
 
