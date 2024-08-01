@@ -38,7 +38,7 @@ const ModalAddImpl = ({ setShowModalAgregar, setImplementos }) => {
       await addImplemento(implemento);
       toast.success('Implemento agregado con éxito');
       const implementos = await getAllImplementos();
-      setImplementos(implementos); 
+      setImplementos(implementos); // Actualiza la lista de implementos en el estado
       setShowModalAgregar(false);
     } catch (error) {
       if (error.response && error.response.data) {
