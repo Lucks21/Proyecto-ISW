@@ -1,13 +1,13 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3200/api';
+const API_URL = 'http://146.83.198.35:1229/api';
 
 const instance = axios.create({
   baseURL: API_URL,
 });
 
 instance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token'); // Asegúrate de que la clave coincida con la utilizada en auth.service.js
+  const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

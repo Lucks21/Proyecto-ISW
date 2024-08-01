@@ -1,7 +1,6 @@
 import axios from "../services/root.service"; 
 
-const API_URL = 'http://localhost:3200/api';
-
+const API_URL = 'http://146.83.198.35:1229/api';
 export const getAllImplementos = async () => {
   try {
     const token = localStorage.getItem("accestkn");
