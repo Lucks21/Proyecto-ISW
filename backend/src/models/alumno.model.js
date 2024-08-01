@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const alumnoSchema = new mongoose.Schema({
   nombre: {
     type: String,
-    //required: [true, 'El nombre es obligatorio'],
+    required: [true, 'El nombre es obligatorio'],
     trim: true,// esto es para eliminar los espacios en blanco al principio y al final
     minlength: [3, 'El nombre debe tener al menos 3 caracteres'],
     maxlength: [50, 'El nombre no puede exceder los 50 caracteres']
