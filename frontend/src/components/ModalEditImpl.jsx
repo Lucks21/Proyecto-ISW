@@ -3,7 +3,7 @@ import { partialUpdateImplemento, getAllImplementos } from '../services/implemen
 import { toast } from 'react-toastify';
 import moment from 'moment';
 
-const ModalEditImpl = ({ implemento, setShowModalEditar }) => {
+const ModalEditImpl = ({ implemento, setShowModalEditar, setImplementos }) => {
   const [nombre, setNombre] = useState(implemento.nombre || '');
   const [descripcion, setDescripcion] = useState(implemento.descripcion || '');
   const [cantidad, setCantidad] = useState(implemento.cantidad || '');
@@ -73,10 +73,9 @@ const ModalEditImpl = ({ implemento, setShowModalEditar }) => {
     }
 
     try {
-      console.log('Actualizando implemento con los siguientes campos:', updatedFields);
       const response = await partialUpdateImplemento(implemento._id, updatedFields);
-      console.log('Respuesta del servidor:', response.data);
       const implementos = await getAllImplementos();
+      setImplementos(implementos); // Actualiza la lista de implementos en el estado
       setShowModalEditar(false);
       toast.success('Implemento actualizado con éxito');
     } catch (error) {
