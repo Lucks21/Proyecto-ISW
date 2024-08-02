@@ -94,7 +94,9 @@ export default function Implementos() {
                     </th>
                     <td className="px-6 py-4">{imp.cantidad}</td>
                     <td className="px-6 py-4">{imp.descripcion}</td>
-                    <td className="px-6 py-4">{imp.estado}</td>
+                    <td className={`px-6 py-4 ${imp.estado === 'disponible' ? 'text-green-600' : 'text-red-600'}`}>
+                      {imp.estado}
+                    </td>
                     <td className="px-6 py-4 text-right flex gap-2">
                       <button
                         className="px-3 py-2 text-xs font-medium text-center text-white bg-sky-600 hover:bg-sky-700 focus:ring-4 focus:ring-sky-300 focus:outline-none rounded-lg"

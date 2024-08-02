@@ -25,14 +25,13 @@ export const getAllInstalaciones = async () => {
   }
 };
 
-export const partialUpdateInstalacion = async (instalacionId, data) => {
+// Actualizar parcialmente una instalación
+export const partialUpdateInstalacion = async (id, fields) => {
   try {
     const token = localStorage.getItem("accestkn");
-    if (!token) return;
+    if (!token) return null;
 
-    const URL = `/instalaciones/actualizarParcial/${instalacionId}`;
-
-    const response = await axios.patch(URL, data, {
+    const response = await axios.patch(`/instalaciones/actualizarParcial/${id}`, fields, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -40,7 +39,7 @@ export const partialUpdateInstalacion = async (instalacionId, data) => {
 
     return response.data;
   } catch (error) {
-    console.log(error);
+    console.error('Error al actualizar instalación parcialmente:', error);
     throw error;
   }
 };

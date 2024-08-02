@@ -41,8 +41,8 @@ const ModalDisableDays = ({ setShowModalDisableDays, handleSaveDisabledDay }) =>
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
-      <div className="bg-[#EFF396] p-6 rounded-lg shadow-lg w-full max-w-md">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div className="bg-[#EFF396] p-6 rounded-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Deshabilitar Día</h2>
         <input
           type="date"
