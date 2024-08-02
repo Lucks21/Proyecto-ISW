@@ -2,25 +2,6 @@ import React from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import { transformData } from "../utils/tranformDataToChart";
 
-const data1 = {
-  "pelotas de mamutt2": 1,
-  "raquetas de futbol": 1,
-  "pelotas dfdfdffd": 2,
-  pelotas: 2,
-  "pelotas sddsssssssla": 4,
-  "implemento de prueba": 1,
-};
-
-const data2 = {
-  prueba6: 1,
-  "sala de pesas": 2,
-  "cancha de tenis 2": 2,
-  "sala de futbol 3": 2,
-};
-
-const totalReservas1 = 18; // Agrega tu total de reservas aquí
-const totalReservas2 = 18; // Agrega tu total de reservas aquí
-
 const renderCustomizedLabel = ({
   cx,
   cy,
@@ -60,10 +41,11 @@ export default function Grafico({ historico }) {
     reservasPorInstalacion,
     totalReservas
   );
+
   return (
-<div className="flex items-center justify-around">
-      <div className="chart-container">
-        <h3 className="text-base text-gray-500 sm:text-lg ">
+    <div className="flex items-center justify-around">
+      <div className="chart-container bg-white p-4 rounded-lg shadow">
+        <h3 className="text-base text-gray-500 sm:text-lg">
           Reservas por Implemento
         </h3>
         <PieChart width={400} height={400}>
@@ -85,8 +67,8 @@ export default function Grafico({ historico }) {
           <Legend />
         </PieChart>
       </div>
-      <div className="chart-container">
-        <h3 className="text-base text-gray-500 sm:text-lg ">
+      <div className="chart-container bg-white p-4 rounded-lg shadow">
+        <h3 className="text-base text-gray-500 sm:text-lg">
           Reservas por Instalación
         </h3>
         <PieChart width={400} height={400}>
