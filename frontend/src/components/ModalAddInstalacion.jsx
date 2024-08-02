@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { addInstalacion } from "../services/instalaciones.service";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import moment from 'moment';
+import moment from "moment";
 
 const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
   const [nombre, setNombre] = useState("");
@@ -13,13 +13,34 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
   const [fechaAdquisicion, setFechaAdquisicion] = useState(new Date());
   const [horarioDisponibilidad, setHorarioDisponibilidad] = useState([{ dia: "", inicio: "", fin: "" }]);
 
+  const validateFields = () => {
+    const errors = {};
+    const nombreRegex = /^[a-zA-Z0-9\s-_]+$/;
+    
+    if (!nombre.trim()) {
+      errors.nombre = "El nombre es requerido";
+    } else if (!nombreRegex.test(nombre) || !/[a-zA-Z]/.test(nombre)) {
+      errors.nombre = "El nombre solo puede contener letras, números, guiones, guiones bajos y espacios, y debe incluir letras";
+    }
+    if (!descripcion.trim()) errors.descripcion = "La descripción es requerida";
+    if (!capacidad || isNaN(capacidad) || capacidad <= 0) errors.capacidad = "La capacidad debe ser un número positivo";
+
+    if (Object.keys(errors).length > 0) {
+      Object.values(errors).forEach((error) => toast.error(error));
+      return false;
+    }
+    return true;
+  };
+
   const handleAddInstalacion = async () => {
+    if (!validateFields()) return;
+
     const today = new Date();
     if (fechaAdquisicion > today) {
       toast.error("La fecha de adquisición no puede ser futura.");
       return;
     }
-    const formattedFechaAdquisicion = moment(fechaAdquisicion).format('DD-MM-YYYY');
+    const formattedFechaAdquisicion = moment(fechaAdquisicion).format("DD-MM-YYYY");
     const instalacion = {
       nombre,
       descripcion,
@@ -39,7 +60,7 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
     }
   };
 
-  const horasCompletas = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+  const horasCompletas = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}:00`);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
@@ -174,7 +195,7 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
         </div>
         <div className="flex justify-end mt-4">
           <button
-            className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+            className="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
             onClick={handleAddInstalacion}
           >
             Guardar
