@@ -1,6 +1,5 @@
-import axios from "../services/root.service"; // Usar el mismo servicio base que `instalaciones.service.js`
+import axios from "../services/root.service"; 
 
-const API_URL = 'http://localhost:3200/api'; // Asegúrate de que esta URL sea correcta
 
 // Obtener todos los implementos
 export const getAllImplementos = async () => {
@@ -8,7 +7,7 @@ export const getAllImplementos = async () => {
     const token = localStorage.getItem("accestkn");
     if (!token) return [];
 
-    const response = await axios.get(`${API_URL}/Implementos/obtener`, {
+    const response = await axios.get(`/Implementos/obtener`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -17,13 +16,14 @@ export const getAllImplementos = async () => {
     const { status, data } = response;
 
     if (status === 200) {
-      return data.data; // Asegúrate de que esta sea la estructura correcta
-    } else {
-      return [];
+      return data.data;
     }
   } catch (error) {
-    console.error('Error al obtener implementos:', error);
-    return [];
+    console.log(error);
+    return {
+      message: error.response.data.message,
+      error: error.response.data.error,
+    };
   }
 };
 
@@ -33,7 +33,7 @@ export const addImplemento = async (implemento) => {
     const token = localStorage.getItem("accestkn");
     if (!token) return null;
 
-    const response = await axios.post(`${API_URL}/Implementos/crear`, implemento, {
+    const response = await axios.post(`/Implementos/crear`, implemento, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -52,7 +52,7 @@ export const deleteImplementoById = async (id) => {
     const token = localStorage.getItem("accestkn");
     if (!token) return null;
 
-    const response = await axios.delete(`${API_URL}/Implementos/eliminar/${id}`, {
+    const response = await axios.delete(`/Implementos/eliminar/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -71,7 +71,7 @@ export const updateImplementoById = async (id, implemento) => {
     const token = localStorage.getItem("accestkn");
     if (!token) return null;
 
-    const response = await axios.put(`${API_URL}/Implementos/actualizarTodo/${id}`, implemento, {
+    const response = await axios.put(`/Implementos/actualizarTodo/${id}`, implemento, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -90,7 +90,7 @@ export const partialUpdateImplemento = async (id, fields) => {
     const token = localStorage.getItem("accestkn");
     if (!token) return null;
 
-    const response = await axios.patch(`${API_URL}/Implementos/actualizarParcial/${id}`, fields, {
+    const response = await axios.patch(`/Implementos/actualizarParcial/${id}`, fields, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
