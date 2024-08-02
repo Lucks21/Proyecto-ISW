@@ -44,31 +44,30 @@ export default function ModificarReserva() {
   const handleClickExtender = async (reservaId, fechaFin) => {
     const date = new Date(fechaFin);
 
-    const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-    localDate.setHours(localDate.getHours() + 1, 0, 0, 0);  // Set to the next full hour
+    // Adelantar una hora
+    const localDate = new Date(
+      date.getTime() + date.getTimezoneOffset() * 60000
+    );
+    // Adelantar una hora
+    localDate.setHours(localDate.getHours() + 1);
 
+    // Obtener los componentes de la fecha
     const day = String(localDate.getDate()).padStart(2, "0");
-    const month = String(localDate.getMonth() + 1).padStart(2, "0");
+    const month = String(localDate.getMonth() + 1).padStart(2, "0"); // Los meses en JavaScript son de 0 a 11
     const year = localDate.getFullYear();
+
+    // Obtener los componentes de la hora
     const hours = String(localDate.getHours()).padStart(2, "0");
-
-    const nuevaFechaFin = {
-      fecha: `${day}-${month}-${year}`,
-      hora: `${hours}:00`,
+    const minutes = String(localDate.getMinutes()).padStart(2, "0");
+    const payload = {
+      reservaId,
+      nuevaFechaFin: {
+        fecha: `${day}-${month}-${year}`,
+        hora: `${hours}:${minutes}`,
+      },
     };
-
-    const { status } = await extenderReserva(reservaId, nuevaFechaFin);
-
-    if (status === 200) {
-      const { data: incomingReservasActivas } = await getReservasActivasByuserId(user.id);
-      const sortedReservations = sortReservationsByDate(incomingReservasActivas);
-      setReservasActivas(sortedReservations);
-      toast.success("Reserva extendida con éxito");
-    } else {
-      toast.error("Hubo un error extendiendo la reserva");
-    }
+    console.log(payload);
   };
-
   const showConfirmationModal = (message, action) => {
     setConfirmMessage(message);
     setConfirmAction(() => action);
@@ -134,9 +133,7 @@ export default function ModificarReserva() {
                               Hasta:
                             </span>
                             {formatDate(reserva.fechaFin)} ,{" "}
-                            {`${
-                              parseInt(formatTime(reserva.fechaInicio).split(":")[0]) + 1
-                            }:00`}
+                            {formatTime(reserva.fechaFin)}
                           </p>
                         </div>
                         <div className="inline-flex items-center text-base font-semibold text-gray-900 gap-2">

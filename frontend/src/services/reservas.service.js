@@ -235,6 +235,7 @@ export const extenderReserva = async (reservaId, nuevaFechaFin) => {
   }
 };
 
+
 export const getImplementosReservados = async () => {
   try {
     const token = localStorage.getItem("accestkn");
