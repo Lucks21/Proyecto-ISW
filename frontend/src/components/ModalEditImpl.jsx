@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { partialUpdateImplemento } from '../services/implementos.services';
 import { toast } from 'react-toastify';
-import { Modal, Box, TextField, Button, Checkbox, FormControlLabel, FormGroup, Grid, Select, MenuItem, InputLabel, FormControl, Typography } from '@mui/material';
 
 const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => {
   const [nombre, setNombre] = useState(implemento.nombre || '');
@@ -37,7 +36,6 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
   const handleSubmit = async () => {
     const updatedFields = {};
 
-    // Añadir los campos actuales si no han sido modificados
     updatedFields.nombre = nombre || implemento.nombre;
     updatedFields.descripcion = descripcion || implemento.descripcion;
     updatedFields.cantidad = cantidad || implemento.cantidad;
@@ -52,12 +50,10 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
       };
     });
 
-    // Solo añadir el horario si ha sido modificado
     if (JSON.stringify(updatedHorario) !== JSON.stringify(implemento.horarioDisponibilidad)) {
       updatedFields.horarioDisponibilidad = updatedHorario;
     }
 
-    // Validar que todos los días tengan horas de inicio y fin válidas
     const horariosValidos = updatedFields.horarioDisponibilidad
       ? updatedFields.horarioDisponibilidad.every(h => h.inicio && h.fin)
       : true;
@@ -80,126 +76,108 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
   };
 
   return (
-    <Modal
-      open={true}
-      onClose={() => setShowModalEditar(false)}
-      aria-labelledby="modal-title"
-      aria-describedby="modal-description"
-    >
-      <Box sx={style}>
-        <Typography id="modal-title" variant="h6" component="h2">
-          Editar Implemento
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <TextField
-              label="Nombre"
-              fullWidth
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="bg-black opacity-50 absolute inset-0"></div>
+      <div className="bg-white rounded-lg shadow-lg p-6 relative z-10 w-96">
+        <h2 className="text-xl font-bold mb-4">Editar Implemento</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-gray-700">Nombre</label>
+            <input
+              type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Descripción"
-              fullWidth
+          </div>
+          <div>
+            <label className="block text-gray-700">Descripción</label>
+            <input
+              type="text"
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Cantidad"
+          </div>
+          <div>
+            <label className="block text-gray-700">Cantidad</label>
+            <input
               type="number"
-              fullWidth
               value={cantidad}
               onChange={(e) => setCantidad(Number(e.target.value))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
-          </Grid>
-          <Grid item xs={12}>
-            <FormControl fullWidth>
-              <InputLabel>Estado</InputLabel>
-              <Select
-                value={estado}
-                onChange={(e) => setEstado(e.target.value)}
-              >
-                <MenuItem value="disponible">Disponible</MenuItem>
-                <MenuItem value="no disponible">No Disponible</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="subtitle1">Días de Disponibilidad:</Typography>
-            <FormGroup row>
+          </div>
+          <div>
+            <label className="block text-gray-700">Estado</label>
+            <select
+              value={estado}
+              onChange={(e) => setEstado(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="disponible">Disponible</option>
+              <option value="no disponible">No Disponible</option>
+            </select>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">Días de Disponibilidad:</h3>
+            <div className="flex flex-wrap -mx-2">
               {['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'].map((dia) => (
-                <FormControlLabel
-                  key={dia}
-                  control={
-                    <Checkbox
-                      value={dia}
-                      checked={diasDisponibilidad.includes(dia)}
-                      onChange={handleDiaChange}
-                    />
-                  }
-                  label={dia.charAt(0).toUpperCase() + dia.slice(1)}
-                />
+                <div key={dia} className="flex items-center mx-2">
+                  <input
+                    type="checkbox"
+                    value={dia}
+                    checked={diasDisponibilidad.includes(dia)}
+                    onChange={handleDiaChange}
+                    className="mr-2"
+                  />
+                  <label className="capitalize">{dia}</label>
+                </div>
               ))}
-            </FormGroup>
-          </Grid>
+            </div>
+          </div>
           {diasDisponibilidad.map(dia => (
-            <Grid container spacing={2} key={dia}>
-              <Grid item xs={6}>
-                <TextField
-                  label={`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Inicio`}
-                  type="time"
-                  fullWidth
-                  value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.inicio || ''}
-                  onChange={(e) => handleHorarioChange(dia, 'inicio', e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  inputProps={{
-                    step: 3600, // 1 hora
-                  }}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  label={`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Fin`}
-                  type="time"
-                  fullWidth
-                  value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.fin || ''}
-                  onChange={(e) => handleHorarioChange(dia, 'fin', e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  inputProps={{
-                    step: 3600, // 1 hora
-                  }}
-                />
-              </Grid>
-            </Grid>
+            <div key={dia} className="space-y-2">
+              <div className="flex space-x-4">
+                <div className="flex-1">
+                  <label className="block text-gray-700">{`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Inicio`}</label>
+                  <input
+                    type="time"
+                    value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.inicio || ''}
+                    onChange={(e) => handleHorarioChange(dia, 'inicio', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-gray-700">{`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Fin`}</label>
+                  <input
+                    type="time"
+                    value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.fin || ''}
+                    onChange={(e) => handleHorarioChange(dia, 'fin', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+            </div>
           ))}
-          <Grid item xs={12} style={{ marginTop: 20 }}>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>Guardar</Button>
-            <Button variant="outlined" color="secondary" onClick={() => setShowModalEditar(false)} style={{ marginLeft: 10 }}>Cancelar</Button>
-          </Grid>
-        </Grid>
-      </Box>
-    </Modal>
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={handleSubmit}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md"
+            >
+              Guardar
+            </button>
+            <button
+              onClick={() => setShowModalEditar(false)}
+              className="px-4 py-2 border border-gray-300 rounded-md"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-};
-
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  boxShadow: 24,
-  p: 4,
-  borderRadius: 2,
 };
 
 export default ModalEditImpl;

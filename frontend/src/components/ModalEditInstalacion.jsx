@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { partialUpdateInstalacion } from '../services/instalaciones.service';
 import { toast } from 'react-toastify';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 
 const ModalEditInstalacion = ({ instalacion, setShowModalEditar, fetchInstalaciones }) => {
   const [nombre, setNombre] = useState(instalacion.nombre || '');
@@ -12,7 +9,6 @@ const ModalEditInstalacion = ({ instalacion, setShowModalEditar, fetchInstalacio
   const [estado, setEstado] = useState(instalacion.estado || '');
   const [diasDisponibilidad, setDiasDisponibilidad] = useState(instalacion.horarioDisponibilidad.map(h => h.dia.toLowerCase()));
   const [horario, setHorario] = useState(instalacion.horarioDisponibilidad);
-
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -49,6 +45,8 @@ const ModalEditInstalacion = ({ instalacion, setShowModalEditar, fetchInstalacio
       const diaHorario = horario.find(h => h.dia.toLowerCase() === dia.toLowerCase());
       if (!diaHorario || !diaHorario.inicio || !diaHorario.fin) {
         newErrors[dia] = 'Debe proporcionar horas de inicio y fin válidas';
+      } else if (diaHorario.fin <= diaHorario.inicio) {
+        newErrors[dia] = `La hora de inicio (${diaHorario.inicio}) no puede ser mayor o igual que la hora de fin (${diaHorario.fin}) para el día ${dia.charAt(0).toUpperCase() + dia.slice(1)}.`;
       }
     });
 
@@ -58,7 +56,9 @@ const ModalEditInstalacion = ({ instalacion, setShowModalEditar, fetchInstalacio
 
   const handleSubmit = async () => {
     if (!validateFields()) {
-      toast.error('Por favor, corrija los errores en el formulario');
+      Object.values(errors).forEach(error => {
+        toast.error(error);
+      });
       return;
     }
 
@@ -99,7 +99,7 @@ const ModalEditInstalacion = ({ instalacion, setShowModalEditar, fetchInstalacio
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-      <div className="bg-[#EFF396] p-6 rounded-lg w-full max-w-md">
+      <div className="bg-white p-6 rounded-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Editar Instalación</h2>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Nombre</label>
@@ -148,76 +148,63 @@ const ModalEditInstalacion = ({ instalacion, setShowModalEditar, fetchInstalacio
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Días de Disponibilidad:</label>
-          <FormGroup row>
+          <div className="flex flex-wrap -mx-2">
             {['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'].map((dia) => (
-              <FormControlLabel
-                key={dia}
-                control={
-                  <Checkbox
-                    value={dia}
-                    checked={diasDisponibilidad.includes(dia)}
-                    onChange={handleDiaChange}
-                  />
-                }
-                label={dia.charAt(0).toUpperCase() + dia.slice(1)}
-              />
+              <div key={dia} className="flex items-center mx-2">
+                <input
+                  type="checkbox"
+                  value={dia}
+                  checked={diasDisponibilidad.includes(dia)}
+                  onChange={handleDiaChange}
+                  className="mr-2"
+                />
+                <label className="capitalize">{dia}</label>
+              </div>
             ))}
-          </FormGroup>
-          {diasDisponibilidad.map(dia => (
-            <div className="flex items-center space-x-2 mb-2" key={dia}>
-              <select
-                className="mt-1 block w-1/3 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.inicio || ''}
-                onChange={(e) => handleHorarioChange(dia, 'inicio', e.target.value)}
-              >
-                <option value="">Inicio</option>
-                {horasCompletas.map(hora => (
-                  <option key={hora} value={hora}>{hora}</option>
-                ))}
-              </select>
-              <select
-                className="mt-1 block w-1/3 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.fin || ''}
-                onChange={(e) => handleHorarioChange(dia, 'fin', e.target.value)}
-              >
-                <option value="">Fin</option>
-                {horasCompletas.map(hora => (
-                  <option key={hora} value={hora}>{hora}</option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2.5 py-1.5"
-                onClick={() => {
-                  setDiasDisponibilidad(diasDisponibilidad.filter(d => d !== dia));
-                  setHorario(horario.filter(h => h.dia.toLowerCase() !== dia.toLowerCase()));
-                }}
-              >
-                Eliminar
-              </button>
-              {errors[dia] && <p className="text-red-500 text-xs mt-1">{errors[dia]}</p>}
-            </div>
-          ))}
-          <button
-            type="button"
-            className="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 mt-2"
-            onClick={() => {
-              setDiasDisponibilidad([...diasDisponibilidad, '']);
-              setHorario([...horario, { dia: '', inicio: '', fin: '' }]);
-            }}
-          >
-            Añadir Horario
-          </button>
+          </div>
         </div>
-        <div className="flex justify-end mt-4">
+        {diasDisponibilidad.map(dia => (
+          <div key={dia} className="space-y-2">
+            <div className="flex space-x-4">
+              <div className="flex-1">
+                <label className="block text-gray-700">{`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Inicio`}</label>
+                <select
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.inicio || ''}
+                  onChange={(e) => handleHorarioChange(dia, 'inicio', e.target.value)}
+                >
+                  <option value="">Inicio</option>
+                  {horasCompletas.map(hora => (
+                    <option key={hora} value={hora}>{hora}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="block text-gray-700">{`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Fin`}</label>
+                <select
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.fin || ''}
+                  onChange={(e) => handleHorarioChange(dia, 'fin', e.target.value)}
+                >
+                  <option value="">Fin</option>
+                  {horasCompletas.map(hora => (
+                    <option key={hora} value={hora}>{hora}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {errors[dia] && <p className="text-red-500 text-xs mt-1">{errors[dia]}</p>}
+          </div>
+        ))}
+        <div className="flex justify-end mt-4 space-x-2">
           <button
-            className="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700"
             onClick={handleSubmit}
           >
             Guardar
           </button>
           <button
-            className="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2"
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700"
             onClick={() => setShowModalEditar(false)}
           >
             Cancelar
