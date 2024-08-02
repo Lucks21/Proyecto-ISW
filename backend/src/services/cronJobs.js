@@ -8,7 +8,7 @@ import Notificacion from '../models/notificaciones.model.js';
 cron.schedule('* * * * *', async () => {
   console.log('Cron job ejecutándose: Revisando reservas expiradas...');
   try {
-    const response = await axios.get(`http://${HOST}:${PORT}/api/finalizarReservasExpiradas`, {
+    const response = await axios.get(`http://${HOST}:1229/api/finalizarReservasExpiradas`, {
       headers: {
         'cron-secret': CRON_SECRET
       }
@@ -27,7 +27,7 @@ cron.schedule('* * * * *', async () => {
     if (solicitudesImplementos.length > 0) {
       const implementosDisponibles = await Implemento.find({ estado: 'disponible' });
       for (const implemento of implementosDisponibles) {
-        await axios.post(`http://${HOST}:${PORT}/api/notificarImplemento`, 
+        await axios.post(`http://${HOST}:1229/api/notificarImplemento`, 
           { implementoId: implemento._id }, 
           {
             headers: {
@@ -51,7 +51,7 @@ cron.schedule('* * * * *', async () => {
     if (solicitudesInstalaciones.length > 0) {
       const instalacionesDisponibles = await Instalacion.find({ estado: 'disponible' });
       for (const instalacion of instalacionesDisponibles) {
-        await axios.post(`http://${HOST}:${PORT}/api/notificarInstalacion`, 
+        await axios.post(`http://${HOST}:1229/api/notificarInstalacion`, 
           { instalacionId: instalacion._id }, 
           {
             headers: {
