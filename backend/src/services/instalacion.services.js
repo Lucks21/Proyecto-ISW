@@ -209,6 +209,11 @@ export const actualizarInstalacionParcial = async (id, datosActualizados) => {
     datosActualizados.descripcion = normalizarTexto(datosActualizados.descripcion);
   }
 
+  // Validar que no haya días duplicados ni horarios solapados
+  if (datosActualizados.horarioDisponibilidad) {
+    validarHorarios(datosActualizados.horarioDisponibilidad);
+  }
+
   const modificaciones = [];
   for (let clave in datosActualizados) {
     if (datosActualizados[clave] !== instalacionActual[clave]) {
@@ -263,6 +268,7 @@ export const obtenerHistorialInstalacion = async (id) => {
 
   return { message: 'Historial obtenido con éxito.', data: historial };
 };
+
 export const obtenerInstalacionPorNombre = async (nombre) => {
   const instalacion = await Instalacion.findOne({ nombre });
   if (!instalacion) {
