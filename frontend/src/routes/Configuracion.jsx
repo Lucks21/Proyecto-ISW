@@ -47,7 +47,7 @@ const Configuracion = () => {
           Deshabilitar Días
         </button>
       </div>
-      <div className="bg-[#EFF396] p-6 rounded-lg shadow-md">
+      <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-4">Días Deshabilitados</h2>
         <ul className="space-y-4">
           {disabledDays.map((day) => (

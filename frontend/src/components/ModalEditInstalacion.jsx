@@ -198,7 +198,7 @@ const ModalEditInstalacion = ({ instalacion, setShowModalEditar, fetchInstalacio
         ))}
         <div className="flex justify-end mt-4 space-x-2">
           <button
-            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700"
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700"
             onClick={handleSubmit}
           >
             Guardar

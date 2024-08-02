@@ -9,6 +9,7 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
   const [estado, setEstado] = useState(implemento.estado || '');
   const [diasDisponibilidad, setDiasDisponibilidad] = useState(implemento.horarioDisponibilidad.map(h => h.dia.toLowerCase()));
   const [horario, setHorario] = useState(implemento.horarioDisponibilidad);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     setHorario(implemento.horarioDisponibilidad);
@@ -33,15 +34,42 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
     });
   };
 
+  const validateFields = () => {
+    const newErrors = {};
+    if (!nombre.trim()) newErrors.nombre = 'El nombre es requerido';
+    if (!descripcion.trim()) newErrors.descripcion = 'La descripción es requerida';
+    if (!cantidad || isNaN(cantidad) || cantidad <= 0) newErrors.cantidad = 'La cantidad debe ser un número positivo';
+    if (!estado.trim()) newErrors.estado = 'El estado es requerido';
+
+    diasDisponibilidad.forEach(dia => {
+      const diaHorario = horario.find(h => h.dia.toLowerCase() === dia.toLowerCase());
+      if (!diaHorario || !diaHorario.inicio || !diaHorario.fin) {
+        newErrors[dia] = 'Debe proporcionar horas de inicio y fin válidas';
+      } else if (diaHorario.fin <= diaHorario.inicio) {
+        newErrors[dia] = `La hora de inicio (${diaHorario.inicio}) no puede ser mayor o igual que la hora de fin (${diaHorario.fin}) para el día ${dia.charAt(0).toUpperCase() + dia.slice(1)}.`;
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async () => {
-    const updatedFields = {};
+    if (!validateFields()) {
+      Object.values(errors).forEach(error => {
+        toast.error(error);
+      });
+      return;
+    }
 
-    updatedFields.nombre = nombre || implemento.nombre;
-    updatedFields.descripcion = descripcion || implemento.descripcion;
-    updatedFields.cantidad = cantidad || implemento.cantidad;
-    updatedFields.estado = estado || implemento.estado;
+    const updatedFields = {
+      nombre,
+      descripcion,
+      cantidad,
+      estado,
+    };
 
-    const updatedHorario = diasDisponibilidad.map(dia => {
+    let updatedHorario = diasDisponibilidad.map(dia => {
       const diaHorario = horario.find(h => h.dia.toLowerCase() === dia.toLowerCase()) || {};
       return {
         dia,
@@ -54,126 +82,133 @@ const ModalEditImpl = ({ implemento, setShowModalEditar, fetchImplementos }) => 
       updatedFields.horarioDisponibilidad = updatedHorario;
     }
 
-    const horariosValidos = updatedFields.horarioDisponibilidad
-      ? updatedFields.horarioDisponibilidad.every(h => h.inicio && h.fin)
-      : true;
-
-    if (!horariosValidos) {
-      toast.error('Por favor, asegúrese de que todos los días tengan horas de inicio y fin válidas');
-      return;
-    }
-
     try {
+      console.log('Actualizando implemento con los siguientes campos:', updatedFields);
       const response = await partialUpdateImplemento(implemento._id, updatedFields);
       console.log('Respuesta del servidor:', response.data);
       fetchImplementos();
       setShowModalEditar(false);
       toast.success('Implemento actualizado con éxito');
     } catch (error) {
-      console.error('Error al actualizar implemento:', error.response.data.message);
-      toast.error(`Error al actualizar implemento: ${error.response.data.message}`);
+      console.error('Error al actualizar implemento:', error.response?.data?.message || error.message);
+      toast.error(`Error al actualizar implemento: ${error.response?.data?.message || error.message}`);
     }
   };
 
+  const horasCompletas = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-black opacity-50 absolute inset-0"></div>
-      <div className="bg-white rounded-lg shadow-lg p-6 relative z-10 w-96">
-        <h2 className="text-xl font-bold mb-4">Editar Implemento</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-gray-700">Nombre</label>
-            <input
-              type="text"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-md max-h-screen overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-4">Editar Implemento</h2>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Nombre</label>
+          <input
+            type="text"
+            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            placeholder="Nombre"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+          {errors.nombre && <p className="text-red-500 text-xs mt-1">{errors.nombre}</p>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Descripción</label>
+          <input
+            type="text"
+            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            placeholder="Descripción"
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+          />
+          {errors.descripcion && <p className="text-red-500 text-xs mt-1">{errors.descripcion}</p>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Cantidad</label>
+          <input
+            type="number"
+            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            placeholder="Cantidad"
+            value={cantidad}
+            onChange={(e) => setCantidad(e.target.value)}
+          />
+          {errors.cantidad && <p className="text-red-500 text-xs mt-1">{errors.cantidad}</p>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Estado</label>
+          <select
+            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            value={estado}
+            onChange={(e) => setEstado(e.target.value)}
+          >
+            <option value="disponible">Disponible</option>
+            <option value="no disponible">No disponible</option>
+          </select>
+          {errors.estado && <p className="text-red-500 text-xs mt-1">{errors.estado}</p>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Días de Disponibilidad:</label>
+          <div className="flex flex-wrap -mx-2">
+            {['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'].map((dia) => (
+              <div key={dia} className="flex items-center mx-2">
+                <input
+                  type="checkbox"
+                  value={dia}
+                  checked={diasDisponibilidad.includes(dia)}
+                  onChange={handleDiaChange}
+                  className="mr-2"
+                />
+                <label className="capitalize">{dia}</label>
+              </div>
+            ))}
           </div>
-          <div>
-            <label className="block text-gray-700">Descripción</label>
-            <input
-              type="text"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Cantidad</label>
-            <input
-              type="number"
-              value={cantidad}
-              onChange={(e) => setCantidad(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Estado</label>
-            <select
-              value={estado}
-              onChange={(e) => setEstado(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="disponible">Disponible</option>
-              <option value="no disponible">No Disponible</option>
-            </select>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold">Días de Disponibilidad:</h3>
-            <div className="flex flex-wrap -mx-2">
-              {['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'].map((dia) => (
-                <div key={dia} className="flex items-center mx-2">
-                  <input
-                    type="checkbox"
-                    value={dia}
-                    checked={diasDisponibilidad.includes(dia)}
-                    onChange={handleDiaChange}
-                    className="mr-2"
-                  />
-                  <label className="capitalize">{dia}</label>
-                </div>
-              ))}
-            </div>
-          </div>
-          {diasDisponibilidad.map(dia => (
-            <div key={dia} className="space-y-2">
-              <div className="flex space-x-4">
-                <div className="flex-1">
-                  <label className="block text-gray-700">{`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Inicio`}</label>
-                  <input
-                    type="time"
-                    value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.inicio || ''}
-                    onChange={(e) => handleHorarioChange(dia, 'inicio', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-gray-700">{`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Fin`}</label>
-                  <input
-                    type="time"
-                    value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.fin || ''}
-                    onChange={(e) => handleHorarioChange(dia, 'fin', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  />
-                </div>
+        </div>
+        {diasDisponibilidad.map(dia => (
+          <div key={dia} className="space-y-2">
+            <div className="flex space-x-4">
+              <div className="flex-1">
+                <label className="block text-gray-700">{`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Inicio`}</label>
+                <select
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.inicio || ''}
+                  onChange={(e) => handleHorarioChange(dia, 'inicio', e.target.value)}
+                >
+                  <option value="">Inicio</option>
+                  {horasCompletas.map(hora => (
+                    <option key={hora} value={hora}>{hora}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="block text-gray-700">{`${dia.charAt(0).toUpperCase() + dia.slice(1)} - Fin`}</label>
+                <select
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  value={horario.find(h => h.dia.toLowerCase() === dia.toLowerCase())?.fin || ''}
+                  onChange={(e) => handleHorarioChange(dia, 'fin', e.target.value)}
+                >
+                  <option value="">Fin</option>
+                  {horasCompletas.map(hora => (
+                    <option key={hora} value={hora}>{hora}</option>
+                  ))}
+                </select>
               </div>
             </div>
-          ))}
-          <div className="flex justify-end space-x-4">
-            <button
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md"
-            >
-              Guardar
-            </button>
-            <button
-              onClick={() => setShowModalEditar(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md"
-            >
-              Cancelar
-            </button>
+            {errors[dia] && <p className="text-red-500 text-xs mt-1">{errors[dia]}</p>}
           </div>
+        ))}
+        <div className="flex justify-end mt-4 space-x-2">
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700"
+            onClick={handleSubmit}
+          >
+            Guardar
+          </button>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700"
+            onClick={() => setShowModalEditar(false)}
+          >
+            Cancelar
+          </button>
         </div>
       </div>
     </div>
