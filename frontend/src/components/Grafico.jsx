@@ -61,9 +61,9 @@ export default function Grafico({ historico }) {
     totalReservas
   );
   return (
-    <div className="flex items-center justify-around">
-      <div className="grafico-container">
-        <h3 className="text-base text-gray-500 sm:text-lg">
+<div className="flex items-center justify-around">
+      <div className="chart-container">
+        <h3 className="text-base text-gray-500 sm:text-lg ">
           Reservas por Implemento
         </h3>
         <PieChart width={400} height={400}>
@@ -85,8 +85,8 @@ export default function Grafico({ historico }) {
           <Legend />
         </PieChart>
       </div>
-      <div className="grafico-container">
-        <h3 className="text-base text-gray-500 sm:text-lg">
+      <div className="chart-container">
+        <h3 className="text-base text-gray-500 sm:text-lg ">
           Reservas por Instalación
         </h3>
         <PieChart width={400} height={400}>
