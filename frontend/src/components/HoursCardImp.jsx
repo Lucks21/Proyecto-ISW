@@ -133,7 +133,7 @@ export default function HoursCard({ imp }) {
               dateFormat="dd-MM-yyyy"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             />
-            <HiFire className="w-6 h-6 text-gray-500" onClick={() => setShowDatePicker(true)} />
+
           </div>
           <div className="flex gap-4">
             <div>
