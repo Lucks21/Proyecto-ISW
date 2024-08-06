@@ -5,9 +5,12 @@ import { reservar, getReservasActivas } from "../services/reservas.service";
 import { getUserByEmail } from "../services/user.service";
 import { HiFire } from "react-icons/hi";
 import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { TailSpin } from "react-loader-spinner";
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker, { registerLocale } from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+registerLocale("es", es);
 
 export default function HoursCard({ imp }) {
   const [hoursIntervalsDays, setHoursIntervalsDays] = useState([]);
@@ -132,8 +135,8 @@ export default function HoursCard({ imp }) {
               minDate={new Date()}
               dateFormat="dd-MM-yyyy"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+              locale="es"
             />
-
           </div>
           <div className="flex gap-4">
             <div>
