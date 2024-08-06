@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { addInstalacion } from "../services/instalaciones.service";
-import DatePicker from "react-datepicker";
+import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
+import { es } from "date-fns/locale"; // Importa el idioma español
+
+// Registra el idioma español
+registerLocale("es", es);
 
 const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
   const [nombre, setNombre] = useState("");
@@ -131,6 +135,7 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
             placeholderText="Fecha de Adquisición"
             dateFormat="dd-MM-yyyy"
             className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            locale="es" // Aplica el idioma español
           />
         </div>
         <div className="mb-4">
@@ -163,7 +168,7 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
                 }}
               >
                 <option value="">Inicio</option>
-                {horasCompletas.map(hora => (
+                {horasCompletas.map((hora) => (
                   <option key={hora} value={hora}>{hora}</option>
                 ))}
               </select>
@@ -177,7 +182,7 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
                 }}
               >
                 <option value="">Fin</option>
-                {horasCompletas.map(hora => (
+                {horasCompletas.map((hora) => (
                   <option key={hora} value={hora}>{hora}</option>
                 ))}
               </select>
