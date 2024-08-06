@@ -15,7 +15,7 @@ body, html {
 }
 
 .header-footer-bg {
-  height: 100px;
+  height: 1000px;
   background-color: var(--azul_claro); /* Fondo celeste para header y footer */
 }
 
