@@ -1,5 +1,8 @@
-export default function ModalHistorial({ historial, setShowModalHistorial }) {
+import React from 'react';
+
+export default function ModalHistorial({ historial = [], setShowModalHistorial }) {
   console.log(historial);
+
   return (
     <div
       id="default-modal"
@@ -37,48 +40,50 @@ export default function ModalHistorial({ historial, setShowModalHistorial }) {
             </button>
           </div>
           <div className="p-4 md:p-5">
-            <ul className="divide-y divide-gray-200 ">
-              {historial.map((item) => (
-                <li key={item._id} className="p-4">
-                  <div className="flex gap-2">
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
-                      {" "}
-                      Campo:{" "}
-                    </span>{" "}
-                    <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
-                      {" "}
-                      {item.campo}{" "}
-                    </span>
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
-                      Fecha:{" "}
-                    </span>{" "}
-                    <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
-                      {item.fecha}
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <div>
-                      <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 roundeds">
-                        Valor Anterior:{" "}
+            <ul className="divide-y divide-gray-200">
+              {historial.length === 0 ? (
+                <li className="p-4 text-center text-gray-500">No hay historial disponible</li>
+              ) : (
+                historial.map((item) => (
+                  <li key={item._id} className="p-4">
+                    <div className="flex gap-2">
+                      <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                        Campo:
                       </span>
-                      {Array.isArray(item.valorAnterior) ? (
-                        item.valorAnterior.map((valor) => (
-                          <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
-                            {valor.dia},{" "}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
-                          {item.valorAnterior}
-                        </span>
-                      )}
+                      <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                        {item.campo}
+                      </span>
+                      <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                        Fecha:
+                      </span>
+                      <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                        {item.fecha}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
                       <div>
-                        <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 roundeds">
-                          Valor Nuevo:{" "}
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                          Valor Anterior:
+                        </span>
+                        {Array.isArray(item.valorAnterior) ? (
+                          item.valorAnterior.map((valor) => (
+                            <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded" key={valor.dia}>
+                              {valor.dia},{" "}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                            {item.valorAnterior}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                          Valor Nuevo:
                         </span>
                         {Array.isArray(item.valorNuevo) ? (
                           item.valorNuevo.map((valor) => (
-                            <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
+                            <span className="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded" key={valor.dia}>
                               {valor.dia},{" "}
                             </span>
                           ))
@@ -89,9 +94,9 @@ export default function ModalHistorial({ historial, setShowModalHistorial }) {
                         )}
                       </div>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                ))
+              )}
             </ul>
           </div>
           <div className="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">

@@ -16,15 +16,19 @@ import {
 
 // Controlador para crear una instalación
 export const crearInstalacionController = async (req, res) => {
+  console.log("Datos recibidos del frontend:", req.body); // Log de datos recibidos del frontend
   const { error } = crearInstalacionSchema.validate(req.body);
   if (error) {
+    console.error("Errores de validación:", error.details[0].message); // Log de errores de validación
     return res.status(400).json({ message: error.details[0].message });
   }
 
   try {
     const resultado = await crearInstalacion(req.body);
+    console.log("Instalación creada:", resultado); // Log de la creación exitosa
     res.status(201).json(resultado);
   } catch (error) {
+    console.error("Error al crear la instalación:", error.message); // Log de errores en la creación
     res.status(500).json({ message: error.message || 'Error al crear la instalación.' });
   }
 };
@@ -76,6 +80,7 @@ export const actualizarInstalacionController = async (req, res) => {
   }
 };
 
+// Controlador para actualizar parcialmente una instalación
 export const actualizarInstalacionParcialController = async (req, res) => {
   const { id } = req.params;
   const { error: idError } = idSchema.validate(id);
@@ -91,7 +96,7 @@ export const actualizarInstalacionParcialController = async (req, res) => {
   try {
     console.log('Recibiendo datos en el backend:', req.body);
     const resultado = await actualizarInstalacionParcial(id, req.body);
-    console.log('Datos después de la actualización:', resultado.data);
+    console.log('Datos después de la actualización:', resultado);
     res.status(200).json(resultado);
   } catch (error) {
     res.status(404).json({ message: error.message || 'Error al actualizar parcialmente la instalación.' });

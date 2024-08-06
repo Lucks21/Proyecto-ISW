@@ -87,7 +87,9 @@ const Instalaciones = () => {
                   </th>
                   <td className="px-6 py-4">{inst.capacidad}</td>
                   <td className="px-6 py-4">{inst.descripcion}</td>
-                  <td className="px-6 py-4">{inst.estado}</td>
+                  <td className={`px-6 py-4 font-medium ${inst.estado === 'disponible' ? 'text-green-600' : 'text-red-600'}`}>
+                    {inst.estado}
+                  </td>
                   <td className="px-6 py-4 text-right flex gap-2">
                     <button
                       className="px-3 py-2 text-xs font-medium text-center text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-300 focus:outline-none rounded-lg"

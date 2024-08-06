@@ -1,5 +1,4 @@
-import axios from "../services/root.service"; 
-
+import axios from "../services/root.service";
 
 // Obtener todos los implementos
 export const getAllImplementos = async () => {
@@ -24,6 +23,24 @@ export const getAllImplementos = async () => {
       message: error.response.data.message,
       error: error.response.data.error,
     };
+  }
+};
+
+export const getHistorialImplemento = async (id) => {
+  try {
+    const token = localStorage.getItem("accestkn");
+    if (!token) return [];
+
+    const response = await axios.get(`/Implementos/historial/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data || [];
+  } catch (error) {
+    console.error('Error al obtener el historial del implemento:', error);
+    return [];
   }
 };
 

@@ -16,7 +16,7 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
   const validateFields = () => {
     const errors = {};
     const nombreRegex = /^[a-zA-Z0-9\s-_]+$/;
-    
+
     if (!nombre.trim()) {
       errors.nombre = "El nombre es requerido";
     } else if (!nombreRegex.test(nombre) || !/[a-zA-Z]/.test(nombre)) {
@@ -24,6 +24,21 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
     }
     if (!descripcion.trim()) errors.descripcion = "La descripción es requerida";
     if (!capacidad || isNaN(capacidad) || capacidad <= 0) errors.capacidad = "La capacidad debe ser un número positivo";
+
+    horarioDisponibilidad.forEach((horario, index) => {
+      if (!horario.dia) {
+        errors[`dia-${index}`] = "Debe seleccionar un día";
+      }
+      if (!horario.inicio) {
+        errors[`inicio-${index}`] = "Debe proporcionar una hora de inicio";
+      }
+      if (!horario.fin) {
+        errors[`fin-${index}`] = "Debe proporcionar una hora de fin";
+      }
+      if (horario.fin <= horario.inicio) {
+        errors[`fin-${index}`] = `La hora de inicio (${horario.inicio}) no puede ser mayor o igual que la hora de fin (${horario.fin}) para el día ${horario.dia}.`;
+      }
+    });
 
     if (Object.keys(errors).length > 0) {
       Object.values(errors).forEach((error) => toast.error(error));
@@ -56,7 +71,7 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
       fetchInstalaciones();
       setShowModalAgregar(false);
     } catch (error) {
-      toast.error(`Error al agregar instalación: ${error.response.data.message}`);
+      toast.error(`Error al agregar instalación: ${error.message || 'Error desconocido'}`);
     }
   };
 
@@ -137,8 +152,6 @@ const ModalAddInstalacion = ({ setShowModalAgregar, fetchInstalaciones }) => {
                 <option value="miercoles">Miércoles</option>
                 <option value="jueves">Jueves</option>
                 <option value="viernes">Viernes</option>
-                <option value="sabado">Sábado</option>
-                <option value="domingo">Domingo</option>
               </select>
               <select
                 className="mt-1 block w-1/3 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
